@@ -2029,7 +2029,7 @@ function renderHome() {
   </div>
   <div class="card">
     <h3 style="margin:0 0 6px">ملخص يومي</h3>
-    ${shown.map(x => `<div class="count hrow"><span class="hlbl">${x.p ? miniRing(...x.p(g)) : ""}<span>${ico(x.ic)} ${x.t()}</span></span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.v(g)}</b>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</span></div>`).join("")}
+    ${shown.map(x => `<div class="count hrow"><span class="hlbl" data-hgo="${x.go}" style="cursor:pointer">${x.p ? miniRing(...x.p(g)) : ""}<span>${ico(x.ic)} ${x.t()}</span></span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.p ? "" : x.v(g)}</b>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</span></div>`).join("")}
     ${shown.length ? "" : `<p class="mid">لا عناصر — أضيفي ما تريدين متابعته.</p>`}
     ${rest.length ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${rest.map(x => `<button class="btn sec sm" data-hadd="${x.id}">＋ ${x.t()}</button>`).join("")}</div>` : ""}
   </div>`;

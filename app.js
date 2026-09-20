@@ -2002,14 +2002,13 @@ function fridayCard() {
 const HOME_ITEMS = [
   { id: "umrah", t: () => "العمرة — الخطوة الحالية", ic: "kaaba", v: () => esc(STAGES[Math.min(S.stage, STAGES.length - 1)].t), go: "umrah" },
   { id: "hajj", t: () => "الحج — الخطوة الحالية", ic: "hajj", v: () => esc(HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)].t), go: "hajj" },
-  { id: "ask", t: () => "اسألني", ic: "chat", v: () => "اكتبي حالتك لتحصلي على آيات وأدعية", go: "ask" },
   { id: "quran", t: () => "الورد اليومي", ic: "quran", v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
   { id: "adhkar", t: () => "الأذكار", ic: "beads", v: g => `${AR(g.sd)} من ${AR(g.st)} منجزة`, go: "adhkar" },
   { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", v: g => `${AR(g.dh)} من ${AR(g.dgoal)}`, go: "tadabbur" },
   { id: "jadwal", t: () => "جدولي", ic: "clock", v: () => { const a = JAD.active(); const on = DUA_TIMES.filter(x => JAD.isOn(x.id)).length; return (a.length ? "الآن: " + esc(a[0].t) + " · " : "") + `${AR(on)} أوقات مفعّلة`; }, go: "tadabbur" },
   { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
 ];
-const HOME = { fixed: ["quran", "adhkar", "tasbih"], def: ["umrah", "jadwal", "ask"], list() { return [...this.fixed, ...DB.get("homeItems", this.def).filter(i => !this.fixed.includes(i) && i !== "rite")]; }, set(l) { DB.set("homeItems", l.filter(i => !this.fixed.includes(i))); } };
+const HOME = { fixed: ["quran", "adhkar", "tasbih"], def: ["umrah", "jadwal"], list() { return [...this.fixed, ...DB.get("homeItems", this.def).filter(i => !this.fixed.includes(i) && i !== "rite" && i !== "ask")]; }, set(l) { DB.set("homeItems", l.filter(i => !this.fixed.includes(i))); } };
 function renderHome() {
   const v = document.getElementById("v-home"); if (!v) return;
   const g = SUM.progress();

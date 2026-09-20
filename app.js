@@ -1803,7 +1803,7 @@ function renderSettings() {
   const q = id => document.getElementById(id);
   q("acPhoto").onchange = e => { const f = e.target.files[0]; if (!f) return; const img = new Image(); const rd = new FileReader(); rd.onload = () => { img.onload = () => { const c = document.createElement("canvas"); c.width = c.height = 128; const x = c.getContext("2d"); const m = Math.min(img.width, img.height); x.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 128, 128); DB.set("acct", Object.assign(account(), { photo: c.toDataURL("image/jpeg", .8) })); drawAvatar(); renderSettings(); }; img.src = rd.result; }; rd.readAsDataURL(f); };
   const pd = q("acPhotoDel"); if (pd) pd.onclick = () => { const a2 = account(); delete a2.photo; DB.set("acct", a2); drawAvatar(); renderSettings(); };
-  q("acSave").onclick = () => { DB.set("acct", Object.assign(account(), { name: q("acName").value.trim(), email: q("acMail").value.trim(), phone: q("acPhone").value.trim() })); notify("تم الحفظ", ""); drawAvatar(); renderSettings(); };
+  q("acSave").onclick = () => { DB.set("acct", Object.assign(account(), { name: q("acName").value.trim(), email: q("acMail").value.trim(), phone: q("acPhone").value.trim() })); notify("تم الحفظ", ""); drawAvatar(); if (!q("acName").value.trim()) { renderSettings(); return; } DB.set("onboarded", true); go("home"); };
   q("locTog").onclick = () => {
     if (loc) { DB.set("loc", false); GPS.stop(); }
     else { DB.set("loc", true); GPS.start(); SKY.locate(true); }
@@ -1996,7 +1996,10 @@ function renderHome() {
 /* ============ تشغيل التطبيق ============ */
 document.querySelectorAll("[data-ico]").forEach(i => { i.outerHTML = ico(i.dataset.ico); });
 const HASH_V = location.hash.slice(1);
-go(HASH_V && RENDER[HASH_V] ? HASH_V : DB.get("view", "home"));
+const FIRST_RUN = !DB.get("onboarded", false) && !String(account().name || "").trim();
+if (!FIRST_RUN) DB.set("onboarded", true);
+go(FIRST_RUN ? "settings" : (HASH_V && RENDER[HASH_V] ? HASH_V : DB.get("view", "home")));
+if (FIRST_RUN) notify("أهلاً بك في قانتون", "أدخلي اسمك ورقم هاتفك ثم «حفظ» للدخول");
 if (DB.get("loc", false)) { GPS.start(); SKY.locate(true); }
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(r => { r.update().catch(() => { }); }).catch(() => { });

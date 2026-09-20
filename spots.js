@@ -6,10 +6,10 @@ const KAABA_PLAN = `
   <text x="170" y="14" font-size="10" fill="#8a97a3" text-anchor="middle">شمال ↑</text>
   <!-- مسار الطواف: عكس اتجاه الساعة والكعبة عن يسار الطائف -->
   <circle cx="170" cy="165" r="128" fill="none" stroke="#cfd9e2" stroke-width="2" stroke-dasharray="6 6"/>
-  <path d="M90 258 A 128 128 0 0 1 60 210" fill="none" stroke="#2f6f9e" stroke-width="2.5"/>
-  <path d="M60 210 l -3 13 l 11 -6 z" fill="#2f6f9e"/>
+  <path d="M296 208 A 128 128 0 0 0 110 55" fill="none" stroke="#2f6f9e" stroke-width="3"/>
+  <path d="M110 55 L123.4 54.7 L117.8 44.1 Z" fill="#2f6f9e"/>
   <text x="62" y="282" font-size="10" fill="#2f6f9e" text-anchor="middle">اتجاه الطواف</text>
-  <text x="62" y="294" font-size="9" fill="#8a97a3" text-anchor="middle">الكعبة عن يسارك</text>
+  <text x="62" y="294" font-size="9" fill="#8a97a3" text-anchor="middle">عكس عقارب الساعة — الكعبة عن يسارك</text>
   <!-- حِجر إسماعيل: قوس ملاصق للضلع الشمالي الغربي (بين الركن الشامي والعراقي) -->
   <path d="M170 107 A 41 41 0 0 0 112 165 Z" fill="#eef4f8" stroke="#9db6c8" stroke-width="3"/>
   <text x="70" y="84" font-size="11" fill="#245a83" text-anchor="middle">حِجر إسماعيل</text>

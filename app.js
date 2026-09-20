@@ -148,7 +148,6 @@ const STAGES = [
     <p>النيّة محلّها القلب: تعزم على أداء العمرة لله وحده. ولا يُتلفَّظ بالإحرام الآن، بل عند الميقات.</p>
     ${D("«إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى»", "البخاري ١، مسلم ١٩٠٧")}
     ${D("﴿وَأَتِمُّوا الْحَجَّ وَالْعُمْرَةَ لِلَّهِ﴾", "البقرة ١٩٦", "ق")}
-    ${D("اللَّهُمَّ إِنِّي أُرِيدُ الْعُمْرَةَ فَيَسِّرْهَا لِي وَتَقَبَّلْهَا مِنِّي", "بمعنى ما ورد عند الإحرام؛ يُدعى به بلا نسبة للنبي ﷺ", "م")}
     <div class="note">ردّ الحقوق والمظالم والتوبة قبل السفر، والخروج بمال حلال — «العُمرة إلى العُمرة كفّارة لما بينهما» (البخاري ومسلم).</div>` },
   { t: "الخروج من المنزل", icon: "🏠", kind: "info", secs: ["home"], html: `
     ${D("بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", "أبو داود ٥٠٩٥، الترمذي ٣٤٢٦ — صحيح: «يُقال له: هُديت وكُفيت ووُقيت»")}
@@ -163,12 +162,14 @@ const STAGES = [
     <ul style="font-size:14px">
       <li>الاغتسال والتطيّب في البدن (لا في الثياب) — فعله النبي ﷺ (مسلم ١١٨٩، البخاري ١٥٣٩).</li>
       <li>الرجل يلبس إزاراً ورداءً أبيضين ونعلين؛ والمرأة تلبس ما شاءت من غير زينة ولا نقاب ولا قفّازين (البخاري ١٨٣٨).</li>
-      <li>إن كان وقت فريضة صلّاها ثم أحرم بعدها؛ ولا صلاة مخصوصة للإحرام.</li>
+      <li>يصلّي ركعتين إن تيسّر — فريضة الوقت إن حانت، أو سنة الوضوء — ثم يُحرم بعدها؛ ولا صلاة مخصوصة باسم الإحرام.</li>
       <li>مواقيت: ذو الحُلَيفة لأهل المدينة، الجُحفة (رابغ) لأهل الشام ومصر والمغرب، قرن المنازل (السيل الكبير) لأهل نجد والخليج، يَلَمْلَم لأهل اليمن (البخاري ١٥٢٤). في الطائرة يُحرم قبل محاذاة الميقات بقليل.</li>
       <li>ثم يعقد النيّة بقلبه ويتلفّظ:</li>
     </ul>
     ${D("لَبَّيْكَ اللَّهُمَّ عُمْرَةً", "مسلم ١١٨٤، البخاري ١٥٥١ — التلفّظ بالنُّسك عند الإحرام")}
-    ${D("اللَّهُمَّ مَحِلِّي حَيْثُ حَبَسْتَنِي", "البخاري ٥٠٨٩، مسلم ١٢٠٧ — لمن خاف عائقاً (مرض أو منع) فيشترط عند الإحرام")}
+    <div class="note">الاشتراط: لمن خاف عائقاً من مرض أو منع، يقوله مرةً واحدة عند عقد الإحرام بعد التلفّظ بالنُّسك؛ قال النبي ﷺ لضُباعة بنت الزبير: «حُجّي واشترطي، وقولي: اللهم محلّي حيث حبستني» — البخاري ٥٠٨٩، مسلم ١٢٠٧. وفائدته: إن حُبس تحلّل بلا هدي.</div>
+    ${D("اللَّهُمَّ مَحِلِّي حَيْثُ حَبَسْتَنِي", "البخاري ٥٠٨٩، مسلم ١٢٠٧")}
+    ${D("فَإِنْ حَبَسَنِي حَابِسٌ فَمَحِلِّي حَيْثُ حَبَسْتَنِي", "النسائي ٢٧٦٦ — لفظٌ آخر للاشتراط")}
     <div class="note">من هنا تبدأ محظورات الإحرام: قصّ الشعر والأظفار، الطيب، عقد النكاح، الصيد، تغطية الرأس للرجل، ولبس المخيط المُفصَّل له.</div>` },
   { t: "التلبية — من الميقات إلى بدء الطواف", icon: "📣", kind: "info", html: `
     ${D(TALBIYA, "البخاري ١٥٤٩، مسلم ١١٨٤ — تلبية النبي ﷺ")}
@@ -235,11 +236,13 @@ const HAJJ_STAGES = [
     <div class="src">حديث جابر في صفة حجة النبي ﷺ (مسلم ١٢١٨)؛ حديث عائشة (البخاري ١٥٦٢).</div>` },
   { t: "الإحرام من الميقات (للقارن والمفرد)", icon: "👕", kind: "info", html: `
     <ul style="font-size:14px">
-      <li>الاغتسال والتطيّب في البدن، ولبس الإزار والرداء، ثم النيّة والتلفّظ بالنُّسك:</li>
+      <li>عند الوصول إلى الميقات (أو محاذاته في الطائرة): الاغتسال والتطيّب في البدن، ولبس الإزار والرداء، وركعتان إن تيسّر، ثم يعقد النيّة بقلبه ويتلفّظ بالنُّسك — ولا تلبية قبل ذلك:</li>
     </ul>
     ${D("لَبَّيْكَ اللَّهُمَّ حَجًّا", "مسلم ١٢١٨ — للمفرد")}
     ${D("لَبَّيْكَ اللَّهُمَّ عُمْرَةً وَحَجًّا", "مسلم ١٢٣٢ — للقارن")}
-    ${D("اللَّهُمَّ مَحِلِّي حَيْثُ حَبَسْتَنِي", "البخاري ٥٠٨٩، مسلم ١٢٠٧ — الاشتراط لمن خاف عائقاً")}
+    <div class="note">الاشتراط: لمن خاف عائقاً، يقوله مرةً واحدة عند عقد الإحرام بعد التلفّظ بالنُّسك؛ لحديث ضُباعة «حُجّي واشترطي» — البخاري ٥٠٨٩، مسلم ١٢٠٧.</div>
+    ${D("اللَّهُمَّ مَحِلِّي حَيْثُ حَبَسْتَنِي", "البخاري ٥٠٨٩، مسلم ١٢٠٧")}
+    ${D("فَإِنْ حَبَسَنِي حَابِسٌ فَمَحِلِّي حَيْثُ حَبَسْتَنِي", "النسائي ٢٧٦٦ — لفظٌ آخر للاشتراط")}
     <div class="note">القادم بالحج وحده أو قارناً يطوف طواف القدوم ويسعى سعي الحج عند قدومه مكة، ولا يتحلّل. أمّا المتمتّع فهذه الخطوة لا تخصّه؛ اضغط «التالي».</div>` },
   { t: "٨ ذو الحجة — يوم التروية (منى)", icon: "⛺", kind: "info", html: `
     <ul style="font-size:14px">
@@ -320,7 +323,6 @@ function renderUmrah() {
       ${D("﴿رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ﴾", "البقرة ٢٠١ — أبو داود ١٨٩٢، صحّحه الألباني", "ق")}
       <ul style="font-size:14px"><li>الطواف من وراء حِجر إسماعيل (فهو من البيت)، ويكون البيت عن يسارك، وكل شوط يبدأ وينتهي بالحجر الأسود.</li>
       <li>ما عدا ذلك: ذكر ودعاء مطلق بما شئت وقراءة قرآن؛ ولم يثبت عن النبي ﷺ دعاء مخصوص لكل شوط (وهو قول جمهور أهل العلم).</li></ul></div>`;
-    duas += booklet(["tawaf_intro"]);
   }
   if (st.kind === "saee") {
     duas += `<div class="card"><h3>الثابت في السعي</h3><ul style="font-size:14px">
@@ -335,7 +337,6 @@ function renderUmrah() {
       <li>ما بينهما: ذكر ودعاء مطلق بلا تخصيص؛ ومما ورد عن ابن عمر وابن مسعود رضي الله عنهما:</li></ul>
       ${D("رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ", "أثر عن ابن مسعود وابن عمر (ابن أبي شيبة، البيهقي) — موقوف؛ لا يُنسب للنبي ﷺ", "م")}
       <div class="note">لم يثبت دعاء مخصوص لكل شوط من السعي، وهو قول جمهور أهل العلم.</div></div>`;
-    duas += booklet(["saee_intro", "saee_end"]);
   }
   if (st.secs) duas += booklet(st.secs);
 
@@ -380,7 +381,7 @@ function renderUmrah() {
     else { S.saee = Math.max(0, Math.min(7, S.saee + delta)); if (delta > 0) S.saeeAt = S.saeeAt === "safa" ? "marwa" : "safa"; }
     renderUmrah();
   });
-  v.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => openPicker(b.dataset.pick, +b.dataset.sh));
+  v.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => openPicker(b.dataset.pick, +b.dataset.sh, { filter: riteLibFilter }));
 }
 const KAABA3D = `<div class="kaabaWrap"><div class="shadow"></div><div class="kaaba">
   <div class="f fr"><i class="belt"></i><i class="studs"></i><i class="curtain"></i><i class="base"></i></div>
@@ -446,29 +447,42 @@ function spotsGuide(kind) {
 const MYDUAS_KEY = "myduas";
 const getMyDuas = () => DB.get(MYDUAS_KEY, []);
 
+/* تصنيف المصدر: ق قرآن · س سنة صحيحة/حسنة · د ضعيف أو موقوف أو مختلف فيه · م مباح */
+function classifyDua(t, s, tag) {
+  if (tag === "ق" || tag === "س" || tag === "د" || tag === "م") return tag;
+  if (String(t).trim().startsWith("﴿")) return "ق";
+  const src = String(s || "");
+  if (/مباح|ليس حديثاً|مبني على|بمعنى ما ورد|من إنشائك|ابن تيمية/.test(src)) return "م";
+  if (/ضعيف|فيه خلاف|موقوف|أثر|لا يُنسب/.test(src)) return "د";
+  if (/البخاري|مسلم|صحيح|حسن|أبو داود|الترمذي|النسائي|ابن ماجه|أحمد|المستدرك|الصحيحة/.test(src)) return "س";
+  return "م";
+}
+
 function buildLib() {
   const out = [];
   DUA_CATEGORIES.forEach(c => c.items.forEach((x, i) =>
-    out.push({ id: "c_" + c.id + "_" + i, t: x.t, s: x.s || "", g: c.title })));
+    out.push({ id: "c_" + c.id + "_" + i, t: x.t, s: x.s || "", g: c.title, k: classifyDua(x.t, x.s, x.tag) })));
   PROPHETS_DUA.forEach((c, ci) => c.items.forEach((x, i) =>
-    out.push({ id: "p_" + ci + "_" + i, t: x.t, s: (x.p ? x.p + " — " : "") + (x.s || ""), g: "أدعية الأنبياء: " + c.topic })));
+    out.push({ id: "p_" + ci + "_" + i, t: x.t, s: (x.p ? x.p + " — " : "") + (x.s || ""), g: "أدعية الأنبياء: " + c.topic, k: "ق" })));
   ADHKAR_SALAH.forEach((x, i) =>
-    out.push({ id: "a_" + i, t: x.t, s: x.s || "", g: "أذكار أدبار الصلوات" }));
+    out.push({ id: "a_" + i, t: x.t, s: x.s || "", g: "أذكار أدبار الصلوات", k: classifyDua(x.t, x.s), timed: true }));
   MORNING_EVENING.forEach((x, i) =>
-    out.push({ id: "me_" + i, t: x.t, s: x.s || "", g: "أذكار الصباح والمساء" }));
-  MANASIK.forEach(sec => sec.lines.forEach((l, i) => {
-    if (String(l).trim().length < 12) return;
-    out.push({ id: "m_" + sec.id + "_" + i, t: l, s: "دعاء مباح — من مختارات المناسك", g: "مناسك: " + sec.title });
+    out.push({ id: "me_" + i, t: x.t, s: x.s || "", g: "أذكار الصباح والمساء", k: classifyDua(x.t, x.s), timed: true }));
+  NAMES.forEach((x, i) => out.push({ id: "nm_" + i, t: x.n + " — " + x.m, s: x.ms, g: "أسماء الله الحسنى", k: "م", timed: true }));
+  PROPHETIC_DUAS.forEach(c => c.items.forEach((x, i) => {
+    const grade = x.g || "";
+    const k = grade === "ق" || grade === "قرآن" ? "ق" : grade === "م" ? "م" : /ضعيف|خلاف|موقوف/.test(grade) ? "د" : /صحيح|حسن/.test(grade) ? "س" : classifyDua(x.t, x.s);
+    out.push({ id: "pd_" + c.id + "_" + i, t: x.t, s: (grade ? grade + " — " : "") + (x.s || "") + (x.h ? " — " + x.h : ""), g: "الأدعية النبوية: " + c.title, n: x.n, k, timed: c.id === "sabah" });
   }));
-  NAMES.forEach((x, i) => out.push({ id: "nm_" + i, t: x.n + " — " + x.m, s: x.ms, g: "أسماء الله الحسنى" }));
-  PROPHETIC_DUAS.forEach(c => c.items.forEach((x, i) =>
-    out.push({ id: "pd_" + c.id + "_" + i, t: x.t, s: (x.g ? x.g + " — " : "") + (x.s || "") + (x.h ? " — " + x.h : ""), g: "الأدعية النبوية: " + c.title, n: x.n })));
   if (typeof QURAN_DUAS !== "undefined") QURAN_DUAS.forEach(c => c.items.forEach((x, i) =>
-    out.push({ id: c.id + "_" + i, t: x.t, s: "قرآن — " + (x.s || ""), g: "أدعية القرآن: " + c.title })));
+    out.push({ id: c.id + "_" + i, t: x.t, s: "قرآن — " + (x.s || ""), g: "أدعية القرآن: " + c.title, k: "ق" })));
   getMyDuas().forEach(x =>
-    out.push({ id: x.id, t: x.t, s: "دعاء مباح — من إنشائك", g: "أدعيتي الخاصة" }));
+    out.push({ id: x.id, t: x.t, s: "دعاء مباح — من إنشائك", g: "أدعيتي الخاصة", k: "م", mine: true }));
   return out;
 }
+
+/* مكتبة الطواف والسعي: قرآن وسنة صحيحة فقط، بلا أذكار موقوتة، وما كتبه المستخدم موسوماً مباحاً */
+const riteLibFilter = x => !x.timed && (x.k === "ق" || x.k === "س" || x.mine);
 
 let LIB = buildLib();
 let LIBMAP = {}; LIB.forEach(x => LIBMAP[x.id] = x);
@@ -514,9 +528,9 @@ const TOPICS = [
 ];
 LIBN = LIB.map(x => norm(x.t + " " + x.s + " " + x.g));
 
-function libSearch(q) {
+function libSearch(q, filter) {
   const nq = norm(q);
-  if (!nq) return LIB;
+  if (!nq) return filter ? LIB.filter(filter) : LIB;
   const words = nq.split(" ").filter(w => w.length > 1);
   const keys = new Set(words);
   TOPICS.forEach(t => {
@@ -526,6 +540,7 @@ function libSearch(q) {
   const terms = [...keys];
   const out = [];
   LIB.forEach((x, i) => {
+    if (filter && !filter(x)) return;
     const hay = LIBN[i];
     let score = 0;
     if (hay.includes(nq)) score += 5;
@@ -542,12 +557,24 @@ const setPicks = (kind, sh, v) => DB.set(picksKey(kind, sh), v);
 function myDuasCard(kind, sh) {
   const ids = getPicks(kind, sh);
   const items = ids.map(id => LIBMAP[id]).filter(Boolean);
+  const fixed = kind === "tawaf"
+    ? `<div class="note"><b>الثابت في كل شوط:</b><br>
+       • <b>بدايته</b> عند محاذاة الحجر الأسود: الإشارة إليه باليد وقول «اللهُ أكبر» (البخاري ١٦١٣).<br>
+       • <b>نهايته</b> بين الركن اليماني والحجر الأسود: ﴿رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ﴾ (البقرة ٢٠١؛ أبو داود ١٨٩٢).<br>
+       • <b>وما بينهما</b>: يجوز له أن يدعو بما شاء لنفسه وأهله، أو يذكر الله، أو يقرأ القرآن.<br>
+       • <b>بعد الشوط السابع</b>: ركعتان خلف مقام إبراهيم إن تيسّر، يقرأ في الأولى ﴿قُلْ يَا أَيُّهَا الْكَافِرُونَ﴾ وفي الثانية ﴿قُلْ هُوَ اللَّهُ أَحَدٌ﴾ (مسلم ١٢١٨).</div>`
+    : `<div class="note"><b>الثابت في كل شوط:</b><br>
+       • <b>عند الدنوّ من الصفا أول مرة فقط</b>: ﴿إِنَّ الصَّفَا وَالْمَرْوَةَ مِن شَعَائِرِ اللَّهِ﴾ ثم «أبدأ بما بدأ الله به» (مسلم ١٢١٨).<br>
+       • <b>على الصفا والمروة</b>: يستقبل البيت ويرفع يديه فيكبّر ويحمد، ثم يقول ثلاثاً ويدعو بينها: «لا إله إلا الله وحده لا شريك له، له الملك وله الحمد وهو على كل شيء قدير، لا إله إلا الله وحده، أنجز وعده، ونصر عبده، وهزم الأحزاب وحده» (مسلم ١٢١٨).<br>
+       • <b>وما بينهما</b>: يجوز له أن يدعو بما شاء، أو يذكر الله، أو يقرأ القرآن؛ ومما ورد عن ابن مسعود وابن عمر رضي الله عنهما: «ربِّ اغفر وارحم، إنك أنت الأعزّ الأكرم» (موقوف).<br>
+       • <b>نهاية السعي</b> بالشوط السابع على المروة، ثم الحلق أو التقصير.</div>`;
   return `<div class="card">
     <h3>أدعيتي في الشوط ${AR(sh)}</h3>
+    ${fixed}
     ${items.length ? items.map(x => `<div class="card"><div class="dua">${esc(x.t)}</div><div class="src">${esc(x.s)}</div></div>`).join("")
       : `<p class="mid">ما اخترتِ أدعية لهذا الشوط بعد.</p>`}
     <button class="btn" data-pick="${kind}" data-sh="${sh}">＋ اختر أدعيتك من المكتبة</button>
-    <div class="note">اختيارك يُحفظ في جهازك ويظهر تلقائياً عند هذا الشوط. الدعاء في الطواف والسعي مطلق؛ لا تعتقدي أن ما تختارينه سنة مخصوصة بشوط.</div>
+    <div class="note">لم يثبت عن النبي ﷺ دعاء مخصوص لكل شوط؛ فاختيارك هنا تسهيلٌ للتذكير فقط، ليس سنة ولا واجباً، ويجوز لك أن تدعي بما شئتِ. المكتبة تعرض القرآن والسنة الصحيحة فقط، وما تكتبينه بنفسك يُوسم دعاءً مباحاً. يُحفظ اختيارك في جهازك.</div>
   </div>`;
 }
 
@@ -591,13 +618,13 @@ function openComposer(onSaved) {
   wrap.onclick = e => { if (e.target === wrap) wrap.remove(); };
 }
 
-function openPicker(kind, sh) {
+function openPicker(kind, sh, opts = {}) {
   const sel = new Set(getPicks(kind, sh));
   const wrap = document.createElement("div");
   wrap.className = "sheet";
   wrap.innerHTML = `<div class="sheetIn">
     <div class="sheetTop">
-      <b>مكتبة الأدعية — ${kind === "tawaf" ? "طواف" : "سعي"} · الشوط ${AR(sh)}</b>
+      <b>مكتبة الأدعية — ${esc(opts.title || ((kind === "tawaf" ? "طواف" : "سعي") + " · الشوط " + AR(sh)))}</b>
       <button class="btn sec sm" id="pkClose">إغلاق</button>
     </div>
     <input id="pkSearch" placeholder="ابحث بالمعنى: الرزق، الزواج، العيال، قضاء الدين، الهداية…">
@@ -610,15 +637,19 @@ function openPicker(kind, sh) {
   const list = wrap.querySelector("#pkList");
   const draw = q => {
     const s = (q || "").trim();
-    const items = libSearch(s);
+    const items = libSearch(s, opts.filter);
     let g = null, html = "";
-    if (s) html += `<div class="pkG">نتائج البحث عن «${esc(s)}» — ${AR(items.length)}</div>`;
+    if (s) html += `<div class="pkG">نتائج البحث عن «${esc(s)}»: ${AR(items.length)} دعاء</div>
+      <div class="row"><button class="btn sec sm" id="pkAll">اختيار الجميع (${AR(items.length)})</button><button class="btn sec sm" id="pkNone">إلغاء الجميع</button></div>`;
     items.slice(0, 400).forEach(x => {
       if (!s && x.g !== g) { g = x.g; html += `<div class="pkG">${esc(g)}</div>`; }
       html += `<label class="pkI"><input type="checkbox" data-id="${x.id}" ${sel.has(x.id) ? "checked" : ""}>
         <span><span class="dua">${esc(x.t)}</span><span class="src">${esc(x.s)}</span></span></label>`;
     });
     list.innerHTML = html || `<p class="mid">لا نتيجة.</p>`;
+    const all = list.querySelector("#pkAll"), none = list.querySelector("#pkNone");
+    if (all) all.onclick = () => { items.forEach(x => sel.add(x.id)); wrap.querySelector("#pkN").textContent = AR(sel.size); draw(s); };
+    if (none) none.onclick = () => { items.forEach(x => sel.delete(x.id)); wrap.querySelector("#pkN").textContent = AR(sel.size); draw(s); };
   };
   draw("");
   list.addEventListener("change", e => {
@@ -631,7 +662,7 @@ function openPicker(kind, sh) {
   wrap.querySelectorAll("#pkChips .chip").forEach(c => c.onclick = () => { box.value = c.dataset.q; draw(c.dataset.q); });
   wrap.querySelector("#pkNew").onclick = () => openComposer(id => { sel.add(id); draw(box.value); wrap.querySelector("#pkN").textContent = AR(sel.size); });
   wrap.querySelector("#pkClose").onclick = () => wrap.remove();
-  wrap.querySelector("#pkSave").onclick = () => { setPicks(kind, sh, [...sel]); wrap.remove(); renderUmrah(); };
+  wrap.querySelector("#pkSave").onclick = () => { setPicks(kind, sh, [...sel]); wrap.remove(); (opts.done || renderUmrah)(); };
   wrap.onclick = e => { if (e.target === wrap) wrap.remove(); };
 }
 
@@ -883,6 +914,7 @@ function namesView() {
       <div class="note">${esc(NAMES_INTRO.note)}</div></details>
     <div class="chips" style="max-height:120px;overflow:auto">${NAMES.map((n, i) => `<button class="chip ${i === NM.i ? "on" : ""}" data-nm="${i}">${esc(n.n)}</button>`).join("")}</div>
     <div class="card" style="text-align:center"><div class="mid">اسم الله</div><div class="big" style="font-size:34px">${esc(x.n)}</div>
+      <div>${x.d === "ق" ? `<span class="tag q">ثابت في القرآن</span>` : x.d === "س" ? `<span class="tag h">ثابت في السنة الصحيحة</span>` : `<span class="tag d">في التعداد المشهور فقط</span>`}</div>
       <div class="row" style="justify-content:center"><button class="btn sec sm" data-nmi="${(NM.i + NAMES.length - 1) % NAMES.length}">→ السابق</button><span class="mid">${AR(NM.i + 1)} / ${AR(NAMES.length)}</span><button class="btn sec sm" data-nmi="${(NM.i + 1) % NAMES.length}">التالي ←</button></div></div>
     <div class="chips">${tabs.map(t => `<button class="chip ${t[0] === NM.tab ? "on" : ""}" data-nmt="${t[0]}">${t[1]}${t[2] ? ` (${AR(t[2])})` : ""}</button>`).join("")}</div>
     ${body}

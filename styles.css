@@ -1,8 +1,8 @@
-@font-face{font-family:'Noto Naskh Arabic';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/NotoNaskh-400.woff2') format('woff2')}
-@font-face{font-family:'Noto Naskh Arabic';font-style:normal;font-weight:500;font-display:swap;src:url('fonts/NotoNaskh-500.woff2') format('woff2')}
-@font-face{font-family:'Noto Naskh Arabic';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/NotoNaskh-700.woff2') format('woff2')}
-@font-face{font-family:'Amiri';font-style:normal;font-weight:400;font-display:swap;src:url('fonts/Amiri-400.woff2') format('woff2')}
-@font-face{font-family:'Amiri';font-style:normal;font-weight:700;font-display:swap;src:url('fonts/Amiri-700.woff2') format('woff2')}
+@font-face{font-family:'Noto Naskh Arabic';font-style:normal;font-weight:400;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+2010-2015,U+0020;src:url('fonts/NotoNaskh-400.woff2') format('woff2')}
+@font-face{font-family:'Noto Naskh Arabic';font-style:normal;font-weight:500;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+2010-2015,U+0020;src:url('fonts/NotoNaskh-500.woff2') format('woff2')}
+@font-face{font-family:'Noto Naskh Arabic';font-style:normal;font-weight:700;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+2010-2015,U+0020;src:url('fonts/NotoNaskh-700.woff2') format('woff2')}
+@font-face{font-family:'Amiri';font-style:normal;font-weight:400;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+2010-2015,U+0020;src:url('fonts/Amiri-400.woff2') format('woff2')}
+@font-face{font-family:'Amiri';font-style:normal;font-weight:700;font-display:swap;unicode-range:U+0600-06FF,U+0750-077F,U+08A0-08FF,U+FB50-FDFF,U+FE70-FEFF,U+200C-200F,U+2010-2015,U+0020;src:url('fonts/Amiri-700.woff2') format('woff2')}
 /* لوحة ألوان مبنية على علم نفس الألوان:
    أخضر مريح + أزرق مخضرّ (هدوء وخفض التوتر) + بيج دافئ (أمان) + ذهبي هادئ للتوكيد.
    تباين مريح للقراءة الطويلة، وبلا ألوان صارخة أو أسود قاسٍ. */
@@ -159,8 +159,11 @@ button{font-family:inherit}
 .btn:active{filter:brightness(.95)}
 .btn.sec{background:var(--card);color:var(--txt);border:1px solid var(--line);font-size:var(--f4);font-weight:600;box-shadow:none}
 .btn.sm{padding:10px;font-size:var(--f3)}
-.row{display:flex;gap:8px}
+.row{display:flex;gap:8px;align-items:center}
 .row>*{flex:1}
+.stepbar{display:flex;gap:8px;align-items:center;margin:8px 0}
+.stepbar .btn{flex:1;margin:0}
+.stepbar .mid{flex:0 0 auto;min-width:64px;text-align:center}
 
 .chips{display:flex;gap:8px;overflow-x:auto;padding:4px 0 10px;scrollbar-width:none}
 .chips::-webkit-scrollbar{display:none}
@@ -387,20 +390,25 @@ nav button{font-size:10px}
   background:repeating-linear-gradient(90deg,rgba(80,55,15,.75) 0 2px,transparent 2px 5px,rgba(80,55,15,.5) 5px 6px,transparent 6px 10px);
   opacity:.75;border-radius:2px}
 /* مربعات ذهبية تحت الحزام */
-.kaaba .studs{position:absolute;inset-inline:8px;top:calc(31% + 24px);height:7px;
-  background:repeating-linear-gradient(90deg,#c9a65b 0 12px,transparent 12px 28px);
-  opacity:.7;border-radius:1px}
-/* ستارة بيضاء */
-.kaaba .curtain{position:absolute;inset-inline:0;bottom:22px;height:28px;
-  background:linear-gradient(180deg,#fdfdfb,#dfe2e0);
-  -webkit-mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 132 34' preserveAspectRatio='none'><path d='M0 0h132v18c-8 0-8 13-16.5 13S99 18 91 18s-8 13-16.5 13S58 18 50 18s-8 13-16.5 13S17 18 8 18H0z' fill='%23fff'/></svg>") no-repeat center/100% 100%;
-  mask:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 132 34' preserveAspectRatio='none'><path d='M0 0h132v18c-8 0-8 13-16.5 13S99 18 91 18s-8 13-16.5 13S58 18 50 18s-8 13-16.5 13S17 18 8 18H0z' fill='%23fff'/></svg>") no-repeat center/100% 100%}
-/* قاعدة الشاذروان */
-.kaaba .base{position:absolute;inset-inline:0;bottom:0;height:22px;
-  background:linear-gradient(180deg,#6d4b35,#4a3223);
-  background-image:repeating-linear-gradient(0deg,rgba(0,0,0,.35) 0 1px,transparent 1px 7px),
-    repeating-linear-gradient(90deg,rgba(0,0,0,.3) 0 1px,transparent 1px 16px),
-    linear-gradient(180deg,#77523a,#4a3223)}
+.kaaba .studs{position:absolute;inset-inline:8px;top:calc(31% + 24px);height:12px;
+  background:repeating-linear-gradient(90deg,#c9a65b 0 14px,transparent 14px 46px);
+  opacity:.8;border-radius:1px}
+.kaaba .fr .studs{background:linear-gradient(90deg,#c9a65b 0 14px,transparent 14px calc(100% - 14px),#c9a65b calc(100% - 14px) 100%)}
+/* ستارة الباب (البرقع) على الوجه الشرقي فقط */
+.kaaba .curtain{display:none}
+.kaaba .fr .curtain{display:block;position:absolute;left:30%;top:calc(31% + 15px);width:36px;bottom:30px;
+  background:linear-gradient(180deg,#1a1a1a,#0e0e0e);
+  border:2px solid #d4b26a;
+  box-shadow:inset 0 0 0 1px rgba(80,55,15,.6)}
+.kaaba .fr .curtain::before{content:"";position:absolute;inset:6px 5px auto 5px;height:18px;
+  background:repeating-linear-gradient(0deg,rgba(212,178,106,.9) 0 1px,transparent 1px 4px);opacity:.8}
+.kaaba .fr .curtain::after{content:"";position:absolute;left:5px;right:5px;bottom:0;top:30px;
+  background:linear-gradient(180deg,#e6c98a,#b8935a);border-radius:2px 2px 0 0;
+  box-shadow:inset 0 0 0 1px rgba(90,60,20,.5), inset 0 -6px 0 rgba(90,60,20,.35)}
+/* الشاذروان: رخام فاتح */
+.kaaba .base{position:absolute;inset-inline:0;bottom:0;height:10px;
+  background:linear-gradient(180deg,#e9e5dc,#bdb7ab);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.7), 0 -1px 2px rgba(0,0,0,.4)}
 .kaaba .fr{transform:translateZ(66px)}
 .kaaba .bk{transform:rotateY(180deg) translateZ(66px)}
 .kaaba .lf{transform:rotateY(-90deg) translateZ(66px)}

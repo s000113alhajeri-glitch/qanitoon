@@ -1050,7 +1050,8 @@ const TADABBUR_TABS = [
   { k: "asma", t: "التسبيح", r: tasbihView },
   { k: "jadwal", t: "جدولي", r: jadwalView },
   { k: "qsearch", t: "بحث في القرآن", r: quranSearchView },
-  { k: "ask", t: "اسألني", r: () => "" }
+  { k: "ask", t: "اسألني", r: () => "" },
+  { k: "lib", t: "مكتبة الأدعية", r: () => "" }
 ];
 function arafahProgram(rows) {
   return rows.map(x => `<div class="card"><h3>${esc(x.w)}</h3><p>${esc(x.d)}</p>${x.s ? `<div class="src">${esc(x.s)}</div>` : ""}</div>`).join("");
@@ -1090,6 +1091,7 @@ function renderTadabbur(tab) {
   if (cur.k === "asma") { bindNames(v); v.querySelectorAll("[data-tsb]").forEach(b => b.onclick = () => { TSB.sub = b.dataset.tsb; DB.set("tsb_sub", TSB.sub); renderTadabbur("asma"); }); }
   if (cur.k === "qsearch") bindQuranSearch(v);
   if (cur.k === "ask") renderAsk(undefined, document.getElementById("tbody"));
+  if (cur.k === "lib") renderLib(document.getElementById("tbody"));
   if (cur.k === "jadwal") bindJadwal(v);
   bindCounters(v);
 }
@@ -1153,6 +1155,7 @@ function jadwalView() {
     if (x.id === "iftar") return ramadan || fasting;
     if (x.id === "qadr") return ramadan && c.hj.d >= 20;
     if (x.id === "arafah") return c.hj.m === 12 && c.hj.d === 9;
+    if (x.id === "matar") return !!o.manual[x.id] || !!LIFE.rainOn;
     if (x.manual) return !!o.manual[x.id];
     return true;
   };
@@ -1162,7 +1165,7 @@ function jadwalView() {
   ${act.length ? `<h3 style="margin:14px 4px 6px">الآن</h3>${act.map(x => jadTimeCard(x, true)).join("")}` : `<div class="card"><p class="mid">لا وقت مخصوص الآن — والدعاء مقبول في كل حين ﴿ادْعُونِي أَسْتَجِبْ لَكُمْ﴾ (غافر ٦٠).</p></div>`}
   <h3 style="margin:14px 4px 6px">${showAll ? "كل الأوقات" : "بقية أوقات اليوم"}</h3>
   ${rest.map(x => jadTimeCard(x, false)).join("")}
-  <button class="btn sec sm" id="jall" style="width:100%">${showAll ? "أوقات اليوم فقط" : "كل الأوقات (الجمعة، الإفطار، عرفة، العشر، السفر، المطر) لتفعيلها مسبقاً"}</button>`;
+  <p class="mid" style="margin:8px 4px">تظهر أوقات الجمعة ورمضان وعرفة والعشر في يومها تلقائياً، والسفر عند الوصول لمطار أو منفذ، والمطر عند نزوله.</p>`;
 }
 function bindJadwal(v) {
   const rerender = () => renderTadabbur("jadwal");
@@ -1219,26 +1222,20 @@ function renderAsk(id, box) {
   const v = box || document.getElementById("tbody") || document.getElementById("v-tadabbur");
   if (!id) {
     const { crisis, hits } = askMatch(ASK.q);
-    v.innerHTML = `<h3 style="margin:4px 4px 6px">كل الأدعية</h3>
-    ${duaNotice(true)}
-    <input id="libq" placeholder="ابحث بالمعنى: الرزق، الهمّ، الوالدين…" value="${esc(ASK.lq)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
-    <div class="chips">${[["", "الكل"], ["ق", "قرآن"], ["س", "سنة صحيحة"], ["م", "مباح"]].map(f => `<button class="chip ${ASK.lf === f[0] ? "on" : ""}" data-lf="${f[0]}">${f[1]}</button>`).join("")}</div>
-    <div class="card" style="margin-top:14px"><h3>حالتي</h3>
+    v.innerHTML = `<div class="card"><h3>حالتي</h3>
       <input id="askq" list="sitList" placeholder="اختر حالة أو اكتبها: هم، رزق، خصومة…" value="${esc(ASK.q)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
       <datalist id="sitList">${SITUATIONS.map(m => `<option value="${esc(m.label)}">`).join("")}</datalist>
       ${hits.length ? `<div class="chips" style="margin-top:8px">${hits.slice(0, 6).map(s => `<button class="chip on" data-m="${s.id}">${esc(s.label)}</button>`).join("")}</div>` : ASK.q ? `<p class="mid">لم أتبيّن الحالة — اختر من القائمة.</p>` : ""}
       <p class="mid" style="margin-top:6px">${esc(SIT_DISCLAIMER)}</p></div>
     ${crisis ? crisisCard() : ""}
-    <div id="asklib">${libAllView()}</div>`;
+    ${duaNotice()}
+    <div class="chips" style="margin-top:8px">${SITUATIONS.map(m => `<button class="chip" data-m="${m.id}">${esc(m.label)}</button>`).join("")}</div>
+    <button class="btn sec sm" id="toLib" style="width:100%;margin-top:10px">مكتبة الأدعية: كل الأدعية ببحث وفلتر ←</button>`;
     const inp = v.querySelector("#askq");
     let tm; inp.onchange = () => { const m = SITUATIONS.find(x => x.label === inp.value.trim()); if (m) { ASK.q = ""; renderAsk(m.id, v); } };
     inp.oninput = () => { ASK.q = inp.value; clearTimeout(tm); tm = setTimeout(() => { const pos = inp.selectionStart; renderAsk(undefined, v); const i2 = v.querySelector("#askq"); i2.focus(); i2.setSelectionRange(pos, pos); }, 350); };
     v.querySelectorAll("[data-m]").forEach(b => b.onclick = () => renderAsk(b.dataset.m, v));
-    const lq = v.querySelector("#libq");
-    let tm2; lq.oninput = () => { ASK.lq = lq.value; DB.set("ask_lq", ASK.lq); clearTimeout(tm2); tm2 = setTimeout(() => { const a = v.querySelector("#asklib"); a.innerHTML = libAllView(); bindCounters(a); }, 300); };
-    v.querySelectorAll("[data-lf]").forEach(b => b.onclick = () => { ASK.lf = b.dataset.lf; DB.set("ask_lf", ASK.lf); renderAsk(undefined, v); });
-    v.querySelectorAll("[data-lib]").forEach(b => b.onclick = () => { ASK.lib = ASK.lib === b.dataset.lib ? "" : b.dataset.lib; DB.set("ask_lib", ASK.lib); renderAsk(undefined, v); const a = v.querySelector("#asklib"); if (a && ASK.lib) a.scrollIntoView({ behavior: "smooth", block: "start" }); });
-    v.querySelectorAll("[data-arw]").forEach(b => b.onclick = () => { DB.set("arafah_who", b.dataset.arw); renderAsk(undefined, v); });
+    v.querySelector("#toLib").onclick = () => renderTadabbur("lib");
     bindCounters(v);
     return;
   }
@@ -1256,6 +1253,21 @@ function renderAsk(id, box) {
   v.querySelector("#back").onclick = () => renderAsk(undefined, v);
   const lk = v.querySelector("#asklink"); if (lk) lk.onclick = () => renderTadabbur("asma");
   v.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { ASK.tab = b.dataset.tab; DB.set("ask_tab", ASK.tab); renderAsk(id, v); });
+  bindCounters(v);
+}
+
+function renderLib(box) {
+  const v = box || document.getElementById("tbody");
+  v.innerHTML = `${duaNotice(true)}
+  <h3 style="margin:10px 4px 6px">كل الأدعية</h3>
+  <input id="libq" placeholder="ابحث بالمعنى: الرزق، الهمّ، الوالدين…" value="${esc(ASK.lq)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
+  <div class="chips">${[["", "الكل"], ["ق", "قرآن"], ["س", "سنة صحيحة"], ["م", "مباح"]].map(f => `<button class="chip ${ASK.lf === f[0] ? "on" : ""}" data-lf="${f[0]}">${f[1]}</button>`).join("")}</div>
+  <div id="asklib">${libAllView()}</div>`;
+  const lq = v.querySelector("#libq");
+  let tm2; lq.oninput = () => { ASK.lq = lq.value; DB.set("ask_lq", ASK.lq); clearTimeout(tm2); tm2 = setTimeout(() => { const a = v.querySelector("#asklib"); a.innerHTML = libAllView(); bindCounters(a); }, 300); };
+  v.querySelectorAll("[data-lf]").forEach(b => b.onclick = () => { ASK.lf = b.dataset.lf; DB.set("ask_lf", ASK.lf); renderLib(v); });
+  v.querySelectorAll("[data-lib]").forEach(b => b.onclick = () => { ASK.lib = ASK.lib === b.dataset.lib ? "" : b.dataset.lib; DB.set("ask_lib", ASK.lib); renderLib(v); });
+  v.querySelectorAll("[data-arw]").forEach(b => b.onclick = () => { DB.set("arafah_who", b.dataset.arw); renderLib(v); });
   bindCounters(v);
 }
 
@@ -1737,7 +1749,7 @@ function renderTime(tab) {
   const hj = toHijri(new Date(), DB.get("hoff", 0));
   const k = tab || DB.get("rtab", "sunnah");
   DB.set("rtab", k);
-  const tabs = [["sunnah", "سنة النبي عليه الصلاة والسلام في رمضان"], ["dua", "أدعية الصائم والإفطار"], ["qiyam", "أدعية القيام"], ["days", "أيامي"], ["nafl", "الصيام المستحب"]];
+  const tabs = [["sunnah", "سنة النبي عليه الصلاة والسلام في رمضان"], ["dua", "أدعية الصائم والإفطار"], ["qiyam", "أدعية القيام"], ["days", "القضاء"], ["nafl", "الصيام المستحب"]];
   const missed = DB.get("missed", 0), made = DB.get("madeup", 0);
   let body = "";
   if (k === "sunnah") body = RAMADAN_SUNNAH.map(x => `<div class="card"><h3>${esc(x.t)}</h3><div class="dua">${esc(x.h)}</div><div class="src"><span class="tag h">سنة</span> المصدر: ${esc(x.s)}</div>${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("");

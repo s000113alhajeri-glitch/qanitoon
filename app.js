@@ -935,7 +935,7 @@ function item(x) {
   const tag = cls === "q" ? "قرآن" : cls === "m" ? "دعاء مباح" : "سنة";
   return `<div class="card">
     <div class="dua">${esc(x.t)}</div>
-    ${x.n && x.n > 1 ? `<div class="count"><span>التكرار المطلوب</span><b>${AR(x.n)}</b></div>${tasbih(x.t, x.n)}` : ""}
+    <div class="count"><span>التكرار المطلوب</span><b>${AR(x.n || 1)}</b></div>${tasbih(x.t, x.n || 1)}
     ${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}
     <div class="src"><span class="tag ${cls}">${tag}</span> المصدر: ${esc(src)}${x.when ? " — " + esc(x.when) : ""}</div>
     ${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}
@@ -952,10 +952,10 @@ function tasbih(key, n) {
 function bindCounters(root) {
   root.querySelectorAll("[data-cnt]").forEach(b => b.onclick = () => {
     const id = b.dataset.cnt, k = "cnt_" + id + "_" + today();
-    const v = Math.max(0, DB.get(k, 0) + (+b.dataset.d));
+    const n = +b.dataset.n || 1;
+    const v = Math.min(n, Math.max(0, DB.get(k, 0) + (+b.dataset.d)));
     DB.set(k, v);
     const out = root.querySelector("#c_" + id); if (out) out.textContent = AR(v);
-    const n = +b.dataset.n || 100;
     const bar = root.querySelector("#box_" + id + " .bar > i");
     if (bar) bar.style.width = Math.min(100, (v / n) * 100) + "%";
     if (navigator.vibrate) navigator.vibrate(15);
@@ -984,7 +984,7 @@ function pitem(x) {
   const gcls = /صحيح/.test(x.g) ? "s" : /حسن/.test(x.g) ? "h" : /قرآن/.test(x.g) ? "q" : "d";
   return `<div class="card">
     <div class="dua">${esc(x.t)}</div>
-    ${x.n && x.n > 1 ? `<div class="count"><span>التكرار</span><b>${AR(x.n)}</b></div>${tasbih(x.t, x.n)}` : ""}
+    <div class="count"><span>التكرار</span><b>${AR(x.n || 1)}</b></div>${tasbih(x.t, x.n || 1)}
     ${x.h ? `<p style="font-size:14px"><b>الحديث:</b> ${esc(x.h)}</p>` : ""}
     <div class="src"><span class="tag ${cls}">${cls === "q" ? "قرآن" : cls === "m" ? "دعاء مباح" : "سنة"}</span> <span class="tag ${gcls}">${esc(x.g)}</span> ${esc(x.s)}</div>
   </div>`;
@@ -1023,7 +1023,8 @@ const ADHKAR_TABS = [
   { k: "sabah", t: "أذكار الصباح", r: () => `<div class="note">وقتها من بعد الفجر إلى طلوع الشمس، ومن فاته فلا حرج أن يقولها إلى الزوال. الترتيب على حصن المسلم.</div>` + IB_SABAH.map(item).join("") },
   { k: "masa", t: "أذكار المساء", r: () => `<div class="note">وقتها من بعد العصر إلى غروب الشمس، ويمتد إلى نصف الليل لمن فاته.</div>` + IB_MASA.map(item).join("") },
   { k: "salah", t: "بعد كل صلاة", r: () => IB_SALAH.map(item).join("") },
-  { k: "nawm", t: "أذكار النوم", r: () => IB_NAWM.map(item).join("") + `<h3>عند الاستيقاظ</h3>` + IB_WAKE.map(item).join("") }
+  { k: "nawm", t: "أذكار النوم", r: () => IB_NAWM.map(item).join("") },
+  { k: "wake", t: "الاستيقاظ من النوم", r: () => IB_WAKE.map(item).join("") }
 ];
 /* مكتبة الأدعية كاملة داخل «اسألني» */
 function libAllView() {
@@ -1113,7 +1114,7 @@ setInterval(() => {
 const JAD = {
   opts() { return DB.get("jadwal", { on: {}, manual: {}, fasting: {} }); },
   set(o) { DB.set("jadwal", Object.assign(this.opts(), o)); },
-  isOn(id) { const o = this.opts().on; return o[id] === undefined ? id === "adhan" || id === "dubur" || id === "thuluth" : !!o[id]; },
+  isOn(id) { return true; },
   ctx(d) { d = d || new Date(); return { hj: toHijri(d, DB.get("hoff", 0)), dow: d.getDay(), fasting: !!this.opts().fasting[d.toISOString().slice(0, 10)] }; },
   active() {
     const t = PRAY.times(), c = this.ctx(), o = this.opts();
@@ -1134,7 +1135,7 @@ function jadTimeCard(x, open) {
   return `<div class="card ${open ? "" : "dim"}" style="position:relative">
     <button class="xhide" data-jhide="${x.id}" title="إخفاء" aria-label="إخفاء">✕</button>
     <div class="count jhead"><h3 style="margin:0">${ico(x.icon)} ${esc(x.t)}</h3>
-      ${x.always ? `<span class="tag h">في كل صلاة</span>` : x.manual ? `<button class="btn sm ${JAD.opts().manual[x.id] ? "" : "sec"}" data-jman="${x.id}">${JAD.opts().manual[x.id] ? "مفعّل الآن" : "أنا فيه الآن"}</button>` : `<button class="btn sm ${on ? "" : "sec"}" data-jon="${x.id}">${on ? "التنبيه مفعّل" : "تنبيه"}</button>`}
+      ${x.always ? `<span class="tag h">في كل صلاة</span>` : x.manual ? `<button class="btn sm ${JAD.opts().manual[x.id] ? "" : "sec"}" data-jman="${x.id}">${JAD.opts().manual[x.id] ? "مفعّل الآن" : "أنا فيه الآن"}</button>` : ""}
     </div>
     ${w ? `<div class="note" style="border-color:var(--gold)"><b>الوقت الآن</b> · من ${hhmm(w[0] % 24)} إلى ${hhmm(w[1] % 24)}</div>` : ""}
     <div class="dua">${esc(x.h)}</div>
@@ -1169,7 +1170,7 @@ function jadwalView() {
   const rest = DUA_TIMES.filter(x => !act.includes(x) && visible(x));
   const addable = DUA_TIMES.filter(x => !act.includes(x) && !visible(x));
   return `<div class="note">أوقات الدعاء الواردة عن النبي ﷺ فقط، كلٌّ بحديثه ودرجته. يظهر أعلى القائمة ما أنتِ فيه الآن، ويُنبَّه لما فعّلتِه. اختيارك للأدعية تسهيلٌ للتذكير، ويجوز لك أن تدعي بما شئتِ.</div>
-  <div class="row">${(ramadan || showAll || fasting) ? `<button class="btn sm ${fasting ? "" : "sec"}" id="jfast">${fasting ? "أنا صائمة اليوم ✓" : "أنا صائمة اليوم"}</button>` : ""}<button class="btn sec sm" id="jnotif">${("Notification" in window && Notification.permission === "granted") ? "التنبيهات مسموحة" : "السماح بالتنبيهات"}</button></div>
+  <div class="row">${(ramadan || showAll || fasting) ? `<button class="btn sm ${fasting ? "" : "sec"}" id="jfast">${fasting ? "أنا صائمة اليوم ✓" : "أنا صائمة اليوم"}</button>` : ""}</div>
   ${act.length ? `<h3 style="margin:14px 4px 6px">الآن</h3>${act.map(x => jadTimeCard(x, true)).join("")}` : `<div class="card"><p class="mid">لا وقت مخصوص الآن — والدعاء مقبول في كل حين ﴿ادْعُونِي أَسْتَجِبْ لَكُمْ﴾ (غافر ٦٠).</p></div>`}
   <h3 style="margin:14px 4px 6px">${showAll ? "كل الأوقات" : "بقية أوقات اليوم"}</h3>
   ${rest.map(x => jadTimeCard(x, false)).join("")}`;
@@ -1892,9 +1893,9 @@ const SUM = {
       }
     } catch (e) { }
     const fasts = fastDB()[d];
-    const sched = [...IB_SABAH, ...IB_MASA, ...IB_SALAH, ...IB_NAWM].filter(x => x.n && x.n > 1);
+    const sched = [...IB_SABAH, ...IB_MASA, ...IB_SALAH, ...IB_NAWM, ...IB_WAKE];
     let sd = 0;
-    sched.forEach(x => { const id = "t" + Math.abs([...x.t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7)); if (DB.get("cnt_" + id + "_" + d, 0) >= x.n) sd++; });
+    sched.forEach(x => { const id = "t" + Math.abs([...x.t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7)); if (DB.get("cnt_" + id + "_" + d, 0) >= (x.n || 1)) sd++; });
     const dgoal = DB.get("dhgoal", 300);
     return { pages, target: pl.pages, dh, dgoal, sd, st: sched.length, streak: DB.get("streak", 0), fast: fasts };
   },
@@ -2028,7 +2029,7 @@ function renderHome() {
   </div>`;
   v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = e => { e.stopPropagation(); HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });
   v.querySelectorAll("[data-hadd]").forEach(b => b.onclick = () => { HOME.set([...HOME.list(), b.dataset.hadd]); renderHome(); });
-  v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => { if (b.dataset.hgo === "ask") { go("tadabbur"); renderTadabbur("ask"); } else go(b.dataset.hgo); });
+  v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => { if (b.dataset.hgo === "ask") { go("tadabbur"); renderTadabbur("ask"); } else if (b.dataset.hgo === "ramadan") { go("time"); renderTime("days"); } else go(b.dataset.hgo); });
   const openAsk = (q, ids) => { go("tadabbur"); renderTadabbur("ask"); if (ids && ids.length) { ASK.q = ids.map(i => (SITUATIONS.find(x => x.id === i) || {}).label || "").join(" ، "); if (ids.length === 1) renderAsk(ids[0]); else renderAsk(); } else { ASK.q = q || ""; const h = askMatch(ASK.q).hits; if (h.length) renderAsk(h[0].id); else renderAsk(); } };
   const ha = v.querySelector("#homeAsk"), hg = v.querySelector("#homeAskGo");
   if (hg) hg.onclick = () => { const ids = [...v.querySelectorAll(".hchk:checked")].map(c => c.value); const q = ha.value.trim(); if (!ids.length && !q) return; openAsk(q, q ? [] : ids); if (q && ids.length) { ASK.q = q + " ، " + ids.map(i => SITUATIONS.find(x => x.id === i).label).join(" ، "); renderAsk(); } };

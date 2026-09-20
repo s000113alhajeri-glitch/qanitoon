@@ -482,3 +482,12 @@ header{position:relative}
 .askBanner .chip{white-space:normal;text-align:right;font-size:14px;padding:6px 10px}
 .askBanner label.chip{display:inline-flex;align-items:center;gap:6px;flex-direction:row;line-height:1.4}
 .askBanner label.chip input{margin:0;width:16px;height:16px}
+
+.hrow{align-items:center}
+.hlbl{display:inline-flex;align-items:center;gap:10px}
+.mring{position:relative;display:inline-block;width:44px;height:44px;flex:0 0 44px}
+.mring svg{width:44px;height:44px;transform:rotate(-90deg)}
+.mring .rbg{fill:none;stroke:var(--line);stroke-width:7}
+.mring .rfg{fill:none;stroke:var(--brand);stroke-width:7;stroke-linecap:round}
+.mring.done .rfg{stroke:var(--gold)}
+.mring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--txt)}

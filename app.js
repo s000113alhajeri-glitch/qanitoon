@@ -1866,6 +1866,11 @@ function qiblaBearing(lat, lng) {
   const x = Math.cos(lat * R) * Math.sin(KAABA.lat * R) - Math.sin(lat * R) * Math.cos(KAABA.lat * R) * Math.cos(dL);
   return (Math.atan2(y, x) / R + 360) % 360;
 }
+function miniRing(v, t) {
+  const pct = t ? Math.min(100, Math.round((v / t) * 100)) : 0;
+  const R = 26, C = 2 * Math.PI * R;
+  return `<span class="mring ${pct >= 100 ? "done" : ""}"><svg viewBox="0 0 64 64"><circle class="rbg" cx="32" cy="32" r="${R}"/><circle class="rfg" cx="32" cy="32" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct / 100)}"/></svg><b>${AR(pct)}٪</b></span>`;
+}
 function ring(label, v, t, icon) {
   const pct = t ? Math.min(100, Math.round((v / t) * 100)) : 0;
   const R = 26, C = 2 * Math.PI * R;
@@ -2000,13 +2005,13 @@ function fridayCard() {
   </div>`;
 }
 const HOME_ITEMS = [
-  { id: "umrah", t: () => "العمرة — الخطوة الحالية", ic: "kaaba", v: () => esc(STAGES[Math.min(S.stage, STAGES.length - 1)].t), go: "umrah" },
-  { id: "hajj", t: () => "الحج — الخطوة الحالية", ic: "hajj", v: () => esc(HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)].t), go: "hajj" },
-  { id: "quran", t: () => "الورد اليومي", ic: "quran", v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
-  { id: "adhkar", t: () => "الأذكار", ic: "beads", v: g => `${AR(g.sd)} من ${AR(g.st)} منجزة`, go: "adhkar" },
-  { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", v: g => `${AR(g.dh)} من ${AR(g.dgoal)}`, go: "tadabbur" },
-  { id: "jadwal", t: () => "جدولي", ic: "clock", v: () => { const a = JAD.active(); const on = DUA_TIMES.filter(x => JAD.isOn(x.id)).length; return (a.length ? "الآن: " + esc(a[0].t) + " · " : "") + `${AR(on)} أوقات مفعّلة`; }, go: "tadabbur" },
-  { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
+  { id: "umrah", t: () => "العمرة — الخطوة الحالية", ic: "kaaba", p: () => [S.stage, STAGES.length - 1], v: () => esc(STAGES[Math.min(S.stage, STAGES.length - 1)].t), go: "umrah" },
+  { id: "hajj", t: () => "الحج — الخطوة الحالية", ic: "hajj", p: () => [H.stage, HAJJ_STAGES.length - 1], v: () => esc(HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)].t), go: "hajj" },
+  { id: "quran", t: () => "الورد اليومي", ic: "quran", p: g => [g.pages, g.target], v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
+  { id: "adhkar", t: () => "الأذكار", ic: "beads", p: g => [g.sd, g.st], v: g => `${AR(g.sd)} من ${AR(g.st)} منجزة`, go: "adhkar" },
+  { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", p: g => [g.dh, g.dgoal], v: g => `${AR(g.dh)} من ${AR(g.dgoal)}`, go: "tadabbur" },
+  { id: "jadwal", t: () => "جدولي", ic: "clock", p: () => [DUA_TIMES.filter(x => JAD.isOn(x.id)).length, DUA_TIMES.length], v: () => { const a = JAD.active(); const on = DUA_TIMES.filter(x => JAD.isOn(x.id)).length; return (a.length ? "الآن: " + esc(a[0].t) + " · " : "") + `${AR(on)} أوقات مفعّلة`; }, go: "tadabbur" },
+  { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", p: () => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return [Math.min(u, m), m]; }, v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
 ];
 const HOME = { fixed: ["quran", "adhkar", "tasbih"], def: ["umrah", "jadwal"], list() { return [...this.fixed, ...DB.get("homeItems", this.def).filter(i => !this.fixed.includes(i) && i !== "rite" && i !== "ask")]; }, set(l) { DB.set("homeItems", l.filter(i => !this.fixed.includes(i))); } };
 function renderHome() {
@@ -2018,13 +2023,13 @@ function renderHome() {
   ${fridayCard()}
   <div class="card askBanner">
     <h3 style="margin:0 0 6px">${ico("chat")} اكتب حالتي</h3>
-    <div class="row"><input id="homeAsk" placeholder="اكتبي ��التك بكلامك…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div>
+    <div class="row"><input id="homeAsk" placeholder="اكتبي حالتك بكلامك…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div>
     <div class="mid" style="margin:8px 0 4px;font-size:13px">اقتراحات:</div>
     <div class="chips" id="homeSug">${SITUATIONS.filter(x => x.id !== "tasbih").map((x, i) => `<label class="chip${i >= 4 ? " more hidden" : ""}"><input type="checkbox" class="hchk" value="${x.id}">${esc(x.label)}</label>`).join("")}<button class="chip" id="homeMore">المزيد…</button></div>
   </div>
   <div class="card">
     <h3 style="margin:0 0 6px">ملخص يومي</h3>
-    ${shown.map(x => `<div class="count"><span>${ico(x.ic)} ${x.t()}</span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.v(g)}</b>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</span></div>`).join("")}
+    ${shown.map(x => `<div class="count hrow"><span class="hlbl">${x.p ? miniRing(...x.p(g)) : ""}<span>${ico(x.ic)} ${x.t()}</span></span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.v(g)}</b>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</span></div>`).join("")}
     ${shown.length ? "" : `<p class="mid">لا عناصر — أضيفي ما تريدين متابعته.</p>`}
     ${rest.length ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${rest.map(x => `<button class="btn sec sm" data-hadd="${x.id}">＋ ${x.t()}</button>`).join("")}</div>` : ""}
   </div>`;

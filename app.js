@@ -371,7 +371,7 @@ const HAJJ_INTRO = `
   <div class="note">تعريفٌ مختصر من كلام أهل العلم، وما فيه خلاف نُبّه عليه. ولمسألتك الخاصة اسألي جهة الإفتاء في بلدك.</div>`;
 function renderIntro(v, hajj, S) {
   v.innerHTML = `${hajj ? HAJJ_INTRO : UMRAH_INTRO}
-  <div class="stepbar"><button class="btn" id="startRite">ابدأ ${hajj ? "الحج" : "العمرة"} ←</button></div>`;
+  <div style="height:70px"></div><div class="stepbar sticky"><button class="btn" id="startRite">ابدأ ${hajj ? "الحج" : "العمرة"} ←</button></div>`;
   v.querySelector("#startRite").onclick = () => { S.intro = false; renderUmrah(); window.scrollTo(0, 0); };
 }
 
@@ -416,9 +416,6 @@ function renderUmrah() {
       ${D("رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ", "أثر عن ابن مسعود وابن عمر (ابن أبي شيبة، البيهقي) — موقوف؛ لا يُنسب للنبي ﷺ", "م")}
       <div class="note">لم يثبت دعاء مخصوص لكل شوط من السعي، وهو قول جمهور أهل العلم.</div></div>`;
   }
-  if (/الميقات والإحرام/.test(st.t)) duas += IHRAM_RULES;
-  if (st.kind === "tawaf") duas += TAWAF_RULES;
-  if (st.kind === "saee") duas += SAEE_RULES;
   if (st.secs) duas += booklet(st.secs);
 
   const N = STAGES.length, last = i === N - 1;

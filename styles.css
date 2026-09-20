@@ -473,3 +473,12 @@ header{position:relative}
 .planlegend b{color:var(--gold,#e9d7a1)}
 .xhide{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line,#ccc);background:transparent;color:var(--dim);font-size:13px;cursor:pointer;line-height:1}
 .jhead{flex-wrap:wrap;gap:8px;padding-inline-start:30px}.jhead h3{flex:1 1 55%;font-size:17px}.jhead .btn{flex:0 0 auto;white-space:nowrap}
+
+.askBanner{background:linear-gradient(135deg,rgba(217,184,120,.28),rgba(217,184,120,.08)),var(--card);border:1.5px solid var(--gold,#d9b878);box-shadow:0 8px 24px rgba(217,184,120,.18)}
+.askBanner h3{color:var(--gold2,#c9a25c);font-size:20px}
+.askBanner .chip{border-color:var(--gold,#d9b878)}
+.askBanner .btn{background:var(--gold,#d9b878);color:#1d1a12;font-weight:700}
+.askBanner .chips{display:flex;flex-wrap:wrap;overflow:visible;gap:6px}
+.askBanner .chip{white-space:normal;text-align:right;font-size:14px;padding:6px 10px}
+.askBanner label.chip{display:inline-flex;align-items:center;gap:6px;flex-direction:row;line-height:1.4}
+.askBanner label.chip input{margin:0;width:16px;height:16px}

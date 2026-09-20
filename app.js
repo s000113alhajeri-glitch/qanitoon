@@ -2017,7 +2017,7 @@ function renderHome() {
   const rest = HOME_ITEMS.filter(x => !shown.includes(x));
   v.innerHTML = `
   ${fridayCard()}
-  <div class="card">
+  <div class="card askBanner">
     <h3 style="margin:0 0 6px">${ico("chat")} اسألني — أنا الآن…</h3>
     <div class="chips" style="margin-top:6px">${SITUATIONS.filter(x => x.id !== "tasbih").map(x => `<label class="chip" style="cursor:pointer"><input type="checkbox" class="hchk" value="${x.id}" style="margin-inline-end:6px;accent-color:var(--gold,#e9d7a1)">${esc(x.label)}</label>`).join("")}</div>
     <div class="row" style="margin-top:8px"><input id="homeAsk" placeholder="أو اكتبي حالتك بكلامك…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div>

@@ -1997,14 +1997,14 @@ function fridayCard() {
 }
 const HOME_ITEMS = [
   { id: "rite", t: () => (RITE.k === "hajj" ? "الحج" : "العمرة") + " — الخطوة الحالية", ic: "kaaba", v: () => { const st = RITE.k === "hajj" ? HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)] : STAGES[Math.min(S.stage, STAGES.length - 1)]; return esc(st.t); }, go: "umrah" },
-  { id: "quran", t: () => "المصحف", ic: "quran", v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
+  { id: "quran", t: () => "الورد اليومي", ic: "quran", v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
   { id: "adhkar", t: () => "الأذكار", ic: "beads", v: g => `${AR(g.sd)} من ${AR(g.st)} منجزة`, go: "adhkar" },
   { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", v: g => `${AR(g.dh)} من ${AR(g.dgoal)}`, go: "tadabbur" },
   { id: "jadwal", t: () => "جدولي", ic: "clock", v: () => { const a = JAD.active(); const on = DUA_TIMES.filter(x => JAD.isOn(x.id)).length; return (a.length ? "الآن: " + esc(a[0].t) + " · " : "") + `${AR(on)} أوقات مفعّلة`; }, go: "tadabbur" },
   { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
   { id: "streak", t: () => "أيام متتابعة", ic: "clock", v: g => AR(g.streak), go: "adhkar" },
 ];
-const HOME = { def: ["rite", "quran", "adhkar", "tasbih", "jadwal"], list() { return DB.get("homeItems", this.def); }, set(l) { DB.set("homeItems", l); } };
+const HOME = { fixed: ["quran", "adhkar", "tasbih"], def: ["rite", "jadwal"], list() { return [...this.fixed, ...DB.get("homeItems", this.def).filter(i => !this.fixed.includes(i))]; }, set(l) { DB.set("homeItems", l.filter(i => !this.fixed.includes(i))); } };
 function renderHome() {
   const v = document.getElementById("v-home"); if (!v) return;
   const g = SUM.progress();
@@ -2019,7 +2019,7 @@ function renderHome() {
   </div>
   <div class="card">
     <h3 style="margin:0 0 6px">ملخص يومي</h3>
-    ${shown.map(x => `<div class="count"><span>${ico(x.ic)} ${x.t()}</span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.v(g)}</b><button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button></span></div>`).join("")}
+    ${shown.map(x => `<div class="count"><span>${ico(x.ic)} ${x.t()}</span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.v(g)}</b>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</span></div>`).join("")}
     ${shown.length ? "" : `<p class="mid">لا عناصر — أضيفي ما تريدين متابعته.</p>`}
     ${rest.length ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${rest.map(x => `<button class="btn sec sm" data-hadd="${x.id}">＋ ${x.t()}</button>`).join("")}</div>` : ""}
   </div>`;

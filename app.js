@@ -1933,12 +1933,7 @@ const SUM = {
         </div>
       </div>
     </div>
-    <div class="card rings">
-      ${ring("التسبيح", g.dh, g.dgoal, "beads")}
-      ${ring("الأذكار", g.sd, g.st, "clock")}
-      ${ring("المصحف", g.pages, g.target, "quran")}
-      <div class="mid ringfoot">${g.streak > 1 ? "أذكارك مكتملة " + AR(g.streak) + " أيام متتابعة" : ""}${g.fast ? " · صيام اليوم: " + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") : ""}</div>
-    </div>`;
+`;
       if (!this.listening && DB.get("loc", false) && !this.tried) { this.tried = true; this.compass(); }
     }
     const t = document.getElementById("sumtog");

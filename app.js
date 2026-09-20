@@ -2024,11 +2024,11 @@ function renderHome() {
   </div>
   <div class="card">
     <h3 style="margin:0 0 6px">ملخص يومي</h3>
-    ${shown.map(x => `<div class="count hrow"><span class="hlbl" data-hgo="${x.go}" style="cursor:pointer">${x.p ? miniRing(...x.p(g)) : ""}<span>${ico(x.ic)} ${x.t()}</span></span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.p ? "" : x.v(g)}</b>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</span></div>`).join("")}
+    <div class="hgrid">${shown.map(x => `<div class="htile" data-hgo="${x.go}">${x.p ? miniRing(...x.p(g)) : `<span class="mring"><b>${x.v(g)}</b></span>`}<span class="htl">${ico(x.ic)} ${x.t()}</span>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</div>`).join("")}</div>
     ${shown.length ? "" : `<p class="mid">لا عناصر — أضيفي ما تريدين متابعته.</p>`}
     ${rest.length ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${rest.map(x => `<button class="btn sec sm" data-hadd="${x.id}">＋ ${x.t()}</button>`).join("")}</div>` : ""}
   </div>`;
-  v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = () => { HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });
+  v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = e => { e.stopPropagation(); HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });
   v.querySelectorAll("[data-hadd]").forEach(b => b.onclick = () => { HOME.set([...HOME.list(), b.dataset.hadd]); renderHome(); });
   v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => { if (b.dataset.hgo === "ask") { go("tadabbur"); renderTadabbur("ask"); } else go(b.dataset.hgo); });
   const openAsk = (q, ids) => { go("tadabbur"); renderTadabbur("ask"); if (ids && ids.length) { ASK.q = ids.map(i => (SITUATIONS.find(x => x.id === i) || {}).label || "").join(" ، "); if (ids.length === 1) renderAsk(ids[0]); else renderAsk(); } else { ASK.q = q || ""; renderAsk(); } };

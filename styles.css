@@ -495,3 +495,11 @@ header{position:relative}
 .askBanner .chips.list{flex-direction:column;align-items:stretch}
 .askBanner .chips.list .chip{border-radius:10px;padding:10px 12px}
 .askBanner .chips.list #homeMore{align-self:flex-end;width:auto}
+
+.hgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:6px 0}
+.htile{position:relative;display:flex;flex-direction:column;align-items:center;gap:6px;padding:12px 6px 10px;border:1px solid var(--line);border-radius:14px;background:var(--bg2);cursor:pointer;text-align:center}
+.htile .mring{width:56px;height:56px;flex:0 0 56px}
+.htile .mring svg{width:56px;height:56px}
+.htile .mring b{font-size:13px}
+.htile .htl{font-size:13px;line-height:1.35;display:flex;align-items:center;gap:4px;justify-content:center}
+.htile .xhide{position:absolute;top:4px;left:4px}

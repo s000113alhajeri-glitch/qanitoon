@@ -516,3 +516,6 @@ body.en{direction:ltr;text-align:left;line-height:1.6}
 body.en .src,body.en .note,body.en .mid,body.en li,body.en p,body.en summary,body.en .fadl,body.en .count span,body.en h2,body.en h3,body.en .stepbar,body.en button,body.en .chip{direction:ltr;unicode-bidi:plaintext;text-align:start}
 body.en .dua{direction:rtl;text-align:right;line-height:2.05;font-family:"Noto Naskh Arabic","Amiri",serif}
 body.en header h1{font-family:inherit}
+html[dir=ltr] .avatar{left:auto;right:12px}
+html[dir=ltr] .langBtn{left:14px;right:auto}
+html[dir=ltr] header h1{padding-left:70px}

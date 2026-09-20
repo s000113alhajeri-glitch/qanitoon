@@ -931,10 +931,8 @@ const ADHKAR_TABS = [
   { k: "salah", t: "بعد كل صلاة", r: () => IB_SALAH.map(item).join("") },
   { k: "nawm", t: "أذكار النوم", r: () => IB_NAWM.map(item).join("") + `<h3>عند الاستيقاظ</h3>` + IB_WAKE.map(item).join("") }
 ];
-const TADABBUR_TABS = [
-  { k: "asma", t: "التسبيح بأسماء الله الحسنى", r: namesView },
-  { k: "qsearch", t: "بحث في القرآن", r: quranSearchView },
-  { k: "tadabbur", t: "جدول التدبّر", r: () => TADABBUR_SCHEDULE.map(s => `<div class="card"><h3>${esc(s.salah)} — ${AR(s.mins)} دقيقة</h3><ol>${s.plan.map(p => `<li>${esc(p)}</li>`).join("")}</ol></div>`).join("") },
+/* مكتبة الأدعية كاملة داخل «اسألني» */
+const DUA_LIBRARY = [
   { k: "nabawi", t: "الأدعية النبوية", r: () => duaNotice() + `<div class="note">كل دعاء مع حديثه ومصدره ودرجته: <span class="tag s">صحيح</span> <span class="tag h">حسن</span> <span class="tag d">فيه خلاف / ضعيف</span>. ما ضُعّف يُدعى بمعناه بلا نسبةٍ جازمة للنبي ﷺ.</div>` + PROPHETIC_DUAS.map(c => `<details><summary>${esc(c.title)} (${AR(c.items.length)})</summary><div>${c.items.map(pitem).join("")}</div></details>`).join("") },
   { k: "dua", t: "الأدعية المصنّفة", r: () => duaNotice() + DUA_CATEGORIES.filter(catVisible).map(c => `<details><summary>${esc(c.title)}</summary><div>${c.note ? `<div class="note">${esc(c.note)}</div>` : ""}${c.items.map(item).join("")}</div></details>`).join("") },
   { k: "quranic", t: "الأدعية القرآنية", r: () => IB_QURANIC.map(x => item({ ...x, tag: "ق" })).join("") },
@@ -943,8 +941,12 @@ const TADABBUR_TABS = [
   { k: "ahwal", t: "أذكار الأحوال", r: () => IB_OTHER.map(g => `<details><summary>${esc(g.title)} (${AR(g.items.length)})</summary><div>${g.items.map(item).join("")}</div></details>`).join("") + `<details><summary>متفرقة (${AR(IB_MISC.length)})</summary><div>${IB_MISC.map(item).join("")}</div></details>` },
   { k: "anbiya", t: "أدعية الأنبياء", r: () => PROPHETS_DUA.map(g => `<details open><summary>${esc(g.topic)}</summary><div>${g.items.map(x => `<div class="card"><div class="mid" style="color:var(--gold2)">${esc(x.p)}</div><div class="dua">${esc(x.t)}</div>${x.n && x.n > 1 ? `<div class="count"><span>التكرار المقترح</span><b>${AR(x.n)}</b></div>${tasbih(x.p + x.t, x.n)}` : ""}${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}<div class="src"><span class="tag q">قرآن</span> ${esc(x.s)}</div></div>`).join("")}</div></details>`).join("") },
   { k: "safar", t: "السفر", r: () => `<div class="card"><h3>أحكام صلاة المسافر</h3>${SAFAR.ahkam.map(a => `<p><b>${esc(a.t)}:</b> ${esc(a.d)}<div class="src">${esc(a.s)}</div></p>`).join("")}</div>` + SAFAR.adhkar.map(item).join("") },
-  { k: "arafah", t: "يوم عرفة", r: () => arafahView() },
-  { k: "ibn", t: "من هدي ابن تيمية", r: () => IBN_TAYMIYYAH.map(x => `<div class="card"><h3>${esc(x.t)}</h3><p>${esc(x.d)}</p><div class="src">${esc(x.s)}</div></div>`).join("") },
+  { k: "arafah", t: "يوم عرفة", r: () => arafahView() }
+];
+const TADABBUR_TABS = [
+  { k: "asma", t: "أسماء الله الحسنى", r: namesView },
+  { k: "jadwal", t: "جدولي", r: jadwalView },
+  { k: "qsearch", t: "بحث في القرآن", r: quranSearchView },
   { k: "ask", t: "اسألني", r: () => "" }
 ];
 function arafahProgram(rows) {
@@ -982,10 +984,10 @@ function renderTadabbur(tab) {
   const cur = TADABBUR_TABS.find(x => x.k === k) || TADABBUR_TABS[0]; DB.set("ttab", cur.k);
   v.innerHTML = `<div class="chips">${TADABBUR_TABS.map(x => `<button class="chip ${x.k === cur.k ? "on" : ""}" data-a="${x.k}">${x.t}</button>`).join("")}</div><div id="tbody">${cur.r()}</div>`;
   v.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { renderTadabbur(b.dataset.a); window.scrollTo(0, 0); });
-  v.querySelectorAll("[data-arw]").forEach(b => b.onclick = () => { DB.set("arafah_who", b.dataset.arw); renderTadabbur("arafah"); });
   if (cur.k === "asma") bindNames(v);
   if (cur.k === "qsearch") bindQuranSearch(v);
   if (cur.k === "ask") renderAsk(undefined, document.getElementById("tbody"));
+  if (cur.k === "jadwal") bindJadwal(v);
   bindCounters(v);
 }
 setInterval(() => {
@@ -997,8 +999,90 @@ setInterval(() => {
   if (now === r.wird) { DB.set(k, true); notify("وردك من القرآن", "بقي من وردك اليوم ما لم تُتمّه"); }
 }, 30000);
 
+
+/* ============ جدولي: أوقات الدعاء النبوية ============ */
+const JAD = {
+  opts() { return DB.get("jadwal", { on: {}, manual: {}, fasting: {} }); },
+  set(o) { DB.set("jadwal", Object.assign(this.opts(), o)); },
+  isOn(id) { const o = this.opts().on; return o[id] === undefined ? id === "adhan" || id === "dubur" || id === "thuluth" : !!o[id]; },
+  ctx(d) { d = d || new Date(); return { hj: toHijri(d, DB.get("hoff", 0)), dow: d.getDay(), fasting: !!this.opts().fasting[d.toISOString().slice(0, 10)] }; },
+  active() {
+    const t = PRAY.times(), c = this.ctx(), o = this.opts();
+    return DUA_TIMES.filter(x => {
+      if (x.manual) return !!o.manual[x.id];
+      if (x.always) return false;
+      return x.win && x.win(t, c);
+    });
+  }
+};
+const jadPicks = id => getPicks("jad", id);
+function jadTimeCard(x, open) {
+  const t = PRAY.times(), c = JAD.ctx();
+  const w = !x.manual && !x.always && x.win ? x.win(t, c) : null;
+  const on = JAD.isOn(x.id);
+  const picks = jadPicks(x.id).map(i => LIBMAP[i]).filter(Boolean);
+  const gcls = /صحيح/.test(x.g) ? "s" : "h";
+  return `<div class="card ${open ? "" : "dim"}">
+    <div class="count"><h3 style="margin:0">${x.icon} ${esc(x.t)}</h3>
+      ${x.always ? `<span class="tag h">في كل صلاة</span>` : x.manual ? `<button class="btn sm ${JAD.opts().manual[x.id] ? "" : "sec"}" data-jman="${x.id}">${JAD.opts().manual[x.id] ? "مفعّل الآن" : "أنا فيه الآن"}</button>` : `<button class="btn sm ${on ? "" : "sec"}" data-jon="${x.id}">${on ? "التنبيه مفعّل" : "تنبيه"}</button>`}
+    </div>
+    ${w ? `<div class="note" style="border-color:var(--gold)"><b>الوقت الآن</b> · من ${hhmm(w[0] % 24)} إلى ${hhmm(w[1] % 24)}</div>` : ""}
+    <div class="dua">${esc(x.h)}</div>
+    <div class="src"><span class="tag ${gcls}">${esc(x.g)}</span> ${esc(x.s)}</div>
+    ${x.f ? `<div class="src fadl">${esc(x.f)}</div>` : ""}
+    ${x.pre ? `<details ${open ? "open" : ""}><summary><b>${esc(x.pre.title)}</b></summary>${x.pre.items.map(i => `<div class="card"><div class="dua">${esc(i.t)}</div><div class="src"><span class="tag h">سنة</span> ${esc(i.s)}</div></div>`).join("")}</details>` : ""}
+    ${x.fixed ? `<details ${open ? "open" : ""}><summary><b>الثابت في هذا الوقت</b></summary>${x.fixed.map(i => `<div class="card"><div class="dua">${esc(i.t)}</div>${i.n > 1 ? tasbih("jad_" + x.id + i.t, i.n) : ""}<div class="src"><span class="tag h">سنة</span> ${esc(i.s)}</div></div>`).join("")}</details>` : ""}
+    <details ${open ? "open" : ""}><summary><b>أدعيتي في هذا الوقت</b> (${AR(picks.length)})</summary>
+      ${picks.map(i => `<div class="card"><div class="dua">${esc(i.t)}</div><div class="src"><span class="tag ${i.k === "ق" ? "q" : i.k === "س" ? "h" : "m"}">${i.k === "ق" ? "قرآن" : i.k === "س" ? "سنة" : "دعاء مباح"}</span> ${esc(i.s)}</div></div>`).join("") || `<p class="mid">لم تختاري شيئاً بعد — وتدعين بما شئتِ.</p>`}
+      <div class="row"><button class="btn sm" data-pick="jad" data-sh="${x.id}">اختيار من المكتبة</button><button class="btn sec sm" data-jwrite="${x.id}">أكتب دعائي</button></div>
+    </details>
+  </div>`;
+}
+function jadwalView() {
+  const act = JAD.active();
+  const rest = DUA_TIMES.filter(x => !act.includes(x));
+  const d = new Date().toISOString().slice(0, 10);
+  const fasting = !!JAD.opts().fasting[d];
+  return `<div class="note">أوقات الدعاء الواردة عن النبي ﷺ فقط، كلٌّ بحديثه ودرجته. يظهر أعلى القائمة ما أنتِ فيه الآن، ويُنبَّه لما فعّلتِه. اختيارك للأدعية تسهيلٌ للتذكير، ويجوز لك أن تدعي بما شئتِ.</div>
+  <div class="row"><button class="btn sm ${fasting ? "" : "sec"}" id="jfast">${fasting ? "أنا صائمة اليوم ✓" : "أنا صائمة اليوم"}</button><button class="btn sec sm" id="jnotif">${("Notification" in window && Notification.permission === "granted") ? "التنبيهات مسموحة" : "السماح بالتنبيهات"}</button></div>
+  ${act.length ? `<h3 style="margin:14px 4px 6px">الآن</h3>${act.map(x => jadTimeCard(x, true)).join("")}` : `<div class="card"><p class="mid">لا وقت مخصوص الآن — والدعاء مقبول في كل حين ﴿ادْعُونِي أَسْتَجِبْ لَكُمْ﴾ (غافر ٦٠).</p></div>`}
+  <h3 style="margin:14px 4px 6px">بقية الأوقات</h3>
+  ${rest.map(x => jadTimeCard(x, false)).join("")}`;
+}
+function bindJadwal(v) {
+  const rerender = () => renderTadabbur("jadwal");
+  v.querySelectorAll("[data-jon]").forEach(b => b.onclick = async () => {
+    const id = b.dataset.jon, on = !JAD.isOn(id);
+    if (on && "Notification" in window && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (e) { } }
+    const o = JAD.opts().on; o[id] = on; JAD.set({ on: o }); rerender();
+  });
+  v.querySelectorAll("[data-jman]").forEach(b => b.onclick = () => { const m = JAD.opts().manual; m[b.dataset.jman] = !m[b.dataset.jman]; JAD.set({ manual: m }); rerender(); });
+  const jf = v.querySelector("#jfast"); if (jf) jf.onclick = () => { const f = JAD.opts().fasting, d = new Date().toISOString().slice(0, 10); f[d] = !f[d]; JAD.set({ fasting: f }); rerender(); };
+  const jn = v.querySelector("#jnotif"); if (jn) jn.onclick = async () => { if ("Notification" in window) { try { await Notification.requestPermission(); } catch (e) { } } rerender(); };
+  v.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => openPicker("jad", b.dataset.sh, { filter: x => !x.timed, done: rerender, title: (DUA_TIMES.find(x => x.id === b.dataset.sh) || {}).t }));
+  v.querySelectorAll("[data-jwrite]").forEach(b => b.onclick = () => openComposer(id => { setPicks("jad", b.dataset.jwrite, [...jadPicks(b.dataset.jwrite), id]); rerender(); }));
+}
+/* تنبيهات جدولي: تنبيه عند الأذان (ذكره) ثم بعد ٥ دقائق (الدعاء بين الأذان والإقامة)، وعند بدء كل وقت مفعّل */
+setInterval(() => {
+  const t = PRAY.times(), c = JAD.ctx(), h = nowH();
+  const near = (a, b) => Math.abs(a - b) < 0.5 / 60 + 1e-9;
+  DUA_TIMES.forEach(x => {
+    if (!JAD.isOn(x.id) || x.manual || x.always || !x.starts) return;
+    x.starts(t, c).forEach(st => {
+      const fire = (off, key, title, body) => {
+        const k = "jfired_" + today() + "_" + x.id + "_" + key + "_" + Math.round(st * 60);
+        if (near(h, st + off) && !DB.get(k, false)) { DB.set(k, true); notify(title, body); }
+      };
+      if (x.id === "adhan") {
+        fire(0, "a", "عند الأذان", "ردّدي مع المؤذن، ثم صلّي على النبي ﷺ، ثم: اللهم ربّ هذه الدعوة التامة والصلاة القائمة…");
+        fire(5 / 60, "b", "بين الأذان والإقامة — الدعاء لا يُردّ", jadPicks("adhan").length ? "أدعيتك المختارة في جدولي" : "ادعي بما شئتِ");
+      } else fire(0, "s", x.icon + " " + x.t, x.h.slice(0, 90) + "…");
+    });
+  });
+}, 30000);
+
 /* ============ اسألني ============ */
-const ASK = { q: "", tab: DB.get("ask_tab", "quran") };
+const ASK = { q: "", tab: DB.get("ask_tab", "quran"), lib: DB.get("ask_lib", "") };
 function askMatch(text) {
   const n = norm(text);
   if (!n.trim()) return { crisis: false, hits: [] };
@@ -1024,10 +1108,16 @@ function renderAsk(id, box) {
     ${crisis ? crisisCard() : ""}
     ${hits.length ? `<div class="chips">${hits.slice(0, 4).map(s => `<button class="chip on" data-m="${s.id}">${esc(s.label)}</button>`).join("")}</div>` : ""}
     <div class="grid">${SITUATIONS.filter(s => !hits.includes(s)).map(m => `<button data-m="${m.id}">${esc(m.label)}</button>`).join("")}</div>
-    <div class="note">${esc(SIT_DISCLAIMER)}</div>`;
+    <div class="note">${esc(SIT_DISCLAIMER)}</div>
+    <h3 style="margin:16px 4px 6px">مكتبة الأدعية</h3>
+    <div class="chips">${DUA_LIBRARY.map(l => `<button class="chip ${ASK.lib === l.k ? "on" : ""}" data-lib="${l.k}">${l.t}</button>`).join("")}</div>
+    <div id="asklib">${ASK.lib ? (DUA_LIBRARY.find(l => l.k === ASK.lib) || DUA_LIBRARY[0]).r() : ""}</div>`;
     const inp = v.querySelector("#askq");
     let tm; inp.oninput = () => { ASK.q = inp.value; clearTimeout(tm); tm = setTimeout(() => { const pos = inp.selectionStart; renderAsk(undefined, v); const i2 = v.querySelector("#askq"); i2.focus(); i2.setSelectionRange(pos, pos); }, 350); };
     v.querySelectorAll("[data-m]").forEach(b => b.onclick = () => renderAsk(b.dataset.m, v));
+    v.querySelectorAll("[data-lib]").forEach(b => b.onclick = () => { ASK.lib = ASK.lib === b.dataset.lib ? "" : b.dataset.lib; DB.set("ask_lib", ASK.lib); renderAsk(undefined, v); const a = v.querySelector("#asklib"); if (a && ASK.lib) a.scrollIntoView({ behavior: "smooth", block: "start" }); });
+    v.querySelectorAll("[data-arw]").forEach(b => b.onclick = () => { DB.set("arafah_who", b.dataset.arw); renderAsk(undefined, v); });
+    bindCounters(v);
     return;
   }
   const m = SITUATIONS.find(x => x.id === id); if (!m) return renderAsk(undefined, v);
@@ -1528,7 +1618,7 @@ function renderSettings() {
     <button class="btn ${o.on ? "sec" : ""} sm" id="pon">${o.on ? "إيقاف تنبيه الصلاة" : "تفعيل تنبيه الصلاة"}</button></div>
   <div class="card"><h3>الخصوصية وإخلاء المسؤولية</h3>
     <ul>
-      <li>بياناتك وتقدّمك محفوظة في جهازك فقط، ولا تُرسل إلى أي خادم، ولا إعلانات ولا تتبّع.</li>
+      <li>بياناتك وتقدّمك محفوظة في جهازك فقط، ولا تُرسل إلى أي خادم، ولا إعلانات ولا تتبّع شخصي؛ تُعدّ الزيارات مجهولةً بلا كوكيز لمعرفة عدد المستخدمين فقط.</li>
       <li>الحسابات الفلكية (الصلاة، القبلة، الهجري) تقريبية؛ المعتمد إعلان الجهة الرسمية في بلدك.</li>
       <li>عدّ الأشواط بالموقع مساعدة تقنية قد تخطئ؛ صحة النسك مسؤوليتك.</li>
       <li>كل نص موسوم بمصدره: قرآن، سنة بتخريجها، أو دعاء مباح. ليس فتوى ولا يُغني عن أهل العلم.</li>

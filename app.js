@@ -374,6 +374,8 @@ function buildLib() {
     if (String(l).trim().length < 12) return;
     out.push({ id: "m_" + sec.id + "_" + i, t: l, s: "دعاء مباح — من مختارات المناسك", g: "مناسك: " + sec.title });
   }));
+  PROPHETIC_DUAS.forEach(c => c.items.forEach((x, i) =>
+    out.push({ id: "pd_" + c.id + "_" + i, t: x.t, s: (x.g ? x.g + " — " : "") + (x.s || "") + (x.h ? " — " + x.h : ""), g: "الأدعية النبوية: " + c.title, n: x.n })));
   if (typeof QURAN_DUAS !== "undefined") QURAN_DUAS.forEach(c => c.items.forEach((x, i) =>
     out.push({ id: c.id + "_" + i, t: x.t, s: "قرآن — " + (x.s || ""), g: "أدعية القرآن: " + c.title })));
   getMyDuas().forEach(x =>
@@ -722,7 +724,24 @@ function bindCounters(root) {
     SUM.render();
   });
 }
+function duaNotice() {
+  return `<details class="card" style="padding:10px 14px"><summary><b>قبل أن تدعو</b></summary>
+    <p>${esc(DUA_NOTICE.text)}</p>
+    ${DUA_NOTICE.refs.map(r => `<div class="src"><span class="tag ${r.k}">${r.k === "q" ? "قرآن" : "سنة"}</span> ${esc(r.t)} — ${esc(r.s)}</div>`).join("")}
+  </details>`;
+}
+function pitem(x) {
+  const cls = x.tag === "ق" ? "q" : x.tag === "م" ? "m" : "h";
+  const gcls = /صحيح/.test(x.g) ? "s" : /حسن/.test(x.g) ? "h" : /قرآن/.test(x.g) ? "q" : "d";
+  return `<div class="card">
+    <div class="dua">${esc(x.t)}</div>
+    ${x.n && x.n > 1 ? `<div class="count"><span>التكرار</span><b>${AR(x.n)}</b></div>${tasbih(x.t, x.n)}` : ""}
+    ${x.h ? `<p style="font-size:14px"><b>الحديث:</b> ${esc(x.h)}</p>` : ""}
+    <div class="src"><span class="tag ${cls}">${cls === "q" ? "قرآن" : cls === "m" ? "دعاء مباح" : "سنة"}</span> <span class="tag ${gcls}">${esc(x.g)}</span> ${esc(x.s)}</div>
+  </div>`;
+}
 const ADHKAR_TABS = [
+  { k: "nabawi", t: "الأدعية النبوية", r: () => `<div class="note">كل دعاء مع حديثه ومصدره ودرجته: <span class="tag s">صحيح</span> <span class="tag h">حسن</span> <span class="tag d">فيه خلاف / ضعيف</span>. ما ضُعّف يُدعى بمعناه بلا نسبةٍ جازمة للنبي ﷺ.</div>` + PROPHETIC_DUAS.map(c => `<details><summary>${esc(c.title)} (${AR(c.items.length)})</summary><div>${c.items.map(pitem).join("")}</div></details>`).join("") },
   { k: "salah", t: "بعد الصلاة", r: () => ADHKAR_SALAH.map(item).join("") },
   { k: "sabah", t: "أذكار الصباح", r: () => `<div class="note">وقتها من بعد الفجر إلى طلوع الشمس، ومن فاته فلا حرج أن يقولها إلى الزوال.</div>` + MORNING_EVENING.filter(x => !/المساء خاصة/.test(x.when || "")).map(item).join("") },
   { k: "masa", t: "أذكار المساء", r: () => `<div class="note">وقتها من بعد العصر إلى غروب الشمس، ويمتد إلى نصف الليل لمن فاته.</div>` + MORNING_EVENING.filter(x => !/^الصباح$/.test(x.when || "")).map(item).join("") },
@@ -732,8 +751,7 @@ const ADHKAR_TABS = [
   { k: "anbiya", t: "أدعية الأنبياء", r: () => PROPHETS_DUA.map(g => `<details open><summary>${esc(g.topic)}</summary><div>${g.items.map(x => `<div class="card"><div class="mid" style="color:var(--gold2)">${esc(x.p)}</div><div class="dua">${esc(x.t)}</div>${x.n && x.n > 1 ? `<div class="count"><span>التكرار المقترح</span><b>${AR(x.n)}</b></div>${tasbih(x.p + x.t, x.n)}` : ""}${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}<div class="src"><span class="tag q">قرآن</span> ${esc(x.s)}</div></div>`).join("")}</div></details>`).join("") },
   { k: "dua", t: "الأدعية المصنّفة", r: () => DUA_CATEGORIES.map(c => `<details><summary>${esc(c.title)}</summary><div>${c.note ? `<div class="note">${esc(c.note)}</div>` : ""}${c.items.map(item).join("")}</div></details>`).join("") },
   { k: "arafah", t: "يوم عرفة", r: () => arafahView() },
-  { k: "ibn", t: "من هدي ابن تيمية", r: () => IBN_TAYMIYYAH.map(x => `<div class="card"><h3>${esc(x.t)}</h3><p>${esc(x.d)}</p><div class="src">${esc(x.s)}</div></div>`).join("") },
-  { k: "picks", t: "مختارات", r: () => `<div class="note">منقولة من حساب الشيخ مصطفى حسني — تُعامَل كأدعية مباحة لا كأحاديث، والقرآن منها موثّق بمصدره.</div>` + HOSNY_PICKS.map(item).join("") }
+  { k: "ibn", t: "من هدي ابن تيمية", r: () => IBN_TAYMIYYAH.map(x => `<div class="card"><h3>${esc(x.t)}</h3><p>${esc(x.d)}</p><div class="src">${esc(x.s)}</div></div>`).join("") }
 ];
 function arafahProgram(rows) {
   return rows.map(x => `<div class="card"><h3>${esc(x.w)}</h3><p>${esc(x.d)}</p>${x.s ? `<div class="src">${esc(x.s)}</div>` : ""}</div>`).join("");
@@ -756,9 +774,10 @@ function arafahView() {
 
 function renderAdhkar(tab) {
   const v = document.getElementById("v-adhkar");
-  const k = tab || DB.get("atab", "salah"); DB.set("atab", k);
+  const k = tab || DB.get("atab", "nabawi"); DB.set("atab", k);
   const cur = ADHKAR_TABS.find(x => x.k === k) || ADHKAR_TABS[0];
   v.innerHTML = `<div class="chips">${ADHKAR_TABS.map(x => `<button class="chip ${x.k === k ? "on" : ""}" data-a="${x.k}">${x.t}</button>`).join("")}</div>
+  ${duaNotice()}
   <div class="note">التصنيف: <span class="tag q">قرآن</span> آية، <span class="tag h">سنة</span> ثابت عن النبي ﷺ، <span class="tag m">دعاء مباح</span> ليس حديثاً، تدعو به بلا نسبة للنبي ﷺ.</div>
   ${cur.r()}`;
   v.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { renderAdhkar(b.dataset.a); window.scrollTo(0, 0); });
@@ -875,6 +894,7 @@ function renderAsk(id) {
   const cur = tabs.find(t => t[0] === ASK.tab);
   const tagOf = { quran: "ق", sunnah: "س", mubah: "م" }[ASK.tab];
   v.innerHTML = `<button class="btn sec sm" id="back">→ رجوع</button>
+  ${duaNotice()}
   <div class="card"><h3>${esc(m.label)}</h3><p class="mid">ذكر ودعاء فقط — بلا نصائح ولا مناقشة تصرفات.</p></div>
   <div class="chips">${tabs.map(t => `<button class="chip ${t[0] === ASK.tab ? "on" : ""}" data-tab="${t[0]}">${t[1]} (${AR(t[2].length)})</button>`).join("")}</div>
   ${cur[2].map(x => item({ ...x, tag: x.tag || tagOf })).join("")}

@@ -491,3 +491,7 @@ header{position:relative}
 .mring .rfg{fill:none;stroke:var(--brand);stroke-width:7;stroke-linecap:round}
 .mring.done .rfg{stroke:var(--gold)}
 .mring b{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;font-size:11px;color:var(--txt)}
+
+.askBanner .chips.list{flex-direction:column;align-items:stretch}
+.askBanner .chips.list .chip{border-radius:10px;padding:10px 12px}
+.askBanner .chips.list #homeMore{align-self:flex-end;width:auto}

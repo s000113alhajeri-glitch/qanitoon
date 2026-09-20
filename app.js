@@ -2020,7 +2020,7 @@ function renderHome() {
     <h3 style="margin:0 0 6px">${ico("chat")} اكتب حالتي</h3>
     <div class="row"><input id="homeAsk" placeholder="اكتبي حالتك بكلامك…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div>
     <div class="mid" style="margin:8px 0 4px;font-size:13px">اقتراحات:</div>
-    <div class="chips" id="homeSug">${SITUATIONS.filter(x => x.id !== "tasbih").map((x, i) => `<label class="chip${i >= 4 ? " more hidden" : ""}"><input type="checkbox" class="hchk" value="${x.id}">${esc(x.label)}</label>`).join("")}<button class="chip" id="homeMore">المزيد…</button></div>
+    <div class="chips" id="homeSug">${SITUATIONS.filter(x => x.id !== "tasbih").map((x, i) => `<label class="chip${i >= 4 ? " more hidden" : ""}"><input type="checkbox" class="hchk" value="${x.id}">${esc(x.label)}</label>`).join("")}<button class="chip" id="homeMore">المزيد ▾</button></div>
   </div>
   <div class="card">
     <h3 style="margin:0 0 6px">ملخص يومي</h3>
@@ -2035,7 +2035,7 @@ function renderHome() {
   const ha = v.querySelector("#homeAsk"), hg = v.querySelector("#homeAskGo");
   if (hg) hg.onclick = () => { const ids = [...v.querySelectorAll(".hchk:checked")].map(c => c.value); const q = ha.value.trim(); if (!ids.length && !q) return; openAsk(q, q ? [] : ids); if (q && ids.length) { ASK.q = q + " ، " + ids.map(i => SITUATIONS.find(x => x.id === i).label).join(" ، "); renderAsk(); } };
   if (ha) ha.onkeydown = e => { if (e.key === "Enter") hg.click(); };
-  const hm = v.querySelector("#homeMore"); if (hm) hm.onclick = () => { v.querySelectorAll("#homeSug .more").forEach(x => x.classList.remove("hidden")); hm.remove(); };
+  const hm = v.querySelector("#homeMore"); if (hm) hm.onclick = () => { const op = v.querySelector("#homeSug").classList.toggle("list"); v.querySelectorAll("#homeSug .more").forEach(x => x.classList.toggle("hidden", !op)); hm.textContent = op ? "أقل ▴" : "المزيد ▾"; };
   const k = document.getElementById("goKahf");
   if (k) k.onclick = () => { const s = QURAN.surahs.find(x => x.n === 18); if (s) Q.page = s.page; go("quran"); };
 }

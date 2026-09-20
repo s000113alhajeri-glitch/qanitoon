@@ -717,7 +717,8 @@ function openPicker(kind, sh, opts = {}) {
       <b>مكتبة الأدعية — ${esc(opts.title || ((kind === "tawaf" ? "طواف" : "سعي") + " · الشوط " + AR(sh)))}</b>
       <button class="btn sec sm" id="pkClose">إغلاق</button>
     </div>
-    <input id="pkSearch" placeholder="ابحث بالمعنى: الرزق، الزواج، العيال، قضاء الدين، الهداية…">
+    <input id="pkSearch" placeholder="ابحث: الرزق، الزواج، الوالدين…">
+    <p class="mid" style="margin:0">افتحي العنوان وعلّمي ✓ ما تريدين ثم «حفظ».</p>
     <div class="chips" id="pkChips">${["الرزق", "الزواج", "الذرية", "العمل", "قضاء الدين", "الهداية", "التوبة", "الهم والكرب", "الشفاء", "الوالدين", "الحسد", "العلم", "النصر", "قرآن", "أدعيتي"].map(c => `<button class="chip" data-q="${c}">${c}</button>`).join("")}</div>
     <div class="sheetList" id="pkList"></div>
     <div class="row"><button class="btn" id="pkSave">حفظ الاختيار (<span id="pkN">${AR(sel.size)}</span>)</button>
@@ -731,11 +732,14 @@ function openPicker(kind, sh, opts = {}) {
     let g = null, html = "";
     if (s) html += `<div class="pkG">نتائج البحث عن «${esc(s)}»: ${AR(items.length)} دعاء</div>
       <div class="row"><button class="btn sec sm" id="pkAll">اختيار الجميع (${AR(items.length)})</button><button class="btn sec sm" id="pkNone">إلغاء الجميع</button></div>`;
-    items.slice(0, 400).forEach(x => {
-      if (!s && x.g !== g) { g = x.g; html += `<div class="pkG">${esc(g)}</div>`; }
-      html += `<label class="pkI"><input type="checkbox" data-id="${x.id}" ${sel.has(x.id) ? "checked" : ""}>
+    const row = x => `<label class="pkI"><input type="checkbox" data-id="${x.id}" ${sel.has(x.id) ? "checked" : ""}>
         <span><span class="dua">${esc(x.t)}</span><span class="src">${esc(x.s)}</span></span></label>`;
-    });
+    if (s) items.slice(0, 400).forEach(x => { html += row(x); });
+    else {
+      const groups = [];
+      items.forEach(x => { let gr = groups.find(y => y.g === x.g); if (!gr) { gr = { g: x.g, it: [] }; groups.push(gr); } gr.it.push(x); });
+      html += groups.map(gr => { const n = gr.it.filter(x => sel.has(x.id)).length; return `<details class="pkD"${n ? " open" : ""}><summary><span>${esc(gr.g)}</span><span class="mid">${n ? AR(n) + " مختار · " : ""}${AR(gr.it.length)}</span></summary><div>${gr.it.map(row).join("")}</div></details>`; }).join("");
+    }
     list.innerHTML = html || `<p class="mid">لا نتيجة.</p>`;
     const all = list.querySelector("#pkAll"), none = list.querySelector("#pkNone");
     if (all) all.onclick = () => { items.forEach(x => sel.add(x.id)); wrap.querySelector("#pkN").textContent = AR(sel.size); draw(s); };

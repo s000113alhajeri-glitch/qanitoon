@@ -71,7 +71,7 @@ html[data-wx="storm"] #sky{filter:saturate(.85) brightness(.92)}
 html[data-sky="fajr"]{
   --cloudC:rgba(180,170,200,.45);--cloudOp:.55;--moonOp:.45;--moonTop:12%;
   --sky1:#1b2a4a;--sky2:#41496f;--sky3:#8c7a94;--sunC:#f1c3a0;--sunOp:.35;--sunTop:96%;--starOp:.55;--horizon:rgba(240,196,160,.35);
-  --bg:transparent;--bg2:rgba(255,255,255,.10);--card:rgba(24,32,54,.72);--line:rgba(255,255,255,.16);
+  --bg:transparent;--bg2:rgba(255,255,255,.10);--card:rgba(24,32,54,.72);--sheetBg:#141c30;--card2:#1e2a48;--line:rgba(255,255,255,.16);
   --accent:#8fc4e8;--accentTxt:#0d1b28;--head:#bfe0f5;--brand:#9cc9ea;--brand2:#cfe6f5;--gold:#d9b878;--gold2:#eccf96;--txt:#eef3f6;--dim:#b9c4d6;--shadow:0 6px 20px rgba(0,0,0,.25);
 }
 html[data-sky="shuruq"]{
@@ -101,13 +101,13 @@ html[data-sky="asr"]{
 html[data-sky="maghrib"]{
   --cloudC:rgba(255,180,140,.6);--cloudOp:.8;--moonOp:.3;--moonTop:10%;
   --sky1:#3c3b6e;--sky2:#c9705f;--sky3:#f2a97e;--sunC:#ff9e63;--sunOp:.85;--sunTop:90%;--starOp:.25;--horizon:rgba(255,150,90,.45);
-  --bg:transparent;--bg2:rgba(255,255,255,.14);--card:rgba(38,28,44,.72);--line:rgba(255,255,255,.16);
+  --bg:transparent;--bg2:rgba(255,255,255,.14);--card:rgba(38,28,44,.72);--sheetBg:#1c1524;--card2:#2a2036;--line:rgba(255,255,255,.16);
   --accent:#8fc4e8;--accentTxt:#0d1b28;--head:#cfe4f5;--brand:#f0c9a0;--brand2:#ffe0c0;--gold:#e5b878;--gold2:#f6d7a4;--txt:#fbf1e8;--dim:#dcc0b4;--shadow:0 6px 20px rgba(0,0,0,.3);
 }
 html[data-sky="isha"]{
   --cloudC:rgba(120,140,175,.28);--cloudOp:.45;--moonOp:.95;--moonTop:13%;
   --sky1:#070d1c;--sky2:#101d33;--sky3:#1b2e3f;--sunC:#cfe0ff;--sunOp:.28;--sunTop:22%;--starOp:1;--horizon:rgba(120,160,200,.18);
-  --bg:transparent;--bg2:rgba(255,255,255,.08);--card:rgba(15,26,42,.74);--line:rgba(255,255,255,.14);
+  --bg:transparent;--bg2:rgba(255,255,255,.08);--card:rgba(15,26,42,.74);--sheetBg:#0f1a2a;--card2:#182740;--line:rgba(255,255,255,.14);
   --accent:#8fc4e8;--accentTxt:#0d1b28;--head:#c6e0f4;--brand:#8fc4e8;--brand2:#c6e0f4;--gold:#d6b87c;--gold2:#ecd29a;--txt:#e9f1f7;--dim:#a8b9c9;--shadow:0 6px 22px rgba(0,0,0,.4);
 }
 html[data-sky] .qpage{background:rgba(251,247,236,.96)}
@@ -313,8 +313,8 @@ html[data-sky="isha"]{--mosqueF:brightness(.42) saturate(.65) hue-rotate(195deg)
 nav button{font-size:10px}
 
 /* مكتبة الأدعية — لوحة الاختيار */
-.sheet{position:fixed;inset:0;background:rgba(10,20,30,.45);display:flex;align-items:flex-end;justify-content:center;z-index:60}
-.sheetIn{background:var(--card);width:100%;max-width:640px;max-height:88vh;border-radius:20px 20px 0 0;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
+.sheet{position:fixed;inset:0;background:var(--sheetBg,#f4f7f9);display:flex;align-items:stretch;justify-content:center;z-index:60}
+.sheetIn{background:var(--sheetBg,#f4f7f9);width:100%;max-width:640px;max-height:100vh;height:100%;border-radius:0;padding:14px;display:flex;flex-direction:column;gap:10px;box-shadow:var(--shadow)}
 .sheetTop{display:flex;align-items:center;justify-content:space-between;gap:8px}
 .sheetTop b{color:var(--head,#245a83);font-size:var(--f3)}
 .sheetIn input#pkSearch{width:100%;padding:10px 12px;border-radius:12px;border:1px solid var(--line);background:var(--bg2);color:var(--txt);font-family:inherit;font-size:var(--f2)}
@@ -324,7 +324,11 @@ nav button{font-size:10px}
 .pkI input{width:20px;height:20px;flex:0 0 20px;margin-top:2px;accent-color:var(--accent)}
 .pkI .dua{display:block;font-size:var(--f3);line-height:1.9}
 .pkI .src{display:block;font-size:var(--f1);color:var(--dim)}
-@media (max-width:480px){.sheetIn{max-height:92vh}}
+@media (max-width:480px){.sheetIn{max-height:100vh}}
+.pkD{border:1px solid var(--line);border-radius:12px;padding:0 10px;background:var(--bg2)}
+.pkD summary{display:flex;justify-content:space-between;align-items:center;padding:12px 4px;font-weight:700;cursor:pointer;font-size:var(--f3);color:var(--txt)}
+.pkD>div{padding-bottom:8px}
+.pkI{background:var(--card2,var(--card));border-radius:10px;padding:8px}
 .art{background:var(--bg2);border:1px solid var(--line);border-radius:14px;padding:10px;margin:8px 0}
 .art svg{display:block;max-width:420px;margin:0 auto}
 

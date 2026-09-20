@@ -827,11 +827,12 @@ function renderQuran() {
       <div class="bar"><i style="width:${Math.min(100, (p / 604) * 100)}%"></i></div>
       <button class="btn" id="qtoday">اقرأ ورد اليوم</button>
     </div>
-    <div class="card"><h3>دعاء ختم القرآن</h3>
+    ${p >= 604 ? `<div class="card"><h3>دعاء ختم القرآن</h3>
+      <p class="mid">أتممتِ الختمة — تقبّل الله منك.</p>
       <div class="note">لم يثبت عن النبي ﷺ دعاء مخصوص لختم القرآن، وهذا الدعاء المشهور من أدعية السلف والقرّاء، يُدعى به كدعاء مباح لا سنةً منسوبة.</div>
       <div class="dua">${esc(IB_KHATM.replace(/\s*\*\s*/g, "\n"))}</div>
       <div class="src"><span class="tag m">دعاء مباح</span> المصدر: مأثور عن القرّاء والسلف — ليس حديثاً</div>
-    </div>
+    </div>` : `<p class="mid">يظهر دعاء ختم القرآن هنا عند إتمام الختمة.</p>`}
   </div>
   <div id="qadab" class="hidden"><div class="card"><h3>الاستخدام الصحيح للمصحف</h3>
     <ul>

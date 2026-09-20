@@ -432,7 +432,7 @@ function renderUmrah() {
   ${duas}
   ${(st.kind === "tawaf" || st.kind === "saee") && GPS.id !== null ? `<div class="mid" id="gpsInfo"></div>` : ""}
   <div style="height:64px"></div>
-  <div class="stepbar">
+  <div class="stepbar sticky">
     <button class="btn sec" id="prev" ${i === 0 ? "disabled" : ""}>→ السابق</button>
     <span class="mid">${AR(i + 1)} / ${AR(N)}</span>
     <button class="btn" id="next">${last ? "إنهاء ↺" : "التالي ←"}</button>

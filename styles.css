@@ -461,5 +461,5 @@ header{position:relative}
   background:#245a83;color:#fff;font-size:var(--f5);font-weight:700;font-family:inherit;cursor:pointer;z-index:55;box-shadow:0 4px 14px rgba(0,0,0,.3)}
 .helpBtn:active{transform:scale(.95)}
 
-.stepbar.sticky{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);width:min(100% - 24px,600px);z-index:50;margin:0}
+.stepbar.sticky{position:fixed;bottom:74px;left:50%;transform:translateX(-50%);width:min(100% - 24px,600px);z-index:50;margin:0;background:var(--card);border:1px solid var(--line);border-radius:16px;padding:8px;box-shadow:0 6px 18px rgba(0,0,0,.35)}
 .stepbar.sticky .btn{box-shadow:0 6px 18px rgba(0,0,0,.35);font-size:var(--f3)}

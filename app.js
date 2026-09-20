@@ -962,8 +962,8 @@ function familyDuaItems() {
   return ids.map(id => DUA_CATEGORIES.find(c => c.id === id)).filter(c => c && catVisible(c))
     .map(c => `<details><summary>${esc(c.title)}</summary><div>${c.note ? `<div class="note">${esc(c.note)}</div>` : ""}${c.items.map(item).join("")}</div></details>`).join("");
 }
-function duaNotice() {
-  return `<details class="card" style="padding:10px 14px"><summary><b>قبل أن تدعو</b></summary>
+function duaNotice(open) {
+  return `<details class="card" style="padding:10px 14px" ${open ? "open" : ""}><summary><b>قبل أن تدعو</b></summary>
     <p>${esc(DUA_NOTICE.text)}</p>
     ${DUA_NOTICE.refs.map(r => `<div class="src"><span class="tag ${r.k}">${r.k === "q" ? "قرآن" : "سنة"}</span> ${esc(r.t)} — ${esc(r.s)}</div>`).join("")}
   </details>`;
@@ -1212,20 +1212,20 @@ function renderAsk(id, box) {
   const v = box || document.getElementById("tbody") || document.getElementById("v-tadabbur");
   if (!id) {
     const { crisis, hits } = askMatch(ASK.q);
-    v.innerHTML = `<div class="card"><h3>اكتب حالتك بكلامك</h3>
-      <input id="askq" placeholder="مثلاً: متضايقة، صارت مشكلة وسوء تفاهم…" value="${esc(ASK.q)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
-      <p class="mid" style="margin-top:8px">${ASK.q ? (hits.length ? "هل تقصد إحدى هذه الحالات؟ اختر لتظهر الأذكار والأدعية:" : "لم أتبيّن الحالة — اختر من القائمة أدناه.") : "أو اختر حالة مباشرة:"}</p></div>
-    ${crisis ? crisisCard() : ""}
-    ${hits.length ? `<div class="chips">${hits.slice(0, 4).map(s => `<button class="chip on" data-m="${s.id}">${esc(s.label)}</button>`).join("")}</div>` : ""}
-    <div class="grid">${SITUATIONS.filter(s => !hits.includes(s)).map(m => `<button data-m="${m.id}">${esc(m.label)}</button>`).join("")}</div>
-    <div class="note">${esc(SIT_DISCLAIMER)}</div>
-    <h3 style="margin:16px 4px 6px">كل الأدعية</h3>
-    ${duaNotice()}
+    v.innerHTML = `<h3 style="margin:4px 4px 6px">كل الأدعية</h3>
+    ${duaNotice(true)}
     <input id="libq" placeholder="ابحث بالمعنى: الرزق، الهمّ، الوالدين…" value="${esc(ASK.lq)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
     <div class="chips">${[["", "الكل"], ["ق", "قرآن"], ["س", "سنة صحيحة"], ["م", "مباح"]].map(f => `<button class="chip ${ASK.lf === f[0] ? "on" : ""}" data-lf="${f[0]}">${f[1]}</button>`).join("")}</div>
+    <div class="card" style="margin-top:14px"><h3>حالتي</h3>
+      <input id="askq" list="sitList" placeholder="اختر حالة أو اكتبها: هم، رزق، خصومة…" value="${esc(ASK.q)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
+      <datalist id="sitList">${SITUATIONS.map(m => `<option value="${esc(m.label)}">`).join("")}</datalist>
+      ${hits.length ? `<div class="chips" style="margin-top:8px">${hits.slice(0, 6).map(s => `<button class="chip on" data-m="${s.id}">${esc(s.label)}</button>`).join("")}</div>` : ASK.q ? `<p class="mid">لم أتبيّن الحالة — اختر من القائمة.</p>` : ""}
+      <p class="mid" style="margin-top:6px">${esc(SIT_DISCLAIMER)}</p></div>
+    ${crisis ? crisisCard() : ""}
     <div id="asklib">${libAllView()}</div>`;
     const inp = v.querySelector("#askq");
-    let tm; inp.oninput = () => { ASK.q = inp.value; clearTimeout(tm); tm = setTimeout(() => { const pos = inp.selectionStart; renderAsk(undefined, v); const i2 = v.querySelector("#askq"); i2.focus(); i2.setSelectionRange(pos, pos); }, 350); };
+    let tm; inp.onchange = () => { const m = SITUATIONS.find(x => x.label === inp.value.trim()); if (m) { ASK.q = ""; renderAsk(m.id, v); } };
+    inp.oninput = () => { ASK.q = inp.value; clearTimeout(tm); tm = setTimeout(() => { const pos = inp.selectionStart; renderAsk(undefined, v); const i2 = v.querySelector("#askq"); i2.focus(); i2.setSelectionRange(pos, pos); }, 350); };
     v.querySelectorAll("[data-m]").forEach(b => b.onclick = () => renderAsk(b.dataset.m, v));
     const lq = v.querySelector("#libq");
     let tm2; lq.oninput = () => { ASK.lq = lq.value; DB.set("ask_lq", ASK.lq); clearTimeout(tm2); tm2 = setTimeout(() => { const a = v.querySelector("#asklib"); a.innerHTML = libAllView(); bindCounters(a); }, 300); };

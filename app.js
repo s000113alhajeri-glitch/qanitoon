@@ -1928,7 +1928,7 @@ const SUM = {
       ${ring("التسبيح", g.dh, g.dgoal, "beads")}
       ${ring("الأذكار", g.sd, g.st, "clock")}
       ${ring("المصحف", g.pages, g.target, "quran")}
-      <div class="mid ringfoot">أيام متتابعة: ${AR(g.streak)}${g.fast ? " · صيام اليوم: " + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") : ""}</div>
+      <div class="mid ringfoot">${g.streak > 1 ? "أذكارك مكتملة " + AR(g.streak) + " أيام متتابعة" : ""}${g.fast ? " · صيام اليوم: " + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") : ""}</div>
     </div>`;
       if (!this.listening && DB.get("loc", false) && !this.tried) { this.tried = true; this.compass(); }
     }
@@ -2004,7 +2004,6 @@ const HOME_ITEMS = [
   { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", v: g => `${AR(g.dh)} من ${AR(g.dgoal)}`, go: "tadabbur" },
   { id: "jadwal", t: () => "جدولي", ic: "clock", v: () => { const a = JAD.active(); const on = DUA_TIMES.filter(x => JAD.isOn(x.id)).length; return (a.length ? "الآن: " + esc(a[0].t) + " · " : "") + `${AR(on)} أوقات مفعّلة`; }, go: "tadabbur" },
   { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
-  { id: "streak", t: () => "أيام متتابعة", ic: "clock", v: g => AR(g.streak), go: "adhkar" },
 ];
 const HOME = { fixed: ["quran", "adhkar", "tasbih"], def: ["umrah", "jadwal", "ask"], list() { return [...this.fixed, ...DB.get("homeItems", this.def).filter(i => !this.fixed.includes(i) && i !== "rite")]; }, set(l) { DB.set("homeItems", l.filter(i => !this.fixed.includes(i))); } };
 function renderHome() {

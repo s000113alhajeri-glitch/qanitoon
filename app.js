@@ -1991,7 +1991,11 @@ document.querySelectorAll("[data-ico]").forEach(i => { i.outerHTML = ico(i.datas
 const HASH_V = location.hash.slice(1);
 go(HASH_V && RENDER[HASH_V] ? HASH_V : DB.get("view", "home"));
 if (DB.get("loc", false)) { GPS.start(); SKY.locate(true); }
-if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(() => { });
+if ("serviceWorker" in navigator) {
+  navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(r => { r.update().catch(() => { }); }).catch(() => { });
+  let swReloaded = false;
+  navigator.serviceWorker.addEventListener("controllerchange", () => { if (swReloaded || !navigator.serviceWorker.controller) return; swReloaded = true; location.reload(); });
+}
 MOON.draw();
 LIFE.build(); LIFE.start();
 PRAY.strip();

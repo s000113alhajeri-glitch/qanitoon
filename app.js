@@ -668,6 +668,30 @@ function myDuasCard(kind, sh) {
   </div>`;
 }
 
+
+/* رسالة دعاء قبل الورد وبعده */
+const WIRD_DUA = "اللَّهُمَّ ذَكِّرْنَا مِنْهُ مَا نَسِينَا، وَعَلِّمْنَا مِنْهُ مَا جَهِلْنَا، وَارْزُقْنَا تِلَاوَتَهُ آنَاءَ اللَّيْلِ وَأَطْرَافَ النَّهَارِ، وَاجْعَلْهُ لَنَا حُجَّةً يَا رَبَّ الْعَالَمِينَ";
+function wirdSheet(kind, onClose) {
+  const before = kind === "before";
+  const wrap = document.createElement("div");
+  wrap.className = "sheet";
+  wrap.innerHTML = `<div class="sheetIn">
+    <div class="sheetTop"><b>${before ? "قبل أن تبدأ الورد" : "تمّ ورد اليوم — بارك الله فيك"}</b><button class="btn sec sm" id="wsClose">إغلاق</button></div>
+    ${before ? `<div class="card"><h3>الاستعاذة والبسملة</h3>
+      <div class="dua">أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ<br>بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <div class="src"><span class="tag q">قرآن</span> النحل ٩٨ — الثابت المشروع قبل القراءة.</div></div>` : ""}
+    <div class="card"><h3>${before ? "دعاء قبل التلاوة" : "دعاء بعد التلاوة"}</h3>
+      <div class="dua">${WIRD_DUA}</div>
+      <div class="note">وردت هذه الألفاظ في رواية ضعّفها أهل الحديث، فلا تُنسب للنبي ﷺ سنةً ثابتة، ومعناها حسن فيجوز الدعاء بها دعاءً مطلقاً.</div>
+      <div class="src"><span class="tag d">دعاء مباح — لم يثبت رفعه</span></div></div>
+    <button class="btn" id="wsGo">${before ? "ابدأ القراءة" : "تم"}</button>
+  </div>`;
+  document.body.appendChild(wrap);
+  const close = () => { wrap.remove(); if (onClose) onClose(); };
+  wrap.querySelector("#wsClose").onclick = close;
+  wrap.querySelector("#wsGo").onclick = close;
+  wrap.onclick = e => { if (e.target === wrap) close(); };
+}
 /* كتابة دعاء شخصي مع فحص شرعي مساعد (محلي، بدون إنترنت) */
 function openComposer(onSaved) {
   const wrap = document.createElement("div");
@@ -884,9 +908,9 @@ function renderQuran() {
   document.getElementById("qprev").onclick = () => { Q.page = p - 1; renderQuran(); window.scrollTo(0, 0); };
   document.getElementById("qnext").onclick = () => { Q.page = p + 1; renderQuran(); window.scrollTo(0, 0); };
   document.getElementById("qmark").onclick = () => { const m = Q.marks; Q.marks = m.includes(p) ? m.filter(x => x !== p) : [...m, p].sort((a, b) => a - b); renderQuran(); };
-  document.getElementById("qdone").onclick = () => { const pl = Q.plan; pl.log[today()] = (pl.log[today()] || 0) + 1; Q.plan = pl; Q.page = p + 1; if (pl.log[today()] === pl.pages) notify("تمّ ورد اليوم", "بارك الله فيك", "rite"); renderQuran(); SUM.render(); };
+  document.getElementById("qdone").onclick = () => { const pl = Q.plan; pl.log[today()] = (pl.log[today()] || 0) + 1; Q.plan = pl; Q.page = p + 1; renderQuran(); SUM.render(); if (pl.log[today()] === pl.pages) { notify("تمّ ورد اليوم", "بارك الله فيك", "rite"); wirdSheet("after"); } };
   document.getElementById("qpp").onchange = e => { const pl = Q.plan; pl.pages = Math.max(1, +e.target.value || 1); Q.plan = pl; renderQuran(); show("khatmah"); };
-  document.getElementById("qtoday").onclick = () => { show("read"); window.scrollTo(0, 0); };
+  document.getElementById("qtoday").onclick = () => wirdSheet("before", () => { show("read"); window.scrollTo(0, 0); });
   const goPage = n => { Q.page = n; renderQuran(); window.scrollTo(0, 0); };
   v.querySelectorAll("[data-go]").forEach(b => b.onclick = () => goPage(+b.dataset.go));
   const qgo = document.getElementById("qgo");

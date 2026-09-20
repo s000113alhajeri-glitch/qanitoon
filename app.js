@@ -1018,11 +1018,13 @@ function pitem(x) {
 const NM = { i: DB.get("nm_i", 0), tab: DB.get("nm_tab", "m") };
 function namesView() {
   const x = NAMES[Math.min(NM.i, NAMES.length - 1)];
-  const tabs = [["m", "المعنى"], ["q", "من القرآن", x.q.length], ["h", "من السنة الصحيحة", x.h.length], ["u", "أهل العلم", x.u.length], ["f", "استشعار الاسم"]].filter(t => t[2] === undefined || t[2] > 0);
+  const tabs = [["m", "المعنى"], ["q", "ذُكر في القرآن", x.q.length], ["h", "من السنة الصحيحة", x.h.length], ["u", "أهل العلم", x.u.length], ["f", "استشعار الاسم"]].filter(t => t[0] === "q" || t[2] === undefined || t[2] > 0);
   if (!tabs.some(t => t[0] === NM.tab)) NM.tab = "m";
   let body = "";
   if (NM.tab === "m") body = `<div class="card"><div class="dua">${esc(x.m)}</div><div class="src"><span class="tag u">أهل العلم</span> ${esc(x.ms)}</div></div>`;
-  else if (NM.tab === "q") body = x.q.map(a => `<div class="card"><div class="dua">${esc(a.t)}</div><div class="src"><span class="tag q">قرآن</span> ${esc(a.s)}</div></div>`).join("");
+  else if (NM.tab === "q") body = x.q.length
+    ? x.q.map(a => `<div class="card"><div class="dua">${esc(a.t)}</div><div class="src"><span class="tag q">ورد الاسم نفسه في القرآن</span> ${esc(a.s)}</div></div>`).join("")
+    : `<div class="card"><p class="mid">لم يرد اسم ${esc(x.n)} بهذا اللفظ في الآيات المعروضة. راجعي تبويب السنة أو تنبيه ثبوت الاسم أعلاه.</p></div>`;
   else if (NM.tab === "h") body = x.h.map(a => `<div class="card"><div class="dua">${esc(a.t)}</div>${a.n ? `<div class="count"><span>التكرار</span><b>${AR(a.n)}</b></div>${tasbih(x.n + a.t, a.n)}` : ""}<div class="src"><span class="tag h">سنة</span> ${esc(a.s)}</div></div>`).join("");
   else if (NM.tab === "u") body = x.u.map(a => `<div class="card"><p>${esc(a.t)}</p><div class="src"><span class="tag u">أهل العلم</span> ${esc(a.s)}</div></div>`).join("");
   else body = `<div class="card"><p class="dua" style="font-size:17px">${esc(x.f)}</p><div class="src"><span class="tag m">توجيه تربوي</span> مبني على كلام أهل العلم، ليس ذكراً مأثوراً يُلتزم لفظه — سبّح بما ثبت، واستشعر المعنى بقلبك.</div></div>`;
@@ -1033,7 +1035,7 @@ function namesView() {
       <div class="note">${esc(NAMES_INTRO.note)}</div></details>
     <div class="chips" style="max-height:120px;overflow:auto">${NAMES.map((n, i) => `<button class="chip ${i === NM.i ? "on" : ""}" data-nm="${i}">${esc(n.n)}</button>`).join("")}</div>
     <div class="card" style="text-align:center"><div class="mid">اسم الله</div><div class="big" style="font-size:34px">${esc(x.n)}</div>
-      <div>${x.d === "ق" ? `<span class="tag q">ثابت في القرآن</span>` : x.d === "س" ? `<span class="tag h">ثابت في السنة الصحيحة</span>` : `<span class="tag d">في التعداد المشهور فقط</span>`}</div>
+      <div>${x.q.length ? `<span class="tag q">ورد الاسم نفسه في القرآن</span>` : x.d === "س" ? `<span class="tag h">ثابت في السنة الصحيحة</span>` : x.d === "ق" ? `<span class="tag d">معناه ثابت في القرآن، ولم يرد هنا بهذا اللفظ</span>` : `<span class="tag d">في التعداد المشهور فقط</span>`}</div>
       <div class="row" style="justify-content:center"><button class="btn sec sm" data-nmi="${(NM.i + NAMES.length - 1) % NAMES.length}">→ السابق</button><span class="mid">${AR(NM.i + 1)} / ${AR(NAMES.length)}</span><button class="btn sec sm" data-nmi="${(NM.i + 1) % NAMES.length}">التالي ←</button></div></div>
     <div class="chips">${tabs.map(t => `<button class="chip ${t[0] === NM.tab ? "on" : ""}" data-nmt="${t[0]}">${t[1]}${t[2] ? ` (${AR(t[2])})` : ""}</button>`).join("")}</div>
     ${body}

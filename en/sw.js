@@ -1,7 +1,7 @@
-const CACHE = "qanitoon-en-v5";
+const CACHE = "qanitoon-en-v7";
 const ASSETS = [
   "./", "./index.html", "./styles.css", "./app.js",
-  "./i18n.js", "./quran_en.js", "./icons.js", "./content.js", "./situations.js", "./hisn.js", "./islambook.js", "./names.js", "./spots.js", "./manasik.js", "./quran.js", "./nature.js", "./qurandua.js", "./duacheck.js", "./jadwal.js",
+  "./i18n.js", "./en_extra.js", "./tr_en.js", "./quran_en.js", "./icons.js", "./content.js", "./situations.js", "./hisn.js", "./islambook.js", "./names.js", "./spots.js", "./manasik.js", "./quran.js", "./nature.js", "./qurandua.js", "./duacheck.js", "./jadwal.js",
   "./manifest.json", "./icon.svg", "./icon-192.png", "./icon-512.png", "./icon-maskable.png", "./policy.html",
   "./fonts/Amiri-400.woff2", "./fonts/Amiri-700.woff2",
   "./fonts/NotoNaskh-400.woff2", "./fonts/NotoNaskh-500.woff2", "./fonts/NotoNaskh-700.woff2"

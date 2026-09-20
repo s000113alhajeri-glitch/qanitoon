@@ -84,7 +84,10 @@ const EN = {
   "حفظ في مكتبتي": "Save to my library", "أكتب دعائي": "Write my own du'a", "فحص الدعاء": "Check a du'a", "اكتبي دعاءك": "Write your du'a",
   "اكتبي الدعاء أولاً.": "Write the du'a first.", "اكتبي دعاءك بلفظك… مثال: اللهم ارزقني واشف أمي": "Write your du'a in your own words… e.g. O Allah, provide for me and heal my mother",
   "لا يُحفظ هذا الدعاء ولا يُضاف لأشواطك حتى تُعدّلي صياغته.": "This du'a won't be saved or added to your laps until you reword it.",
-  "— للمراجعة": "— for review", "قبل أن تدعو": "Before you supplicate", "تنبيهات أهل العلم": "Scholars' cautions", "الحديث:": "Hadith:",
+  "— للمراجعة": "— for review", "قبل أن تدعو": "Before you supplicate", "الكل": "All",
+  "أوقات الدعاء الواردة عن النبي ﷺ فقط، كلٌّ بحديثه ودرجته. يظهر أعلى القائمة ما أنتِ فيه الآن، ويُنبَّه لما فعّلتِه. اختيارك للأدعية تسهيلٌ للتذكير، ويجوز لك أن تدعي بما شئتِ.": "Only the times of supplication reported from the Prophet ﷺ, each with its hadith and grading. What applies to you right now appears at the top of the list, and you are reminded of what you have switched on. Choosing du'as here is only an aid to remembering; you may supplicate with whatever you wish.",
+  "«ما من مسلم يدعو بدعوة ليس فيها إثم ولا قطيعة رحم إلا أعطاه الله بها إحدى ثلاث: إمّا أن تُعجَّل له دعوته، وإمّا أن يدّخرها له في الآخرة، وإمّا أن يصرف عنه من السوء مثلها»": "“There is no Muslim who makes a supplication containing no sin or severing of kinship but that Allah gives him one of three things by it: either his request is granted quickly, or it is stored up for him in the Hereafter, or an equivalent harm is turned away from him.”",
+  "«ادعوا الله وأنتم موقنون بالإجابة»": "“Call upon Allah while being certain of a response.”", "تنبيهات أهل العلم": "Scholars' cautions", "الحديث:": "Hadith:",
   "المصدر: مأثور عن القرّاء والسلف — ليس حديثاً": "Source: transmitted from reciters and early generations; not a hadith",
   /* situations */
   "خصومة / زعل / سوء تفاهم": "Quarrel / upset / misunderstanding", "ظلمتُ أحداً / أخطأت في حقّ أحد": "I wronged someone", "ظلمني أحد / أُخذ حقّي": "Someone wronged me / my right was taken",
@@ -141,7 +144,7 @@ const EN = {
 
 const SURAH_EN = ["Al-Fatihah","Al-Baqarah","Aal Imran","An-Nisa","Al-Ma'idah","Al-An'am","Al-A'raf","Al-Anfal","At-Tawbah","Yunus","Hud","Yusuf","Ar-Ra'd","Ibrahim","Al-Hijr","An-Nahl","Al-Isra","Al-Kahf","Maryam","Ta-Ha","Al-Anbiya","Al-Hajj","Al-Mu'minun","An-Nur","Al-Furqan","Ash-Shu'ara","An-Naml","Al-Qasas","Al-Ankabut","Ar-Rum","Luqman","As-Sajdah","Al-Ahzab","Saba","Fatir","Ya-Sin","As-Saffat","Sad","Az-Zumar","Ghafir","Fussilat","Ash-Shura","Az-Zukhruf","Ad-Dukhan","Al-Jathiyah","Al-Ahqaf","Muhammad","Al-Fath","Al-Hujurat","Qaf","Adh-Dhariyat","At-Tur","An-Najm","Al-Qamar","Ar-Rahman","Al-Waqi'ah","Al-Hadid","Al-Mujadilah","Al-Hashr","Al-Mumtahanah","As-Saff","Al-Jumu'ah","Al-Munafiqun","At-Taghabun","At-Talaq","At-Tahrim","Al-Mulk","Al-Qalam","Al-Haqqah","Al-Ma'arij","Nuh","Al-Jinn","Al-Muzzammil","Al-Muddaththir","Al-Qiyamah","Al-Insan","Al-Mursalat","An-Naba","An-Nazi'at","Abasa","At-Takwir","Al-Infitar","Al-Mutaffifin","Al-Inshiqaq","Al-Buruj","At-Tariq","Al-A'la","Al-Ghashiyah","Al-Fajr","Al-Balad","Ash-Shams","Al-Layl","Ad-Duha","Ash-Sharh","At-Tin","Al-Alaq","Al-Qadr","Al-Bayyinah","Az-Zalzalah","Al-Adiyat","Al-Qari'ah","At-Takathur","Al-Asr","Al-Humazah","Al-Fil","Quraysh","Al-Ma'un","Al-Kawthar","Al-Kafirun","An-Nasr","Al-Masad","Al-Ikhlas","Al-Falaq","An-Nas"];
 const SURAH_AR = ["الفاتحة","البقرة","آل عمران","النساء","المائدة","الأنعام","الأعراف","الأنفال","التوبة","يونس","هود","يوسف","الرعد","إبراهيم","الحجر","النحل","الإسراء","الكهف","مريم","طه","الأنبياء","الحج","المؤمنون","النور","الفرقان","الشعراء","النمل","القصص","العنكبوت","الروم","لقمان","السجدة","الأحزاب","سبأ","فاطر","يس","الصافات","ص","الزمر","غافر","فصلت","الشورى","الزخرف","الدخان","الجاثية","الأحقاف","محمد","الفتح","الحجرات","ق","الذاريات","الطور","النجم","القمر","الرحمن","الواقعة","الحديد","المجادلة","الحشر","الممتحنة","الصف","الجمعة","المنافقون","التغابن","الطلاق","التحريم","الملك","القلم","الحاقة","المعارج","نوح","الجن","المزمل","المدثر","القيامة","الإنسان","المرسلات","النبأ","النازعات","عبس","التكوير","الانفطار","المطففين","الانشقاق","البروج","الطارق","الأعلى","الغاشية","الفجر","البلد","الشمس","الليل","الضحى","الشرح","التين","العلق","القدر","البينة","الزلزلة","العاديات","القارعة","التكاثر","العصر","الهمزة","الفيل","قريش","الماعون","الكوثر","الكافرون","النصر","المسد","الإخلاص","الفلق","الناس"];
-const BOOKS = [["البخاري ومسلم","Al-Bukhari & Muslim"],["البخاري","Al-Bukhari"],["مسلم","Muslim"],["أبو داود","Abu Dawud"],["الترمذي","At-Tirmidhi"],["النسائي في الكبرى","An-Nasa'i (Al-Kubra)"],["النسائي","An-Nasa'i"],["ابن ماجه","Ibn Majah"],["أحمد","Ahmad"],["الحاكم","Al-Hakim"],["البزار","Al-Bazzar"],["الطبراني في الكبير","At-Tabarani (Al-Kabir)"],["الطبراني","At-Tabarani"],["ابن حبان","Ibn Hibban"],["ابن السني","Ibn As-Sunni"],["ابن خزيمة","Ibn Khuzaymah"],["الدارمي","Ad-Darimi"],["المستدرك","Al-Mustadrak"],["الصحيحة للألباني","As-Sahihah (Al-Albani)"],["وصححه الألباني","graded authentic by Al-Albani"],["صحيح","authentic"],["حسن","good (hasan)"],["ضعيف","weak"],["حصن المسلم","Hisn al-Muslim"],["موقوفاً","mawquf"],["قرآن","Quran"],["سورة","Surah"],["دعاء مباح","permissible du'a"],["ليس حديثاً","not a hadith"],["ابن كثير","Ibn Kathir"],["السعدي","As-Sa'di"],["ابن القيم","Ibn al-Qayyim"],["ابن تيمية","Ibn Taymiyyah"],["الخطابي","Al-Khattabi"],["تفسير","Tafsir"],["بدائع الفوائد","Bada'i' al-Fawa'id"],["شأن الدعاء","Sha'n ad-Du'a"],["اجتماع الجيوش","Ijtima' al-Juyush"],["إبراهيم وإسماعيل","Ibrahim and Isma'il"],["إبراهيم ومن معه","Ibrahim and those with him"],["أصحاب الكهف","the people of the cave"],["آدم وحواء","Adam and Hawwa"],["إبراهيم","Ibrahim"],["موسى","Musa"],["عيسى","Isa"],["نوح","Nuh"],["يوسف","Yusuf"],["يونس","Yunus"],["أيوب","Ayyub"],["زكريا","Zakariyya"],["سليمان","Sulayman"],["شعيب","Shu'ayb"],["لوط","Lut"],["هود","Hud"],["محمد","Muhammad"],["عن عائشة رضي الله عنها","from Aishah, may Allah be pleased with her"],["دعاء الميت","du'a for the deceased"],["بعد الأذان","after the adhan"],["بعد الفجر","after Fajr"],["بعد المغرب","after Maghrib"],["عند الأرق","for insomnia"],["عند الفزع","when frightened"],["سيد الاستغفار","the master supplication for forgiveness"],["الصلاة الإبراهيمية","the Ibrahimi salawat"],["يُقال ثلاثاً","said three times"],["جويرية","Juwayriyah"],["تمام المئة","completing one hundred"],["مبني على","based on"],["من هدي السلف","from the practice of the early generations"],["الآية:","the verse:"],["تفسير أسماء الله الحسنى","Tafsir of the Names of Allah"],["أسماء الله الحسنى","the Names of Allah"],["لمن أهمّه أمر","for whoever is troubled by a matter"],["عند لقاء العدو","when facing the enemy"],["عن أبيّ بن كعب","from Ubayy ibn Ka'b"],["خزينة التمر","the date store"],["وصية معاذ","advice to Mu'adh"],["فعله ﷺ","his ﷺ practice"],["والعدد:","and the count:"]];
+const BOOKS = [["البخاري ومسلم","Al-Bukhari & Muslim"],["البخاري","Al-Bukhari"],["مسلم","Muslim"],["أبو داود","Abu Dawud"],["الترمذي","At-Tirmidhi"],["النسائي في الكبرى","An-Nasa'i (Al-Kubra)"],["النسائي","An-Nasa'i"],["ابن ماجه","Ibn Majah"],["أحمد","Ahmad"],["الحاكم","Al-Hakim"],["البزار","Al-Bazzar"],["الطبراني في الكبير","At-Tabarani (Al-Kabir)"],["الطبراني","At-Tabarani"],["ابن حبان","Ibn Hibban"],["ابن السني","Ibn As-Sunni"],["ابن خزيمة","Ibn Khuzaymah"],["الدارمي","Ad-Darimi"],["المستدرك","Al-Mustadrak"],["الصحيحة للألباني","As-Sahihah (Al-Albani)"],["وصححه الألباني","graded authentic by Al-Albani"],["صحيح","authentic"],["حسن","good (hasan)"],["ضعيف","weak"],["حصن المسلم","Hisn al-Muslim"],["موقوفاً","mawquf"],["قرآن","Quran"],["سورة","Surah"],["دعاء مباح","permissible du'a"],["ليس حديثاً","not a hadith"],["ابن كثير","Ibn Kathir"],["السعدي","As-Sa'di"],["ابن القيم","Ibn al-Qayyim"],["ابن تيمية","Ibn Taymiyyah"],["الخطابي","Al-Khattabi"],["تفسير","Tafsir"],["بدائع الفوائد","Bada'i' al-Fawa'id"],["شأن الدعاء","Sha'n ad-Du'a"],["اجتماع الجيوش","Ijtima' al-Juyush"],["إبراهيم وإسماعيل","Ibrahim and Isma'il"],["إبراهيم ومن معه","Ibrahim and those with him"],["أصحاب الكهف","the people of the cave"],["آدم وحواء","Adam and Hawwa"],["إبراهيم","Ibrahim"],["موسى","Musa"],["عيسى","Isa"],["نوح","Nuh"],["يوسف","Yusuf"],["يونس","Yunus"],["أيوب","Ayyub"],["زكريا","Zakariyya"],["سليمان","Sulayman"],["شعيب","Shu'ayb"],["لوط","Lut"],["هود","Hud"],["محمد","Muhammad"],["عن عائشة رضي الله عنها","from Aishah, may Allah be pleased with her"],["دعاء الميت","du'a for the deceased"],["بعد الأذان","after the adhan"],["بعد الفجر","after Fajr"],["بعد المغرب","after Maghrib"],["عند الأرق","for insomnia"],["عند الفزع","when frightened"],["سيد الاستغفار","the master supplication for forgiveness"],["الصلاة الإبراهيمية","the Ibrahimi salawat"],["يُقال ثلاثاً","said three times"],["جويرية","Juwayriyah"],["تمام المئة","completing one hundred"],["مبني على","based on"],["من هدي السلف","from the practice of the early generations"],["الآية:","the verse:"],["تفسير أسماء الله الحسنى","Tafsir of the Names of Allah"],["أسماء الله الحسنى","the Names of Allah"],["لمن أهمّه أمر","for whoever is troubled by a matter"],["عند لقاء العدو","when facing the enemy"],["عن أبيّ بن كعب","from Ubayy ibn Ka'b"],["خزينة التمر","the date store"],["وصية معاذ","advice to Mu'adh"],["فعله ﷺ","his ﷺ practice"],["والعدد:","and the count:"],["عليه السلام","peace be upon him"],["دعاء","du'a of"],["قالها","said by"],["حين ألقي في النار","when he was thrown into the fire"],["وأصحابه","and his companions"]];
 const AD = s => String(s).replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d));
 const RULES = [
   [/^(مكية|مدنية) — (\d+) آية$/, (m) => `${m[1] === "مكية" ? "Makkan" : "Madinan"} — ${m[2]} verses`],
@@ -168,6 +171,8 @@ const RULES = [
   [/^(العمرة|الحج) — الخطوة الحالية$/, (m) => `${EN[m[1]]} — current step`],
   [/^＋ (العمرة|الحج) — الخطوة الحالية$/, (m) => `＋ ${EN[m[1]]} — current step`],
   [/^لم يرد اسم (.+) بهذا اللفظ في القرآن\.$/, (m) => `The name ${m[1]} does not occur with this exact wording in the Quran.`],
+  [/^(\d+) دعاء( — تظهر أول (\d+)، ضيّقي البحث)?$/, (m) => `${m[1]} du'as${m[2] ? ` — showing the first ${m[3]}; narrow your search` : ""}`],
+  [/^(· )?من (\d\d:\d\d) إلى (\d\d:\d\d)$/, (m) => `${m[1] || ""}from ${m[2]} to ${m[3]}`],
 ];
 const HIJRI_EN = { "محرم": "Muharram", "صفر": "Safar", "ربيع الأول": "Rabi' al-Awwal", "ربيع الآخر": "Rabi' al-Thani", "جمادى الأولى": "Jumada al-Ula", "جمادى الآخرة": "Jumada al-Akhirah", "رجب": "Rajab", "شعبان": "Sha'ban", "رمضان": "Ramadan", "شوال": "Shawwal", "ذو القعدة": "Dhul-Qa'dah", "ذو الحجة": "Dhul-Hijjah" };
 const AR_L = "[\\u0621-\\u064A\\u0660-\\u0669]";
@@ -176,7 +181,7 @@ function books(s) {
   const rep = (a, e) => { t = t.replace(new RegExp("(^|[^\\u0621-\\u064A])(و?)" + a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?=$|[^\\u0621-\\u064A])", "g"), "$1$2" + e); };
   SURAH_AR.map((a, i) => [a, SURAH_EN[i]]).sort((x, y) => y[0].length - x[0].length).forEach(([a, e]) => rep(a, e));
   BOOKS.map(([a, e]) => [a.replace(/[\u064B-\u065F\u0670]/g, ""), e]).sort((x, y) => y[0].length - x[0].length).forEach(([a, e]) => rep(a, e));
-  t = t.replace(/(^|\s|\()و([A-Z])/g, "$1and $2");
+  t = t.replace(/(^|\s|\()و([A-Za-z])/g, "$1and $2");
   return t;
 }
 Object.assign(EN, {
@@ -297,12 +302,56 @@ function applyLang() {
   document.documentElement.dir = en ? "ltr" : "rtl";
   document.body.classList.toggle("en", en);
   const b = document.getElementById("langBtn"); if (b) b.textContent = en ? "عربي" : "English";
-  if (en) translateNode(document.body);
+  if (en) { translateNode(document.body); annotateMeanings(document.body); }
 }
 function setLang(l) { LANG.cur = l; localStorage.setItem("qn_lang", l); location.reload(); }
 document.addEventListener("DOMContentLoaded", () => {
   const b = document.getElementById("langBtn"); if (b) b.onclick = () => setLang(LANG.cur === "en" ? "ar" : "en");
   applyLang();
-  new MutationObserver(ms => { if (LANG.cur !== "en") return; ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) translateNode(n); else if (n.nodeType === 3 && n.parentElement) translateNode(n.parentElement); })); })
+  new MutationObserver(ms => { if (LANG.cur !== "en") return; ms.forEach(m => m.addedNodes.forEach(n => { if (n.nodeType === 1) { translateNode(n); annotateMeanings(n); } else if (n.nodeType === 3 && n.parentElement) translateNode(n.parentElement); })); })
     .observe(document.body, { childList: true, subtree: true });
 });
+
+/* ---- Meanings under Arabic religious texts (Quran auto-lookup + TR_EN map) ---- */
+let QIDX = null;
+const qnorm = s => String(s).replace(/[\u0610-\u061A\u064B-\u065F\u0670\u06D6-\u06ED\u0640]/g, "").replace(/[ٱآأإ]/g, "ا").replace(/[^\u0621-\u064A ]/g, " ").replace(/\s+/g, " ").trim();
+const qskel = s => qnorm(s).replace(/[اويىءه]/g, "").replace(/\s+/g, " ").trim();
+function buildQ() { QIDX = []; QURAN.surahs.forEach(s => s.a.forEach(a => QIDX.push({ k: s.n + ":" + a[1], n: qnorm(a[0]), sk: qskel(a[0]) }))); }
+function quranMeaning(text) {
+  if (typeof QURAN === "undefined" || typeof QURAN_EN === "undefined") return null;
+  if (!QIDX) buildQ();
+  const f = qnorm(text); if (f.split(" ").length < 3) return null;
+  const fs = qskel(text);
+  let hits = QIDX.filter(v => v.n.includes(f)); if (!hits.length) hits = QIDX.filter(v => v.sk.includes(fs));
+  if (hits.length) return QURAN_EN[hits[0].k];
+  const head = fs.split(" ").slice(0, 3).join(" "); if (head.length < 6) return null;
+  for (let i = 0; i < QIDX.length; i++) {
+    const p = QIDX[i].sk.indexOf(head); if (p < 0 || (p > 0 && QIDX[i].sk[p - 1] !== " ")) continue;
+    let out = [], cur = fs, j = i, seg = QIDX[i].sk.slice(p);
+    while (j < QIDX.length && cur && cur.startsWith(seg)) { out.push(QURAN_EN[QIDX[j].k]); cur = cur.slice(seg.length).trim(); j++; seg = j < QIDX.length ? QIDX[j].sk : ""; }
+    if (out.length && (cur.length < 8 || (j < QIDX.length && QIDX[j - 1] && QIDX[j].sk.startsWith(cur)))) { if (cur.length >= 8) out.push(QURAN_EN[QIDX[j].k]); return out.join(" "); }
+  }
+  return null;
+}
+const TR_KEY = s => qnorm(s).replace(/ /g, "");
+function textMeaning(t) {
+  const known = s => (typeof TR_EN !== "undefined" && TR_EN[TR_KEY(s)]) || EN[s.trim()] || null;
+  const m0 = known(t); if (m0) return m0;
+  const q = t.match(/[﴿«"“]([^﴾»"”]{12,})[﴾»"”]/g);
+  if (q) { const parts = q.map(x => known(x) || known(x.slice(1, -1)) || quranMeaning(x)).filter(Boolean); if (parts.length) return parts.join(" · "); }
+  return quranMeaning(t);
+}
+function annotateMeanings(root) {
+  if (LANG.cur !== "en" || !root || root.nodeType !== 1) return;
+  const els = root.matches(".dua,.q,li,p,.note,.mid,.hd,b,.src,.card>div") ? [root] : [];
+  els.push(...root.querySelectorAll(".dua,.q,li,p,.note,.mid,.hd,.src,.card>div"));
+  els.forEach(el => {
+    if (el.dataset.tr || el.closest("#v-quran .page,#qpage,.ayTr,textarea,button")) return;
+    const t = el.textContent.trim();
+    if (!/[\u0621-\u064A]{2}/.test(qnorm(t)) || t.length < 12) return;
+    if ([...el.children].some(c => /[\u0621-\u064A]{2}.*[\u0621-\u064A]{2}/.test(c.textContent) && c.textContent.trim().length > 12 && !c.matches("span,b,i,em"))) return;
+    el.dataset.tr = "1";
+    const m = textMeaning(t); if (!m) return;
+    const d = document.createElement("div"); d.className = "ayTr"; d.textContent = m; el.insertAdjacentElement("afterend", d);
+  });
+}

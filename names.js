@@ -160,16 +160,21 @@ const NAMES_VOCALIZED = [
   "الضَّارُّ", "النَّافِعُ", "النُّورُ", "الْهَادِي", "الْبَدِيعُ", "الْبَاقِي", "الْوَارِثُ", "الرَّشِيدُ", "الصَّبُورُ"
 ];
 /* آيات فيها مادة الاسم لكن ليست اسماً لله فيها (وصف لغيره أو فعل) */
-const NAMES_NOT_LITERAL = ["خافضة رافعة", "يحب التوابين", "يحب المقسطين", "ويعفو عن كثير", "صدقا وعدلا"];
+const NAMES_NOT_LITERAL = ["خافضة رافعة", "يحب التوابين", "يحب المقسطين", "ويعفو عن كثير", "صدقا وعدلا",
+  "اصبح الملك لله", "سجد وجهي للذي خلقه", "لا حول ولا قوة", "من عادى لي وليا", "العفو والعافية", "رب العرش الكريم", "قادرين على",
+  "المقسطين عند الله", "لا مانع لما اعطيت", "اجعل في قلبي نورا", "سبحان ربي الاعلى"];
 const bareName = s => s.normalize("NFD")
   .replace(/[\u064B-\u065F\u0670\u06D6-\u06ED]/g, "")
   .replace(/ٱ/g, "ا");
 NAMES.forEach((x, i) => {
   const name = bareName(NAMES_ORDER[i]);
-  const stem = name.replace(/^ال/, "").replace(/ي$/, "");
+  let stem = name.replace(/^ال/, "");
+  if (stem.length > 4) stem = stem.replace(/ي$/, "");
   x.n = NAMES_VOCALIZED[i];
-  x.q = (x.q || []).filter(a => {
+  const literal = a => {
     const t = bareName(a.t);
     return t.includes(stem) && !NAMES_NOT_LITERAL.some(b => t.includes(b));
-  });
+  };
+  x.q = (x.q || []).filter(literal);
+  x.h = (x.h || []).filter(literal);
 });

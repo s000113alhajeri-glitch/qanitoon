@@ -2018,7 +2018,7 @@ function renderHome() {
   ${fridayCard()}
   <div class="card askBanner">
     <h3 style="margin:0 0 6px">${ico("chat")} اكتب حالتي</h3>
-    <div class="row"><input id="homeAsk" placeholder="اكتبي حالتك بكلامك…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div>
+    <div class="row"><input id="homeAsk" placeholder="كيف حالك الآن؟ مثلاً: أنا بخير، فرحان/ة، زعلان/ة، حزين/ة…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div>
     <div class="mid" style="margin:8px 0 4px;font-size:13px">اقتراحات:</div>
     <div class="chips" id="homeSug">${SITUATIONS.filter(x => x.id !== "tasbih").map((x, i) => `<label class="chip${i >= 4 ? " more hidden" : ""}"><input type="checkbox" class="hchk" value="${x.id}">${esc(x.label)}</label>`).join("")}<button class="chip" id="homeMore">المزيد ▾</button></div>
   </div>

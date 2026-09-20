@@ -347,6 +347,8 @@ nav button{font-size:10px}
   text-shadow:0 2px 18px rgba(214,180,110,.35);animation:spRise 1s .3s ease both}
 #splash .sp-ref{font-family:"Noto Naskh Arabic","Amiri",serif;font-size:var(--f2);color:#d6b46e;
   margin-top:8px;animation:spRise 1s .45s ease both}
+#splash .sp-mean{font-family:"Noto Naskh Arabic","Amiri",serif;font-size:var(--f2);color:rgba(240,230,205,.85);
+  margin-top:14px;max-width:320px;line-height:1.7;animation:spRise 1s .6s ease both}
 #splash.gone{opacity:0;visibility:hidden}
 @keyframes spRise{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 @keyframes spTwinkle{from{opacity:.45}to{opacity:1}}

@@ -825,20 +825,50 @@ setInterval(() => {
 }, 30000);
 
 /* ============ اسألني ============ */
+const ASK = { q: "", tab: DB.get("ask_tab", "quran") };
+function askMatch(text) {
+  const n = norm(text);
+  if (!n.trim()) return { crisis: false, hits: [] };
+  const crisis = CRISIS.words.some(w => n.includes(norm(w)));
+  const hits = SITUATIONS.map(s => ({ s, score: s.kw.reduce((a, k) => a + (n.includes(norm(k)) ? (k.length > 4 ? 2 : 1) : 0), 0) }))
+    .filter(x => x.score > 0).sort((a, b) => b.score - a.score).map(x => x.s);
+  return { crisis, hits };
+}
+function crisisCard() {
+  return `<div class="card" style="border:2px solid #c0392b">
+    <h3 style="color:#c0392b">${esc(CRISIS.title)}</h3>
+    ${CRISIS.lines.map(l => `<p><b>${esc(l)}</b></p>`).join("")}
+    ${CRISIS.items.map(item).join("")}
+  </div>`;
+}
 function renderAsk(id) {
   const v = document.getElementById("v-ask");
   if (!id) {
-    v.innerHTML = `<div class="card"><h3>كيف حالك الآن؟</h3><p>اختر ما تشعر به، وأدلّك على ذكر ودعاء ثابت بخطوات.</p></div>
-    <div class="grid">${MOODS.map(m => `<button data-m="${m.id}">${esc(m.label)}</button>`).join("")}</div>
-    <div class="note">هذا إرشاد للذكر والدعاء، وليس فتوى ولا علاجاً طبياً أو نفسياً؛ عند الحاجة راجع عالماً موثوقاً أو مختصاً.</div>`;
+    const { crisis, hits } = askMatch(ASK.q);
+    v.innerHTML = `<div class="card"><h3>اكتب حالتك بكلامك</h3>
+      <input id="askq" placeholder="مثلاً: متضايقة، صارت مشكلة وسوء تفاهم…" value="${esc(ASK.q)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
+      <p class="mid" style="margin-top:8px">${ASK.q ? (hits.length ? "هل تقصد إحدى هذه الحالات؟ اختر لتظهر الأذكار والأدعية:" : "لم أتبيّن الحالة — اختر من القائمة أدناه.") : "أو اختر حالة مباشرة:"}</p></div>
+    ${crisis ? crisisCard() : ""}
+    ${hits.length ? `<div class="chips">${hits.slice(0, 4).map(s => `<button class="chip on" data-m="${s.id}">${esc(s.label)}</button>`).join("")}</div>` : ""}
+    <div class="grid">${SITUATIONS.filter(s => !hits.includes(s)).map(m => `<button data-m="${m.id}">${esc(m.label)}</button>`).join("")}</div>
+    <div class="note">${esc(SIT_DISCLAIMER)}</div>`;
+    const inp = v.querySelector("#askq");
+    let tm; inp.oninput = () => { ASK.q = inp.value; clearTimeout(tm); tm = setTimeout(() => { const pos = inp.selectionStart; renderAsk(); const i2 = document.getElementById("askq"); i2.focus(); i2.setSelectionRange(pos, pos); }, 350); };
     v.querySelectorAll("[data-m]").forEach(b => b.onclick = () => renderAsk(b.dataset.m));
     return;
   }
-  const m = MOODS.find(x => x.id === id);
+  const m = SITUATIONS.find(x => x.id === id); if (!m) return renderAsk();
+  const tabs = [["quran", "من القرآن", m.quran], ["sunnah", "من السنة الصحيحة", m.sunnah], ["mubah", "دعاء مباح", m.mubah]].filter(t => t[2] && t[2].length);
+  if (!tabs.some(t => t[0] === ASK.tab)) ASK.tab = tabs[0][0];
+  const cur = tabs.find(t => t[0] === ASK.tab);
+  const tagOf = { quran: "ق", sunnah: "س", mubah: "م" }[ASK.tab];
   v.innerHTML = `<button class="btn sec sm" id="back">→ رجوع</button>
-  <div class="card"><h3>${esc(m.label)}</h3>${m.intro ? `<p>${esc(m.intro)}</p>` : ""}</div>
-  ${m.steps.map((s, i) => `<div class="card"><div class="mid">الخطوة ${AR(i + 1)}</div>${item(s)}</div>`).join("")}`;
+  <div class="card"><h3>${esc(m.label)}</h3><p class="mid">ذكر ودعاء فقط — بلا نصائح ولا مناقشة تصرفات.</p></div>
+  <div class="chips">${tabs.map(t => `<button class="chip ${t[0] === ASK.tab ? "on" : ""}" data-tab="${t[0]}">${t[1]} (${AR(t[2].length)})</button>`).join("")}</div>
+  ${cur[2].map(x => item({ ...x, tag: x.tag || tagOf })).join("")}
+  <div class="note">${esc(SIT_DISCLAIMER)}</div>`;
   document.getElementById("back").onclick = () => renderAsk();
+  v.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { ASK.tab = b.dataset.tab; DB.set("ask_tab", ASK.tab); renderAsk(id); });
   bindCounters(v);
 }
 

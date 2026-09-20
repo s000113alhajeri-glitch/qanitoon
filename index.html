@@ -55,6 +55,7 @@
   <div id="summary"></div>
   <section id="v-home"></section>
   <section id="v-umrah" class="hidden"></section>
+  <section id="v-hajj" class="hidden"></section>
   <section id="v-quran" class="hidden"></section>
   <section id="v-adhkar" class="hidden"></section>
   <section id="v-wird" class="hidden"></section>
@@ -63,15 +64,17 @@
 </main>
 
 <nav id="nav">
-  <button data-v="home" class="on"><span>🏠</span>الرئيسية</button>
-  <button data-v="umrah"><span>🕋</span>العمرة</button>
-  <button data-v="quran"><span>📖</span>المصحف</button>
-  <button data-v="adhkar"><span>📿</span>الأذكار</button>
-  <button data-v="wird"><span>✅</span>الورد</button>
-  <button data-v="time"><span>🕰️</span>الأوقات</button>
-  <button data-v="ask"><span>💬</span>اسألني</button>
+  <button data-v="home" class="on"><i data-ico="home"></i>الرئيسية</button>
+  <button data-v="umrah"><i data-ico="kaaba"></i>العمرة</button>
+  <button data-v="hajj"><i data-ico="hajj"></i>الحج</button>
+  <button data-v="quran"><i data-ico="quran"></i>المصحف</button>
+  <button data-v="adhkar"><i data-ico="beads"></i>الأذكار</button>
+  <button data-v="wird"><i data-ico="check"></i>الورد</button>
+  <button data-v="time"><i data-ico="clock"></i>الأوقات</button>
+  <button data-v="ask"><i data-ico="chat"></i>اسألني</button>
 </nav>
 
+<script src="icons.js"></script>
 <script src="manasik.js"></script>
 <script src="content.js"></script>
 <script src="spots.js"></script>

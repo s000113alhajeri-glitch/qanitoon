@@ -11,19 +11,9 @@ const ARI = n => String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
 const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstElementChild; };
 const esc = s => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
-/* ============ تنبيه: صوت + اهتزاز + بطاقة ============ */
-let speakOn = DB.get("speak", true);
-function speak(text) {
-  if (!speakOn || !("speechSynthesis" in window)) return;
-  try {
-    const u = new SpeechSynthesisUtterance(text);
-    u.lang = "ar-SA"; u.rate = 0.95;
-    speechSynthesis.cancel(); speechSynthesis.speak(u);
-  } catch (e) { }
-}
+/* ============ تنبيه: اهتزاز + بطاقة (بلا صوت) ============ */
 function notify(title, body) {
   if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
-  speak(title + ". " + (body || ""));
   document.querySelectorAll(".alert").forEach(a => a.remove());
   const a = el(`<div class="alert">${esc(title)}<div style="font-weight:400;font-size:14px">${esc(body || "")}</div></div>`);
   a.onclick = () => a.remove();
@@ -101,21 +91,29 @@ function nearestText(c) {
   return bd > 3000 ? "أنت خارج مكة" : "أقرب موضع: " + best + " (" + AR(Math.round(bd)) + " م)";
 }
 
-/* ============ حالة العمرة ============ */
-const S = {
-  get stage() { return DB.get("stage", 0); }, set stage(v) { DB.set("stage", v); },
-  get tawaf() { return DB.get("tawaf", 0); }, set tawaf(v) { DB.set("tawaf", v); },
-  get saee() { return DB.get("saee", 0); }, set saee(v) { DB.set("saee", v); },
-  get saeeAt() { return DB.get("saeeAt", "safa"); }, set saeeAt(v) { DB.set("saeeAt", v); }
-};
+/* ============ حالة العمرة والحج (منفصلتان) ============ */
+function riteState(p) {
+  return {
+    get stage() { return DB.get(p + "stage", 0); }, set stage(v) { DB.set(p + "stage", v); },
+    get tawaf() { return DB.get(p + "tawaf", 0); }, set tawaf(v) { DB.set(p + "tawaf", v); },
+    get saee() { return DB.get(p + "saee", 0); }, set saee(v) { DB.set(p + "saee", v); },
+    get saeeAt() { return DB.get(p + "saeeAt", "safa"); }, set saeeAt(v) { DB.set(p + "saeeAt", v); },
+    get jam() { return DB.get(p + "jam", 0); }, set jam(v) { DB.set(p + "jam", v); }
+  };
+}
+const S = riteState("");      // العمرة
+const H = riteState("hj_");   // الحج
+const RITE = { get k() { return DB.get("rite", "umrah"); }, set k(v) { DB.set("rite", v); } };
+function cur() { return RITE.k === "hajj" ? { ST: HAJJ_STAGES, X: H } : { ST: STAGES, X: S }; }
 
 function onSpot(k) {
-  const st = STAGES[S.stage] || {};
+  const { ST, X: S } = cur();
+  const st = ST[S.stage] || {};
   if (k === "hajar") {
     if (st.kind !== "tawaf") { notify("أنت عند الحجر الأسود", SPOT_DUA.hajar); return; }
     if (S.tawaf < 7) {
       S.tawaf = S.tawaf + 1;
-      if (S.tawaf === 7) notify("تمّ الطواف 7 أشواط", "اذهب إلى مقام إبراهيم وصلِّ ركعتين");
+      if (S.tawaf === 7) notify("تمّ الطواف 7 أشواط", st.after || "اذهب إلى مقام إبراهيم وصلِّ ركعتين");
       else notify("تمّ الشوط " + AR(S.tawaf) + " — ابدأ الشوط " + AR(S.tawaf + 1), SPOT_DUA.hajar);
     }
     renderUmrah(); return;
@@ -126,7 +124,7 @@ function onSpot(k) {
     if (S.saee < 7) {
       S.saee = S.saee + 1;
       S.saeeAt = (k === "safa") ? "marwa" : "safa";
-      if (S.saee === 7) notify("تمّ السعي 7 أشواط", "انتهى السعي — ثم الحلق أو التقصير");
+      if (S.saee === 7) notify("تمّ السعي 7 أشواط", st.after || "انتهى السعي — ثم الحلق أو التقصير");
       else notify("تمّ الشوط " + AR(S.saee) + " من السعي", "اتجه الآن إلى " + SPOTS[S.saeeAt].name);
     }
     renderUmrah(); return;
@@ -156,15 +154,84 @@ const STAGES = [
     <div class="src">«العُمرة إلى العُمرة كفّارة لما بينهما» (البخاري ومسلم)</div>` }
 ];
 
+/* ============ مراحل الحج (مسار مستقل عن العمرة) ============ */
+const HAJJ_TALBIYA = `<p class="dua">لَبَّيْكَ اللَّهُمَّ حَجًّا — لَبَّيْكَ اللَّهُمَّ لَبَّيْكَ، لَبَّيْكَ لَا شَرِيكَ لَكَ لَبَّيْكَ، إِنَّ الْحَمْدَ وَالنِّعْمَةَ لَكَ وَالْمُلْكَ، لَا شَرِيكَ لَكَ</p>`;
+const HAJJ_STAGES = [
+  {
+    t: "نوع الحج والإحرام", icon: "👕", kind: "info", html: `
+    <p><b>أنواع الحج الثلاثة:</b></p>
+    <ul>
+      <li><b>التمتّع</b> (الأفضل عند كثير من أهل العلم): يُحرم بالعمرة في أشهر الحج، يؤدّيها ويتحلّل، ثم يُحرم بالحج يوم التروية من مكانه، وعليه هدي.</li>
+      <li><b>القِران</b>: يُحرم بالعمرة والحج معاً، ويبقى على إحرامه حتى يوم النحر، وعليه هدي.</li>
+      <li><b>الإفراد</b>: يُحرم بالحج وحده، ولا هدي عليه.</li>
+    </ul>
+    <p>المتمتّع: لأداء العمرة استخدم مسار «العمرة» ثم عُد هنا يوم التروية.</p>
+    ${HAJJ_TALBIYA}
+    <div class="src">حديث جابر في صفة حجة النبي ﷺ (مسلم)؛ البخاري ومسلم — التلبية. <span class="tag">يحتاج مراجعة شرعية نهائية</span></div>` },
+  {
+    t: "٨ ذو الحجة — يوم التروية (منى)", icon: "⛺", kind: "info", html: `
+    <ul>
+      <li>المتمتّع يُحرم بالحج ضُحى من مكانه، ويقول: «لبيك اللهم حجاً».</li>
+      <li>التوجّه إلى منى، وصلاة الظهر والعصر والمغرب والعشاء والفجر بها، كلُّ صلاة في وقتها قصراً بلا جمع.</li>
+      <li>الإكثار من التلبية والذكر، والمبيت بمنى سنّة.</li>
+    </ul>${HAJJ_TALBIYA}<div class="src">مسلم — حديث جابر.</div>` },
+  {
+    t: "٩ ذو الحجة — يوم عرفة", icon: "🏔️", kind: "info", html: `
+    <ul>
+      <li>التوجّه إلى عرفة بعد شروق الشمس، والتأكد من الوقوف داخل حدودها (بطن عُرَنة ليس من عرفة).</li>
+      <li>صلاة الظهر والعصر جمعَ تقديمٍ قصراً بأذان وإقامتَين.</li>
+      <li>الوقوف والدعاء مستقبل القبلة رافعاً يديه إلى الغروب — وهو ركن الحج الأعظم: «الحجُّ عرفة» (الترمذي وأبو داود — صحيح).</li>
+      <li>لا يخرج من عرفة قبل الغروب.</li>
+    </ul>
+    <p class="dua">لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ</p>
+    <div class="src">«خير الدعاء دعاء يوم عرفة، وخير ما قلتُ أنا والنبيون من قبلي…» (الترمذي — حسّنه الألباني).</div>` },
+  {
+    t: "ليلة ١٠ — المبيت بمزدلفة", icon: "🌙", kind: "info", html: `
+    <ul>
+      <li>الدفع إلى مزدلفة بعد الغروب بسكينة، وصلاة المغرب والعشاء بها جمعاً وقصراً للعشاء.</li>
+      <li>المبيت حتى الفجر، ثم صلاة الفجر والذكر والدعاء عند المشعر حتى الإسفار ﴿فَاذْكُرُوا اللَّهَ عِندَ الْمَشْعَرِ الْحَرَامِ﴾ (البقرة ١٩٨).</li>
+      <li>يجوز للضَّعَفة والنساء ومن معهم الدفع بعد منتصف الليل.</li>
+      <li>التقاط حصى الجمار (٧ لجمرة العقبة) من مزدلفة أو من منى، كلٌّ جائز.</li>
+    </ul><div class="src">البقرة ١٩٨؛ مسلم — حديث جابر؛ البخاري — رخصة الضعفة.</div>` },
+  {
+    t: "١٠ ذو الحجة — رمي جمرة العقبة", icon: "🪨", kind: "jamarat", total: 7, html: `
+    <p>رمي جمرة العقبة الكبرى بسبع حصيات متعاقبات، يكبّر مع كل حصاة، وتقطع التلبية مع أول حصاة. ولا يُدعى بعدها.</p>
+    <p>وقته من بعد طلوع شمس يوم النحر (وللضعفة بعد منتصف الليل) ويمتد إلى الليل عند الزحام.</p>
+    <div class="src">مسلم — حديث جابر؛ البخاري — التكبير مع كل حصاة.</div>` },
+  {
+    t: "١٠ ذو الحجة — الهدي والحلق (التحلل الأول)", icon: "✂️", kind: "info", html: `
+    <ul>
+      <li>نحر الهدي على المتمتّع والقارن، ويجوز التوكيل (البنك الإسلامي/الجهات المعتمدة).</li>
+      <li>ثم الحلق أو التقصير، والحلق أفضل للرجل: «اللهم ارحم المحلِّقين» (البخاري ومسلم). والمرأة تقصّر قدر أُنمُلة.</li>
+      <li>بالرمي والحلق يحصل <b>التحلل الأول</b>: يحلّ كل شيء إلا النساء.</li>
+    </ul><div class="src">البخاري ومسلم.</div>` },
+  { t: "طواف الإفاضة (ركن)", icon: "🕋", kind: "tawaf", secs: ["tawaf_intro"], after: "تمّ طواف الإفاضة — ركعتان خلف المقام ثم السعي لمن عليه سعي" },
+  { t: "سعي الحج", icon: "🏃", kind: "saee", secs: ["saee_intro"], after: "تمّ السعي — تمّ التحلل الثاني، حلّ لك كل شيء",
+    html: `<p>يسعى المتمتّع سعياً ثانياً للحج، والقارن والمفرد يكفيهما سعي واحد إن سعيا بعد طواف القدوم. وبه يحصل <b>التحلل الثاني</b>.</p><div class="src">مسلم — حديث جابر؛ فتاوى اللجنة الدائمة.</div>` },
+  {
+    t: "١١–١٣ ذو الحجة — أيام التشريق ورمي الجمرات", icon: "🪨", kind: "jamarat", total: 21, html: `
+    <p>المبيت بمنى ليالي التشريق، ورمي الجمرات الثلاث بعد الزوال كل يوم: الصغرى ثم الوسطى ثم العقبة، بسبع حصيات لكلٍّ مكبّراً. يقف بعد الصغرى والوسطى مستقبل القبلة داعياً رافعاً يديه، ولا يقف بعد العقبة (البخاري).</p>
+    <p>من تعجّل في يومين خرج من منى قبل غروب يوم ١٢ ولا إثم عليه ﴿فَمَن تَعَجَّلَ فِي يَوْمَيْنِ فَلَا إِثْمَ عَلَيْهِ﴾ (البقرة ٢٠٣).</p>
+    <p class="dua">اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ</p>
+    <div class="note">العدّاد أدناه لليوم الواحد (٢١ حصاة = ٣ جمرات × ٧)؛ أعد تصفيره لكل يوم.</div>
+    <div class="src">البقرة ٢٠٣؛ البخاري — صفة رمي ابن عمر.</div>` },
+  { t: "طواف الوداع — تمّ الحج", icon: "🕋", kind: "tawaf", secs: ["tawaf_intro"], after: "تمّ طواف الوداع — تقبّل الله حجّك",
+    html: `<p>«لا ينفِرَنَّ أحدٌ حتى يكون آخرُ عهده بالبيت» (مسلم). يكون آخر ما يفعله الحاج قبل السفر، ولا وداع على الحائض والنُّفَساء (البخاري ومسلم).</p><p class="dua">«الحجُّ المبرور ليس له جزاء إلا الجنة» (البخاري ومسلم)</p>` }
+];
+
 /* ============ شاشة العمرة ============ */
+function renderHajj() { RITE.k = "hajj"; renderUmrah(); }
 function renderUmrah() {
-  const v = document.getElementById("v-umrah");
+  const { ST: STAGES, X: S } = cur();
+  const hajj = RITE.k === "hajj";
+  const v = document.getElementById(hajj ? "v-hajj" : "v-umrah");
   const i = Math.min(S.stage, STAGES.length - 1);
   const st = STAGES[i];
   let body = "";
 
   if (st.kind === "tawaf") body = counterCard("tawaf");
   else if (st.kind === "saee") body = counterCard("saee");
+  else if (st.kind === "jamarat") body = jamaratCard(st);
 
   let duas = "";
   (st.secs || []).forEach(id => {
@@ -195,8 +262,8 @@ function renderUmrah() {
   const gpsOn = GPS.id !== null;
   v.innerHTML = `
   <div class="card">
-    <div class="mid">الخطوة ${AR(i + 1)} من ${AR(STAGES.length)}</div>
-    <h3 style="font-size:22px;text-align:center">${st.icon} ${esc(st.t)}</h3>
+    <div class="mid">${hajj ? "مناسك الحج" : "مناسك العمرة"} — الخطوة ${AR(i + 1)} من ${AR(STAGES.length)}</div>
+    <h3 style="font-size:22px;text-align:center">${esc(st.t)}</h3>
     <div class="bar"><i style="width:${((i) / (STAGES.length - 1)) * 100}%"></i></div>
   </div>
   ${body}
@@ -207,26 +274,23 @@ function renderUmrah() {
     <button class="btn" id="next">${i === STAGES.length - 1 ? "إنهاء وبدء من جديد" : "التالي ←"}</button>
   </div>
   <div class="card">
-    <h3>📍 التنبيه بالموقع</h3>
+    <h3>${ico("pin")} التنبيه بالموقع</h3>
     <p style="font-size:14px">يعمل داخل الحرم: ينبّهك عند الحجر الأسود والركن اليماني والمقام والحِجر والملتزم، ويعدّ أشواط الطواف والسعي تلقائياً.</p>
     <button class="btn ${gpsOn ? "sec" : ""}" id="gps">${gpsOn ? "إيقاف التتبّع" : "تشغيل التتبّع بالموقع"}</button>
     <div class="mid" id="gpsInfo">${gpsOn ? "جارٍ تحديد موقعك…" : "التتبّع متوقف"}</div>
-    <label style="display:flex;gap:8px;align-items:center;margin-top:10px"><input type="checkbox" id="spk" ${speakOn ? "checked" : ""} style="width:auto"> نطق التنبيه بالصوت</label>
     <div class="note">دقة GPS داخل المسجد قد تضعف بسبب الازدحام والسقف؛ العدّ التلقائي مساعدة تقنية فقط، وعليك التأكد بنفسك، والعدّ اليدوي متاح دائماً.</div>
   </div>
-  <details><summary>مناسك الحج يوماً بيوم</summary><div>
-    ${HAJJ_DAYS.map(d => `<h3 style="color:var(--gold2)">${esc(d.day)}</h3><ul>${d.items.map(x => `<li>${esc(x)}</li>`).join("")}</ul>`).join("")}
-  </div></details>`;
+  <div class="note">${hajj ? "الحج له مناسكه المستقلة (عرفة، مزدلفة، الجمرات، الهدي) ولا يُخلط بالعمرة؛ راجع المشرف/المطوّف في المواقيت والأوقات." : "العمرة: إحرام ← طواف ← سعي ← حلق أو تقصير. للحج مسار مستقل من الشريط السفلي."}</div>`;
 
-  const nx = document.getElementById("next");
-  nx.onclick = () => { S.stage = (i === STAGES.length - 1) ? 0 : i + 1; if (i === STAGES.length - 1) { S.tawaf = 0; S.saee = 0; S.saeeAt = "safa"; } renderUmrah(); window.scrollTo(0, 0); };
-  const pv = document.getElementById("prev"); if (pv) pv.onclick = () => { S.stage = i - 1; renderUmrah(); window.scrollTo(0, 0); };
-  document.getElementById("gps").onclick = () => gpsOn ? GPS.stop() : GPS.start();
-  document.getElementById("spk").onchange = e => { speakOn = e.target.checked; DB.set("speak", speakOn); };
+  const nx = v.querySelector("#next");
+  nx.onclick = () => { S.stage = (i === STAGES.length - 1) ? 0 : i + 1; if (i === STAGES.length - 1) { S.tawaf = 0; S.saee = 0; S.saeeAt = "safa"; S.jam = 0; } else if (STAGES[i + 1].kind === "tawaf" || STAGES[i + 1].kind === "saee") { if (STAGES[i + 1].kind === "tawaf") S.tawaf = 0; else { S.saee = 0; S.saeeAt = "safa"; } } else if (STAGES[i + 1].kind === "jamarat") S.jam = 0; renderUmrah(); window.scrollTo(0, 0); };
+  const pv = v.querySelector("#prev"); if (pv) pv.onclick = () => { S.stage = i - 1; renderUmrah(); window.scrollTo(0, 0); };
+  v.querySelector("#gps").onclick = () => gpsOn ? GPS.stop() : GPS.start();
 
   v.querySelectorAll("[data-inc]").forEach(b => b.onclick = () => {
     const kind = b.dataset.inc, delta = +b.dataset.d;
     if (kind === "tawaf") S.tawaf = Math.max(0, Math.min(7, S.tawaf + delta));
+    else if (kind === "jam") S.jam = Math.max(0, Math.min(st.total || 7, S.jam + delta));
     else { S.saee = Math.max(0, Math.min(7, S.saee + delta)); if (delta > 0) S.saeeAt = S.saeeAt === "safa" ? "marwa" : "safa"; }
     renderUmrah();
   });
@@ -238,7 +302,22 @@ const KAABA3D = `<div class="kaabaWrap"><div class="shadow"></div><div class="ka
   <div class="f lf"><i class="belt"></i><i class="studs"></i><i class="curtain"></i><i class="base"></i></div>
   <div class="f rt"><i class="belt"></i><i class="studs"></i><i class="curtain"></i><i class="base"></i></div>
   <div class="f tp"></div></div></div>`;
+function jamaratCard(st) {
+  const S = cur().X, n = S.jam, T = st.total || 7;
+  return `<div class="card">
+    <div class="mid">حصيات الرمي</div>
+    <div class="big">${AR(n)} من ${AR(T)}</div>
+    <div class="mid">${n >= T ? "تمّ الرمي — احمد الله" : T === 7 ? "جمرة العقبة الكبرى: سبع حصيات متعاقبات، تكبّر مع كل حصاة" : "كل يوم ٢١ حصاة: الصغرى ثم الوسطى ثم العقبة، سبعاً سبعاً بعد الزوال"}</div>
+    <div class="row" style="margin-top:12px">
+      <button class="btn sec sm" data-inc="jam" data-d="-1">−</button>
+      <button class="btn" data-inc="jam" data-d="1">+ حصاة</button>
+    </div>
+    <div class="card" style="margin-top:12px"><div class="dua">اللهُ أَكْبَرُ</div>
+    <div class="src">مسلم — حديث جابر: يكبّر مع كل حصاة. ويُستحب الدعاء بعد الصغرى والوسطى مستقبلاً القبلة (البخاري).</div></div>
+  </div>`;
+}
 function counterCard(kind) {
+  const S = cur().X;
   const n = kind === "tawaf" ? S.tawaf : S.saee;
   const label = kind === "tawaf" ? "أشواط الطواف" : "أشواط السعي";
   const hint = kind === "tawaf"
@@ -535,10 +614,28 @@ function renderQuran() {
       <li>الاستعاذة قبل القراءة: ﴿فَإِذَا قَرَأْتَ الْقُرْآنَ فَاسْتَعِذْ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ﴾ (النحل ٩٨)، ثم البسملة في أول السورة إلا التوبة.</li>
       <li>الترتيل والتدبر: ﴿وَرَتِّلِ الْقُرْآنَ تَرْتِيلًا﴾ (المزمل ٤) — قليلٌ بتدبر خير من كثير بلا فهم.</li>
       <li>تعاهُد الحفظ: «تعاهدوا هذا القرآن، فوالذي نفسي بيده لهو أشدُّ تفلُّتاً من الإبل في عُقُلها» (البخاري ومسلم).</li>
-      <li>لا يُشترط الوضوء لقراءة القرآن من الشاشة، والأفضل أن تكون على طهارة.</li>
       <li>الجهر بالقراءة حيث لا يُشوّش على مصلٍّ أو قارئ.</li>
       <li>إذا شككت في ضبط كلمة فارجع إلى مصحف مطبوع معتمد أو أهل العلم بالقراءات.</li>
     </ul></div>
+    <div class="card"><h3>البسملة: أول السورة أم وسطها؟</h3>
+      <ul>
+        <li><b>البدء من أول السورة:</b> يستعيذ ثم يبسمل ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ﴾ — إلا سورة التوبة (براءة) فلا بسملة في أولها، ويكفي التعوّذ.</li>
+        <li><b>البدء من وسط السورة:</b> يستعيذ، والبسملة هنا اختيارية؛ إن بسمل فحسن وإن تركها فلا حرج. ويُستحسن ترك البسملة إذا كان أول المقروء ذكرَ الشيطان أو ما لا يليق اقترانه باسم الله.</li>
+        <li><b>سورة الأنفال إلى التوبة:</b> من وصل بينهما لا يبسمل، وله السكت أو الوصل أو الوقف.</li>
+      </ul>
+      <div class="src">النحل ٩٨؛ كتب التجويد المعتمدة (المقدمة الجزرية وشروحها)؛ فتاوى اللجنة الدائمة. <span class="tag">مادة تعليمية</span></div>
+    </div>
+    <div class="card"><h3>الطهارة والقراءة</h3>
+      <ul>
+        <li><b>مسّ المصحف المطبوع:</b> يُشترط له الوضوء عند جمهور العلماء (المذاهب الأربعة)؛ لحديث «لا يمسّ القرآن إلا طاهر» (مالك والدارقطني، حسّنه جمع من أهل العلم) و﴿لَّا يَمَسُّهُ إِلَّا الْمُطَهَّرُونَ﴾ على أحد التفسيرين.</li>
+        <li><b>القراءة من الهاتف أو حفظاً:</b> تجوز بلا وضوء؛ فالهاتف ليس مصحفاً، والنبي ﷺ كان يذكر الله على كل أحيانه (مسلم). والأفضل والأكمل أن تكون على طهارة.</li>
+        <li><b>الجُنب:</b> لا يقرأ القرآن حتى يغتسل عند جمهور العلماء؛ لحديث عليّ: «كان ﷺ لا يحجبه عن القرآن شيء ليس الجنابة» (أبو داود والترمذي، وفي إسناده كلام).</li>
+        <li><b>الحائض والنُّفَساء:</b> مسألة خلافية؛ منعها جماعة قياساً على الجُنب، وأجاز القراءة بلا مسّ المصحف مالكٌ ورجّحه ابن تيمية والشوكاني وابن باز لطول مدة الحيض وعدم ثبوت المنع. ومسُّ المصحف بحائل (قفاز/قلم) جائز، والقراءة من الهاتف جائزة.</li>
+        <li><b>الذكر والأدعية القرآنية</b> (كآية الكرسي، والمعوذات، والأذكار) تجوز في كل حال على وجه الذكر لا التلاوة.</li>
+      </ul>
+      <div class="note">هذه خلاصة مذاهب أهل العلم لا فتوى؛ وعند الحاجة يُسأل مفتي معتمد في بلدك.</div>
+      <div class="src">المغني لابن قدامة، المجموع للنووي، مجموع فتاوى ابن تيمية، فتاوى اللجنة الدائمة (باب الطهارة). <span class="tag">مسألة فيها خلاف</span></div>
+    </div>
     <div class="card"><h3>قبل التلاوة</h3>
       <div class="dua">أَعُوذُ بِاللَّهِ مِنَ الشَّيْطَانِ الرَّجِيمِ — بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
       <div class="src"><span class="tag q">قرآن</span> النحل ٩٨ — هذا هو الثابت المشروع قبل القراءة.</div>
@@ -569,7 +666,7 @@ function renderQuran() {
   qq.oninput = () => {
     const t = qq.value.trim(); const box = document.getElementById("qres");
     if (t.length < 3) { box.innerHTML = ""; return; }
-    const norm = s => s.replace(/[\u064B-\u0652\u0653-\u065F\u0670\u06D6-\u06ED]/g, "").replace(/[إأآا]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه");
+    const norm = s => s.replace(/\u0670/g, "ا").replace(/[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED\u0640]/g, "").replace(/ءا/g, "ا").replace(/[إأآاٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/ؤ/g, "و").replace(/ئ/g, "ي").replace(/ا{2,}/g, "ا").replace(/\s+/g, " ");
     const nt = norm(t); const out = [];
     for (const s of QURAN.surahs) { for (const a of s.a) { if (norm(a[0]).includes(nt)) { out.push([s, a]); if (out.length > 40) break; } } if (out.length > 40) break; }
     box.innerHTML = out.length ? out.map(([s, a]) => `<div class="card"><div class="dua">${esc(a[0])}</div><div class="src">${esc(s.name)} — آية ${AR(a[1])} — <button class="chip" data-go="${a[2]}">صفحة ${AR(a[2])}</button></div></div>`).join("") : `<p class="mid">لا نتائج</p>`;
@@ -689,7 +786,7 @@ function renderWird() {
     <button class="btn" id="wadd">إضافة</button>
     <button class="btn sec sm" id="wreset">استعادة الورد الافتراضي</button>
   </div>
-  <div class="card"><h3>🔔 التنبيهات</h3>
+  <div class="card"><h3>${ico("bell")} التنبيهات</h3>
     <label>أذكار الصباح</label><input type="time" id="r1" value="${rem.sabah}">
     <label>أذكار المساء</label><input type="time" id="r2" value="${rem.masa}">
     <label>الورد اليومي</label><input type="time" id="r3" value="${rem.wird}">
@@ -746,12 +843,13 @@ function renderAsk(id) {
 }
 
 /* ============ التنقل ============ */
-const RENDER = { home: () => renderHome(), umrah: renderUmrah, quran: renderQuran, adhkar: () => renderAdhkar(), wird: renderWird, ask: () => renderAsk() };
-const TITLES = { home: ["قانتون", "ملخص يومك ومدخل كل قسم"], umrah: ["قانتون", "مناسك العمرة والحج بالترتيب"], quran: ["المصحف", "604 صفحات — بالرسم العثماني"], adhkar: ["الأذكار والأدعية", "بالمصدر وعدد التكرار"], wird: ["الورد اليومي", "تابع إنجازك يومياً"], ask: ["اسألني", "ذكرٌ لكل حال"] };
+const RENDER = { home: () => renderHome(), umrah: () => { RITE.k = "umrah"; renderUmrah(); }, hajj: renderHajj, quran: renderQuran, adhkar: () => renderAdhkar(), wird: renderWird, ask: () => renderAsk() };
+const TITLES = { home: ["قانتون", "ملخص يومك"], umrah: ["العمرة", "مناسك العمرة خطوة بخطوة"], hajj: ["الحج", "مناسك الحج يوماً بيوم مع العدّادات"], quran: ["المصحف", "604 صفحات — بالرسم العثماني"], adhkar: ["الأذكار والأدعية", "بالمصدر وعدد التكرار"], wird: ["الورد اليومي", "تابع إنجازك يومياً"], ask: ["اسألني", "ذكرٌ لكل حال"] };
 function go(v) {
   if (!RENDER[v]) v = "home";
-  ["home", "umrah", "quran", "adhkar", "wird", "ask", "time"].forEach(x => document.getElementById("v-" + x).classList.toggle("hidden", x !== v));
+  ["home", "umrah", "hajj", "quran", "adhkar", "wird", "ask", "time"].forEach(x => document.getElementById("v-" + x).classList.toggle("hidden", x !== v));
   document.getElementById("summary").classList.toggle("hidden", v !== "home");
+  const ps = document.getElementById("pstrip"); if (ps) ps.classList.toggle("hidden", v === "home");
   document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
   document.getElementById("hTitle").textContent = TITLES[v][0];
   document.getElementById("hSub").textContent = TITLES[v][1];
@@ -798,9 +896,40 @@ function skyPhase(now, lat, lng) {
   if (t >= sunset - 0.5 && t < sunset + 0.6) return "maghrib";
   return "isha";
 }
+/* مدينة تقريبية من منطقة التوقيت عند رفض إذن الموقع */
+const TZ_CITY = {
+  "Asia/Dubai": { n: "الإمارات (دبي)", lat: 25.2048, lng: 55.2708 }, "Asia/Muscat": { n: "مسقط", lat: 23.5880, lng: 58.3829 },
+  "Asia/Riyadh": { n: "الرياض", lat: 24.7136, lng: 46.6753 }, "Asia/Qatar": { n: "الدوحة", lat: 25.2854, lng: 51.5310 },
+  "Asia/Bahrain": { n: "المنامة", lat: 26.2285, lng: 50.5860 }, "Asia/Kuwait": { n: "الكويت", lat: 29.3759, lng: 47.9774 },
+  "Asia/Amman": { n: "عمّان", lat: 31.9454, lng: 35.9284 }, "Asia/Baghdad": { n: "بغداد", lat: 33.3152, lng: 44.3661 },
+  "Africa/Cairo": { n: "القاهرة", lat: 30.0444, lng: 31.2357 }, "Asia/Beirut": { n: "بيروت", lat: 33.8938, lng: 35.5018 },
+  "Asia/Damascus": { n: "دمشق", lat: 33.5138, lng: 36.2765 }, "Asia/Jerusalem": { n: "القدس", lat: 31.7683, lng: 35.2137 },
+  "Africa/Casablanca": { n: "الدار البيضاء", lat: 33.5731, lng: -7.5898 }, "Africa/Algiers": { n: "الجزائر", lat: 36.7538, lng: 3.0588 },
+  "Africa/Tunis": { n: "تونس", lat: 36.8065, lng: 10.1815 }, "Africa/Tripoli": { n: "طرابلس", lat: 32.8872, lng: 13.1913 },
+  "Africa/Khartoum": { n: "الخرطوم", lat: 15.5007, lng: 32.5599 }, "Asia/Aden": { n: "عدن", lat: 12.7855, lng: 45.0187 },
+  "Europe/Istanbul": { n: "إسطنبول", lat: 41.0082, lng: 28.9784 }, "Europe/London": { n: "لندن", lat: 51.5074, lng: -0.1278 },
+  "Europe/Paris": { n: "باريس", lat: 48.8566, lng: 2.3522 }, "Asia/Karachi": { n: "كراتشي", lat: 24.8607, lng: 67.0011 },
+  "Asia/Kuala_Lumpur": { n: "كوالالمبور", lat: 3.1390, lng: 101.6869 }, "Asia/Jakarta": { n: "جاكرتا", lat: -6.2088, lng: 106.8456 },
+  "America/New_York": { n: "نيويورك", lat: 40.7128, lng: -74.0060 }, "America/Los_Angeles": { n: "لوس أنجلوس", lat: 34.0522, lng: -118.2437 }
+};
+function tzCity() { try { return TZ_CITY[Intl.DateTimeFormat().resolvedOptions().timeZone] || null; } catch (e) { return null; } }
 const SKY = {
   stars: [], raf: 0,
-  pos() { return DB.get("lastpos", { lat: 21.4225, lng: 39.8262 }); },
+  pos() { const p = DB.get("lastpos", null); if (p) return p; const c = tzCity(); return c ? { lat: c.lat, lng: c.lng } : { lat: 21.4225, lng: 39.8262 }; },
+  hasPos() { return !!DB.get("lastpos", null); },
+  fallbackName() { const c = tzCity(); return c ? c.n + " (تقديراً من توقيت الجهاز)" : "مكة المكرمة"; },
+  locate(quiet) {
+    if (!navigator.geolocation) { if (!quiet) notify("تعذّر تحديد الموقع", "جهازك لا يدعم تحديد الموقع"); return; }
+    navigator.geolocation.getCurrentPosition(p => {
+      DB.set("lastpos", { lat: p.coords.latitude, lng: p.coords.longitude });
+      SKY.apply(); MOON.draw(); WX.refresh(true); PRAY.strip(); SUM.render();
+      if (DB.get("view", "home") === "time") renderTime();
+      if (!quiet) notify("تم تحديث موقعك", "القبلة وأوقات الصلاة تتبع موقعك الآن");
+    }, () => {
+      if (!quiet) notify("تعذّر تحديد الموقع", "اسمح للموقع من إعدادات الجهاز/المتصفح — حالياً تُحسب الأوقات لـ " + SKY.fallbackName());
+      SUM.render();
+    }, { enableHighAccuracy: true, timeout: 12000, maximumAge: 300000 });
+  },
   mode() { return DB.get("skymode", "auto"); },
   apply() {
     const m = this.mode();
@@ -1043,7 +1172,7 @@ const LIFE = {
 
 /* ============ أوقات الصلاة: حساب محلي + تنبيه + نداء ============ */
 const PRAY = {
-  opts() { return DB.get("pray", { method: "makkah", asr: "shafii", adhan: true, on: true, adjust: {} }); },
+  opts() { return DB.get("pray", { method: "makkah", asr: "shafii", on: true, adjust: {} }); },
   set(o) { DB.set("pray", Object.assign(this.opts(), o)); },
   times(d) { const p = SKY.pos(); return prayerTimes(d || new Date(), p.lat, p.lng, this.opts()); },
   next(d) {
@@ -1053,25 +1182,7 @@ const PRAY = {
     const tm = this.times(new Date(now.getTime() + 86400000));
     return { k: "fajr", at: tm.fajr, in: 24 - h + tm.fajr, tomorrow: true };
   },
-  adhan(name) {
-    const o = this.opts();
-    if (o.adhan) {
-      speak(`اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ. حان الآن وقت صلاة ${name}`);
-      try {
-        const A = new (window.AudioContext || window.webkitAudioContext)();
-        [0, .5, 1].forEach((d, i) => {
-          const osc = A.createOscillator(), g = A.createGain();
-          osc.frequency.value = [523, 659, 784][i]; osc.type = "sine";
-          g.gain.setValueAtTime(0.0001, A.currentTime + d);
-          g.gain.exponentialRampToValueAtTime(0.25, A.currentTime + d + 0.05);
-          g.gain.exponentialRampToValueAtTime(0.0001, A.currentTime + d + 0.45);
-          osc.connect(g); g.connect(A.destination);
-          osc.start(A.currentTime + d); osc.stop(A.currentTime + d + 0.5);
-        });
-      } catch (e) { }
-    }
-    if (navigator.vibrate) navigator.vibrate([300, 120, 300, 120, 300]);
-  },
+  adhan() { if (navigator.vibrate) navigator.vibrate([200, 100, 200, 100, 200]); },
   check() {
     const o = this.opts(); if (!o.on) return;
     const now = new Date(), t = this.times(now);
@@ -1157,8 +1268,8 @@ async function schedulePrayerNotifications() {
 function fastDB() { return DB.get("fasts", {}); }
 function renderTime(tab) {
   const v = document.getElementById("v-time");
-  const k = tab || DB.get("ttab", "salah"); DB.set("ttab", k);
-  const tabs = [["salah", "أوقات الصلاة"], ["hijri", "التقويم والصيام"], ["moon", "القمر ومنازله"], ["wx", "الطقس والطوارئ"]];
+  let k = tab || DB.get("ttab", "salah"); if (k === "moon" || k === "wx") k = "salah"; DB.set("ttab", k);
+  const tabs = [["salah", "أوقات الصلاة"], ["hijri", "التقويم والصيام"]];
   let body = "";
   const o = PRAY.opts(), t = PRAY.times(), n = PRAY.next();
   const hj = toHijri(new Date(), DB.get("hoff", 0));
@@ -1175,8 +1286,7 @@ function renderTime(tab) {
         <label>العصر</label>
         <select id="pa"><option value="shafii" ${o.asr === "shafii" ? "selected" : ""}>الجمهور (مثل الظل)</option><option value="hanafi" ${o.asr === "hanafi" ? "selected" : ""}>الحنفية (مِثلَا الظل)</option></select>
         <button class="btn ${o.on ? "sec" : ""}" id="pon">${o.on ? "إيقاف تنبيه الصلاة" : "تفعيل تنبيه الصلاة"}</button>
-        <button class="btn sec sm" id="pad">${o.adhan ? "✔ نداء صوتي عند الأذان" : "✖ النداء الصوتي مُطفأ"}</button>
-        <button class="btn sec sm" id="ploc">📍 تحديث موقعي</button>
+        <button class="btn sec sm" id="ploc">تحديث موقعي</button>
       </div>
       <div class="note">حساب فلكي محلي يعمل بدون إنترنت ويتبع موقعك أينما سافرت. وهو للاستئناس، والمرجع المعتمد تقويم الجهة الرسمية في بلدك (الأوقاف/الإفتاء) والمسجد الذي تصلي فيه.</div>`;
   }
@@ -1238,24 +1348,6 @@ function renderTime(tab) {
         ${EVENTS.find(e => e.id === "crescent").items.map(x => `<div class="dua">${esc(x.t)}</div><div class="src"><span class="tag s">سنة صحيحة</span> ${esc(x.s)}</div>`).join("")}</div>`;
   }
 
-  if (k === "wx") {
-    const d = WX.data(), s = WX.state(d), qk = DB.get("quakes", []);
-    body = `<div class="card"><div class="mid">حالة الجو في موقعك</div>
-      <div class="big">${d ? esc((s && s.label) || "—") + " · " + AR(Math.round(d.t)) + "°" : "لم تُحدَّث بعد"}</div>
-      ${d ? `<div class="count"><span>الرياح</span><b>${AR(Math.round(d.wind))} كم/س${d.gust ? " (هبّات " + AR(Math.round(d.gust)) + ")" : ""}</b></div>
-      <div class="count"><span>آخر تحديث</span><b>${new Date(d.at).toLocaleTimeString("ar", { hour: "2-digit", minute: "2-digit" })}</b></div>` : ""}
-      <button class="btn sec sm" id="wxr">تحديث الآن</button>
-      <div class="note">حالة الطقس تحتاج إنترنت لحظة التحديث فقط، ثم تبقى محفوظة. وأي إنذار رسمي المرجع فيه الجهات الرسمية في دولتك، لا هذا التطبيق.</div></div>
-      ${qk.length ? `<div class="card"><h3>هزات أرضية قريبة (800 كم)</h3>${qk.slice(0, 4).map(x => `<div class="count"><span>${esc(x.place)}</span><b>${AR(x.m)} · ${AR(x.km)} كم</b></div>`).join("")}</div>` : ""}
-      ${EVENTS.map(e => `<details><summary>${e.icon} ${esc(e.label)}</summary><div>
-        <div class="note">${esc(e.when)}</div>
-        ${e.items.map(x => `<div class="card"><div class="dua">${esc(x.t)}</div>
-          ${x.n > 1 ? `<div class="count"><span>التكرار</span><b>${AR(x.n)}</b></div>${tasbih(e.id + x.t, x.n)}` : ""}
-          ${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}
-          <div class="src"><span class="tag ${x.tag === "ق" ? "q" : x.tag === "س" ? "s" : "d"}">${x.tag === "ق" ? "قرآن" : x.tag === "س" ? "سنة صحيحة" : "دعاء مباح"}</span> ${esc(x.s)}</div></div>`).join("")}
-      </div></details>`).join("")}`;
-  }
-
   v.innerHTML = `<div class="chips">${tabs.map(([id, t2]) => `<button class="chip ${id === k ? "on" : ""}" data-t="${id}">${t2}</button>`).join("")}</div>${body}`;
   v.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { renderTime(b.dataset.t); window.scrollTo(0, 0); });
   bindCounters(v);
@@ -1268,17 +1360,11 @@ function renderTime(tab) {
     PRAY.set({ on }); renderTime(k);
     if (on) schedulePrayerNotifications(); else { const ln = LN(); if (ln) ln.getPending().then(p => p.notifications.length && ln.cancel(p)).catch(() => { }); }
   };
-  if (q("pad")) q("pad").onclick = () => { PRAY.set({ adhan: !PRAY.opts().adhan }); renderTime(k); };
-  if (q("ploc")) q("ploc").onclick = () => navigator.geolocation.getCurrentPosition(p => {
-    DB.set("lastpos", { lat: p.coords.latitude, lng: p.coords.longitude });
-    SKY.apply(); MOON.draw(); WX.refresh(true); renderTime(k); PRAY.strip();
-    notify("تم تحديث موقعك", "أوقات الصلاة والقمر والطقس تتبع موقعك الجديد");
-  }, () => notify("تعذّر تحديد الموقع", "فعّل إذن الموقع من إعدادات المتصفح"));
+  if (q("ploc")) q("ploc").onclick = () => SKY.locate(false);
   if (q("ho-")) q("ho-").onclick = () => { DB.set("hoff", DB.get("hoff", 0) - 1); renderTime(k); PRAY.strip(); };
   if (q("ho+")) q("ho+").onclick = () => { DB.set("hoff", DB.get("hoff", 0) + 1); renderTime(k); PRAY.strip(); };
   if (q("q-")) q("q-").onclick = () => { DB.set("qada", Math.max(0, DB.get("qada", 0) - 1)); renderTime(k); };
   if (q("q+")) q("q+").onclick = () => { DB.set("qada", DB.get("qada", 0) + 1); renderTime(k); };
-  if (q("wxr")) q("wxr").onclick = async () => { await WX.refresh(true); await WX.quakes(); renderTime(k); };
   v.querySelectorAll("[data-f]").forEach(b => b.onclick = () => {
     const log = fastDB(), key = b.dataset.f, kind = b.dataset.k;
     const was = log[key];
@@ -1298,6 +1384,16 @@ function qiblaBearing(lat, lng) {
   const x = Math.cos(lat * R) * Math.sin(KAABA.lat * R) - Math.sin(lat * R) * Math.cos(KAABA.lat * R) * Math.cos(dL);
   return (Math.atan2(y, x) / R + 360) % 360;
 }
+function ring(label, v, t, icon) {
+  const pct = t ? Math.min(100, Math.round((v / t) * 100)) : 0;
+  const R = 26, C = 2 * Math.PI * R;
+  return `<div class="ring ${pct >= 100 ? "done" : ""}">
+    <svg viewBox="0 0 64 64"><circle class="rbg" cx="32" cy="32" r="${R}"/><circle class="rfg" cx="32" cy="32" r="${R}" stroke-dasharray="${C}" stroke-dashoffset="${C * (1 - pct / 100)}"/></svg>
+    <div class="rpct">${AR(pct)}٪</div>
+    <div class="rlbl">${ico(icon)} ${label}</div>
+    <div class="rsub">${AR(v)} / ${AR(t)}</div>
+  </div>`;
+}
 const SUM = {
   heading: null, listening: false, open: DB.get("sumopen", true),
   progress() {
@@ -1313,7 +1409,11 @@ const SUM = {
       }
     } catch (e) { }
     const fasts = fastDB()[d];
-    return { wd, wt, wpct: wt ? Math.round((wd / wt) * 100) : 0, pages, target: pl.pages, dh, streak: DB.get("streak", 0), fast: fasts };
+    const sched = [...ADHKAR_SALAH, ...MORNING_EVENING].filter(x => x.n && x.n > 1);
+    let sd = 0;
+    sched.forEach(x => { const id = "t" + Math.abs([...x.t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7)); if (DB.get("cnt_" + id + "_" + d, 0) >= x.n) sd++; });
+    const dgoal = DB.get("dhgoal", 300);
+    return { wd, wt, wpct: wt ? Math.round((wd / wt) * 100) : 0, pages, target: pl.pages, dh, dgoal, sd, st: sched.length, streak: DB.get("streak", 0), fast: fasts };
   },
   render() {
     const el = document.getElementById("summary"); if (!el) return;
@@ -1324,51 +1424,87 @@ const SUM = {
     const rot = this.heading === null ? qb : (qb - this.heading + 360) % 360;
     const g = this.progress();
     const clock = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
+    const left = hh ? `${AR(hh)} س ${AR(mm)} د` : `${AR(mm)} د`;
     if (!this.open) {
-      el.innerHTML = `<div class="card sum"><div class="sumtop"><div><b>${clock}</b> · ${PRAYER_NAMES[n.k]} بعد ${hh ? AR(hh) + " س " : ""}${AR(mm)} د · ورد ${AR(g.wpct)}٪</div>
+      el.innerHTML = `<div class="card sum"><div class="sumtop"><div><b>${clock}</b> · ${PRAYER_NAMES[n.k]} بعد ${left} · ورد ${AR(g.wpct)}٪</div>
         <button class="cbtn" id="sumtog">▾</button></div></div>`;
     } else {
-      el.innerHTML = `<div class="card sum">
-      <div class="sumtop"><div class="mid">${AR(hj.d)} ${hj.name} ${AR(hj.y)}هـ · ${now.toLocaleDateString("en-GB")}</div>
-        <button class="cbtn" id="sumtog">▴</button></div>
-      <div class="sumgrid">
-        <div class="sumcell"><div class="mid">الوقت الآن</div><div class="big">${clock}</div></div>
-        <div class="sumcell"><div class="mid">${PRAYER_NAMES[n.k]}${n.tomorrow ? " (غداً)" : ""} ${hhmm(n.at)}</div>
-          <div class="big">${hh ? AR(hh) + ":" : ""}${hh ? String(mm).padStart(2, "0") : AR(mm)}</div>
-          <div class="mid">${hh ? "س : د" : "دقيقة"} متبقية للصلاة</div></div>
-        <div class="sumcell"><div class="mid">القبلة ${AR(Math.round(qb))}° من الشمال</div>
-          <div class="qibla"><i style="transform:rotate(${rot}deg)">↑</i></div>
-          <button class="btn sec sm" id="sumcomp">${this.listening ? "البوصلة تعمل" : "تفعيل البوصلة"}</button></div>
+      el.innerHTML = `<div class="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-in">
+        <div class="sumtop"><div class="mid">${AR(hj.d)} ${hj.name} ${AR(hj.y)}هـ · ${now.toLocaleDateString("en-GB")}</div>
+          <button class="cbtn" id="sumtog">▴</button></div>
+        <div class="hero-row">
+          <div class="hero-time">
+            <div class="clock">${clock}</div>
+            <div class="nextp">${ico("bell")} ${PRAYER_NAMES[n.k]}${n.tomorrow ? " (غداً)" : ""} ${hhmm(n.at)}</div>
+            <div class="left">بعد <b>${left}</b></div>
+          </div>
+          <div class="hero-qibla">
+            <div class="qibla"><i id="qarrow" style="transform:rotate(${rot}deg)">↑</i></div>
+            <div class="mid">القبلة ${AR(Math.round(qb))}°</div>
+            <div class="mid" id="qstat">${this.heading === null ? "من الشمال" : this.status(qb)}</div>
+          </div>
+        </div>
+        <div class="row hero-btns">
+          <button class="btn sec sm" id="sumcomp">${this.listening ? "البوصلة تعمل" : "تفعيل البوصلة"}</button>
+          <button class="btn sec sm" id="sumloc">${ico("pin")} تحديث موقعي</button>
+        </div>
+        <div class="mid hero-note">${SKY.hasPos() ? "محسوبة من موقعك الحالي" : "⚠️ موقعك غير محدد — محسوبة لـ " + SKY.fallbackName() + "؛ اسمح بإذن الموقع للدقة"}</div>
       </div>
-      <div class="sumbars">
-        <div><div class="mid">وردك اليوم — ${AR(g.wd)} من ${AR(g.wt)}</div><div class="bar"><i style="width:${g.wpct}%"></i></div></div>
-        <div><div class="mid">قراءة المصحف — ${AR(g.pages)} من ${AR(g.target)} صفحات</div><div class="bar"><i style="width:${Math.min(100, g.target ? (g.pages / g.target) * 100 : 0)}%"></i></div></div>
-        <div class="mid">تسبيح وأذكار اليوم: ${AR(g.dh)} · أيام متتابعة: ${AR(g.streak)}${g.fast ? " · صيام اليوم: " + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") : ""}</div>
-      </div>
-      <div class="note">اتجاه القبلة محسوب من موقعك تقريبياً؛ عند الاشتباه تحرَّ الاتجاه بمحراب مسجد أو بوصلة موثوقة.</div>
+    </div>
+    <div class="card rings">
+      ${ring("الورد", g.wd, g.wt, "check")}
+      ${ring("الأذكار", g.dh, g.dgoal, "beads")}
+      ${ring("جدول اليوم", g.sd, g.st, "clock")}
+      ${ring("المصحف", g.pages, g.target, "quran")}
+      <div class="mid ringfoot">أيام متتابعة: ${AR(g.streak)}${g.fast ? " · صيام اليوم: " + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") : ""}</div>
     </div>`;
       const c = document.getElementById("sumcomp");
       if (c) c.onclick = () => this.compass();
+      const l = document.getElementById("sumloc");
+      if (l) l.onclick = () => SKY.locate(false);
     }
     const t = document.getElementById("sumtog");
     if (t) t.onclick = () => { this.open = !this.open; DB.set("sumopen", this.open); this.render(); };
   },
+  status(qb) {
+    let d = ((qb - this.heading + 540) % 360) - 180;
+    const a = Math.abs(Math.round(d));
+    if (a <= 5) return "أنت متجه إلى القبلة ✓";
+    return (d > 0 ? "أدِر الهاتف يميناً " : "أدِر الهاتف يساراً ") + AR(a) + "°";
+  },
+  tick() {
+    const p = SKY.pos(), qb = qiblaBearing(p.lat, p.lng);
+    const ar = document.getElementById("qarrow"), st = document.getElementById("qstat");
+    if (ar) ar.style.transform = `rotate(${(qb - this.heading + 360) % 360}deg)`;
+    if (st) st.textContent = this.status(qb);
+  },
   async compass() {
     if (this.listening) return;
+    if (!("DeviceOrientationEvent" in window)) { notify("البوصلة", "جهازك لا يدعم مستشعر الاتجاه"); return; }
     try {
       const D = window.DeviceOrientationEvent;
-      if (D && typeof D.requestPermission === "function") {
+      if (typeof D.requestPermission === "function") {
         const r = await D.requestPermission();
-        if (r !== "granted") { notify("البوصلة", "لم يُسمح باستخدام مستشعر الاتجاه"); return; }
+        if (r !== "granted") { notify("البوصلة", "لم يُسمح باستخدام مستشعر الاتجاه — فعّله من إعدادات Safari ← الحركة والاتجاه"); return; }
       }
+      let last = 0, got = false;
       const on = e => {
-        const h = e.webkitCompassHeading !== undefined ? e.webkitCompassHeading : (e.alpha !== null ? 360 - e.alpha : null);
+        let h = null;
+        if (e.webkitCompassHeading !== undefined && e.webkitCompassHeading !== null) h = e.webkitCompassHeading;
+        else if (e.absolute && e.alpha !== null) h = (360 - e.alpha) % 360;
+        else if (e.type === "deviceorientationabsolute" && e.alpha !== null) h = (360 - e.alpha) % 360;
         if (h === null) return;
-        this.heading = h;
+        if (screen.orientation && screen.orientation.angle) h = (h + screen.orientation.angle) % 360;
+        this.heading = h; got = true;
+        const now = Date.now(); if (now - last < 120) return; last = now;
+        this.tick();
       };
-      addEventListener("deviceorientationabsolute", on, true);
-      addEventListener("deviceorientation", on, true);
+      if ("ondeviceorientationabsolute" in window) addEventListener("deviceorientationabsolute", on, true);
+      else addEventListener("deviceorientation", on, true);
       this.listening = true; this.render();
+      setTimeout(() => { if (!got) { this.listening = false; this.render(); notify("البوصلة", "لم يصل اتجاه من المستشعر — استخدمي هاتفاً (لا حاسوباً) وحرّكيه على شكل ٨ للمعايرة"); } }, 4000);
     } catch (e) { notify("البوصلة", "جهازك لا يدعم مستشعر الاتجاه"); }
   }
 };
@@ -1428,30 +1564,47 @@ function policiesBlock() {
   </div>`;
 }
 
+function fridayCard() {
+  const d = new Date(), dow = d.getDay();
+  const isFri = dow === 5, eve = dow === 4 && d.getHours() >= 18;
+  if (!isFri && !eve) return "";
+  const kahf = QURAN.surahs.find(s => s.n === 18);
+  return `<div class="card" style="border:1px solid var(--gold2)">
+    <h3>${ico("mosque")} ${isFri ? "اليوم الجمعة — سيد الأيام" : "ليلة الجمعة"}</h3>
+    <ul>
+      <li>قراءة <b>سورة الكهف</b>: «من قرأ سورة الكهف في يوم الجمعة أضاء له من النور ما بين الجمعتين» (الحاكم والبيهقي — صححه الألباني). ${eve ? "وتجزئ ليلة الجمعة من بعد مغرب الخميس." : ""}</li>
+      <li>الإكثار من <b>الصلاة على النبي ﷺ</b>: «أكثروا عليّ من الصلاة يوم الجمعة وليلة الجمعة» (البيهقي — حسّنه الألباني).</li>
+      ${isFri ? `<li><b>الغُسل</b> والطيب وأحسن الثياب و<b>التبكير</b> إلى المسجد والمشي، والإنصات للخطبة (البخاري ومسلم).</li>
+      <li><b>ساعة الإجابة</b>: أرجاها آخر ساعة بعد العصر إلى المغرب (أبو داود — صححه الألباني)، أو ما بين جلوس الإمام إلى انقضاء الصلاة (مسلم) — فأكثر من الدعاء.</li>
+      <li>لا يُخصّ يوم الجمعة بصيام إلا أن يصوم يوماً قبله أو بعده (البخاري ومسلم).</li>` : ""}
+    </ul>
+    <div class="row"><button class="btn" id="goKahf">افتح سورة الكهف</button></div>
+    <div class="src"><span class="tag s">سنة صحيحة</span> البخاري ومسلم، أبو داود، الحاكم — أحكام الجمعة.</div>
+  </div>`;
+}
 function renderHome() {
   const v = document.getElementById("v-home"); if (!v) return;
-  const g = SUM.progress(), st = STAGES[Math.min(S.stage, STAGES.length - 1)];
-  const n = PRAY.next();
-  const tiles = [
-    { v: "umrah", icon: "🕋", t: "العمرة والحج", s: st.t, x: st.kind === "tawaf" ? "الطواف: " + AR(S.tawaf) + " من 7" : st.kind === "saee" ? "السعي: " + AR(S.saee) + " من 7" : "خطوة " + AR(Math.min(S.stage, STAGES.length - 1) + 1) + " من " + AR(STAGES.length) },
-    { v: "quran", icon: "📖", t: "المصحف", s: "صفحة " + AR(Q.page) + " — " + surahOfPage(Q.page).split(" — ")[0], x: "اليوم: " + AR(g.pages) + " من " + AR(g.target) + " صفحات" },
-    { v: "adhkar", icon: "📿", t: "الأذكار والأدعية", s: "أدبار الصلوات، الصباح والمساء، أدعية الأنبياء", x: "تسبيح اليوم: " + AR(g.dh) },
-    { v: "wird", icon: "✅", t: "الورد اليومي", s: "متابعة إنجازك", x: AR(g.wpct) + "٪ — " + AR(g.wd) + " من " + AR(g.wt) },
-    { v: "time", icon: "🕰️", t: "الأوقات والتقويم", s: "الصلاة والصيام والقمر والطقس", x: PRAYER_NAMES[n.k] + " " + hhmm(n.at) },
-    { v: "ask", icon: "💬", t: "اسألني", s: "ذكرٌ لكل حال: همّ، خوف، رزق، تعلّم التسبيح", x: "بدون إنترنت" }
-  ];
-  v.innerHTML = `<div class="tiles">${tiles.map(x => `<button class="tile" data-go="${x.v}">
-    <span class="ticon">${x.icon}</span>
-    <span class="ttxt"><b>${esc(x.t)}</b><span class="mid">${esc(x.s)}</span><span class="tstate">${esc(x.x)}</span></span>
-    <span class="tgo">‹</span></button>`).join("")}</div>
-  <div class="note">الأرقام والحسابات (الصلاة والقبلة والقمر) تقريبية للاستئناس؛ والمعتمد إعلان الجهة الرسمية في بلدك.</div>
+  const g = SUM.progress(), wx = WX.data(), ws = WX.state(wx);
+  const st = RITE.k === "hajj" ? HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)] : STAGES[Math.min(S.stage, STAGES.length - 1)];
+  v.innerHTML = `
+  ${fridayCard()}
+  <div class="card">
+    <div class="count"><span>${ico("kaaba")} ${RITE.k === "hajj" ? "الحج" : "العمرة"} — الخطوة الحالية</span><b>${esc(st.t)}</b></div>
+    <div class="count"><span>${ico("quran")} المصحف</span><b>صفحة ${AR(Q.page)} · اليوم ${AR(g.pages)} من ${AR(g.target)}</b></div>
+    <div class="count"><span>${ico("beads")} تسبيح اليوم</span><b>${AR(g.dh)}</b></div>
+    ${wx ? `<div class="count"><span>${ico("cloud")} الجو في موقعك</span><b>${esc((ws && ws.label) || "—")} · ${AR(Math.round(wx.t))}°</b></div>` : ""}
+    <div class="note">${wx ? "يُنبّهك التطبيق تلقائياً عند الحر الشديد أو المطر أو الرياح أو الهزات القريبة، مع الذكر المشروع لكل حال." : "سيُعرض الجو وتنبيهات الطوارئ تلقائياً عند توفّر الإنترنت والموقع."}</div>
+  </div>
+  <div class="note">الأرقام والحسابات (الصلاة والقبلة) تقريبية للاستئناس؛ والمعتمد إعلان الجهة الرسمية في بلدك.</div>
   ${policiesBlock()}`;
-  v.querySelectorAll("[data-go]").forEach(b => b.onclick = () => go(b.dataset.go));
+  const k = document.getElementById("goKahf");
+  if (k) k.onclick = () => { const s = QURAN.surahs.find(x => x.n === 18); if (s) Q.page = s.page; go("quran"); };
 }
 
 /* ============ تشغيل التطبيق ============ */
+document.querySelectorAll("[data-ico]").forEach(i => { i.outerHTML = ico(i.dataset.ico); });
 RENDER.time = () => renderTime();
-TITLES.time = ["الأوقات والتقويم", "الصلاة والقمر والصيام والطقس"];
+TITLES.time = ["الأوقات والتقويم", "الصلاة والتقويم والصيام"];
 const HASH_V = location.hash.slice(1);
 go(HASH_V && RENDER[HASH_V] ? HASH_V : DB.get("view", "home"));
 if (DB.get("gps", false)) GPS.start();
@@ -1460,6 +1613,7 @@ MOON.draw();
 LIFE.build(); LIFE.start();
 PRAY.strip();
 SUM.render();
+SKY.locate(true);
 setInterval(() => { SUM.render(); if (DB.get("view", "home") === "home") renderHome(); }, 20000);
 WX.refresh(); WX.quakes();
 schedulePrayerNotifications();

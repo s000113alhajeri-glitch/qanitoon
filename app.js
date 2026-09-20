@@ -419,6 +419,8 @@ const TOPICS = [
   { k: "جنه", w: ["جنه", "فردوس", "النار", "الاخره", "حسن الخاتمه", "الموت"] },
   { k: "شكر", w: ["شكر", "نعمه", "حمد", "اوزعني"] },
   { k: "نصر", w: ["نصر", "انصر", "تمكين", "مغلوب", "فانتصر", "الظالمين", "العدو", "جهاد", "المستضعفين", "ثبت اقدامنا", "اهزم"] },
+  { k: "سكينه", w: ["سكينه", "طمانينه", "تطمئن", "اطمأنت", "امنه", "لا تخف", "لا تحزن", "ربط"] },
+  { k: "صبر", w: ["صبر", "صابر", "الصابرين", "اصبر", "صبرا", "احتسب", "بلاء", "ابتلاء", "مصيبه"] },
   { k: "عرفه", w: ["عرفه", "عرفات", "الحج", "الوقوف", "ذي الحجه", "التهليل", "لا اله الا الله"] }
 ];
 LIBN = LIB.map(x => norm(x.t + " " + x.s + " " + x.g));
@@ -667,9 +669,19 @@ function renderQuran() {
     const t = qq.value.trim(); const box = document.getElementById("qres");
     if (t.length < 3) { box.innerHTML = ""; return; }
     const norm = s => s.replace(/\u0670/g, "ا").replace(/[\u0610-\u061A\u064B-\u065F\u06D6-\u06ED\u0640]/g, "").replace(/ءا/g, "ا").replace(/[إأآاٱ]/g, "ا").replace(/ى/g, "ي").replace(/ة/g, "ه").replace(/ؤ/g, "و").replace(/ئ/g, "ي").replace(/ا{2,}/g, "ا").replace(/\s+/g, " ");
-    const nt = norm(t); const out = [];
-    for (const s of QURAN.surahs) { for (const a of s.a) { if (norm(a[0]).includes(nt)) { out.push([s, a]); if (out.length > 40) break; } } if (out.length > 40) break; }
-    box.innerHTML = out.length ? out.map(([s, a]) => `<div class="card"><div class="dua">${esc(a[0])}</div><div class="src">${esc(s.name)} — آية ${AR(a[1])} — <button class="chip" data-go="${a[2]}">صفحة ${AR(a[2])}</button></div></div>`).join("") : `<p class="mid">لا نتائج</p>`;
+    const nt = norm(t);
+    const bare = nt.replace(/^(ال|و|ف|ب|ل)/, "");
+    const scan = (terms, limit) => { const out = []; for (const s of QURAN.surahs) { for (const a of s.a) { const na = norm(a[0]); if (terms.some(k => na.includes(k))) { out.push([s, a]); if (out.length >= limit) return out; } } } return out; };
+    let out = scan([nt], 40); let mode = "";
+    if (out.length < 3 && bare.length >= 3 && bare !== nt) { out = scan([bare], 40); }
+    if (out.length < 3) {
+      const topic = TOPICS.find(tp => tp.k === bare || tp.k === nt || tp.w.some(w => w === nt || w === bare));
+      if (topic) { const terms = [...new Set([topic.k, ...topic.w].map(norm).filter(w => w.length >= 3 && !w.includes(" ")))]; out = scan(terms, 40); mode = `بحث بالموضوع (${esc(topic.k)})`; }
+    }
+    const sur = QURAN.surahs.filter(s => norm(s.name).includes(bare)).slice(0, 5);
+    box.innerHTML = (sur.length ? `<div class="chips">${sur.map(s => `<button class="chip" data-go="${s.a[0][2]}">سورة ${esc(s.name)}</button>`).join("")}</div>` : "")
+      + (mode ? `<p class="mid">${mode}</p>` : "")
+      + (out.length ? out.map(([s, a]) => `<div class="card"><div class="dua">${esc(a[0])}</div><div class="src">${esc(s.name)} — آية ${AR(a[1])} — <button class="chip" data-go="${a[2]}">صفحة ${AR(a[2])}</button></div></div>`).join("") : (sur.length ? "" : `<p class="mid">لا نتائج — جرّب كلمة أقصر أو موضوعاً (السكينة، الصبر، الرزق…)</p>`));
     box.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { Q.page = +b.dataset.go; renderQuran(); });
   };
 }

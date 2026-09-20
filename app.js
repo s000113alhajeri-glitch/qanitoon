@@ -140,7 +140,7 @@ function onSpot(k) {
     if (st.kind !== "tawaf") { notify("أنت عند الحجر الأسود", SPOT_DUA.hajar, "rite"); return; }
     if (S.tawaf < 7) {
       S.tawaf = S.tawaf + 1;
-      if (S.tawaf === 7) notify("تمّ الطواف 7 أشواط", st.after || "اذهب إلى مقام إبراهيم وصلِّ ركعتين", "rite");
+      if (S.tawaf === 7) notify("تمّ الطواف ٧ أشواط", st.after || "اذهب إلى مقام إبراهيم وصلِّ ركعتين", "rite");
       else notify("تمّ الشوط " + AR(S.tawaf) + " — ابدأ الشوط " + AR(S.tawaf + 1), SPOT_DUA.hajar, "rite");
     }
     renderUmrah(); return;
@@ -151,7 +151,7 @@ function onSpot(k) {
     if (S.saee < 7) {
       S.saee = S.saee + 1;
       S.saeeAt = (k === "safa") ? "marwa" : "safa";
-      if (S.saee === 7) notify("تمّ السعي 7 أشواط", st.after || "انتهى السعي — ثم الحلق أو التقصير", "rite");
+      if (S.saee === 7) notify("تمّ السعي ٧ أشواط", st.after || "انتهى السعي — ثم الحلق أو التقصير", "rite");
       else notify("تمّ الشوط " + AR(S.saee) + " من السعي", "اتجه الآن إلى " + SPOTS[S.saeeAt].name, "rite");
     }
     renderUmrah(); return;
@@ -1738,7 +1738,7 @@ async function schedulePrayerNotifications() {
       if (hj.m === 9 && t.fajr !== null && t.maghrib !== null) {
         const mk = (v, off) => new Date(d.getFullYear(), d.getMonth(), d.getDate(), Math.floor(v), Math.round((v % 1) * 60) + off, 0);
         const sah = mk(t.fajr, -30), ift = mk(t.maghrib, 0);
-        if (sah > now) list.push({ id: 900 + day, title: "بقي 30 دقيقة على الفجر", body: "وقت السحور يوشك أن ينتهي — والمعتمد إمساك بلدك.", schedule: { at: sah, allowWhileIdle: true }, smallIcon: "ic_stat_zad", channelId: "fasting" });
+        if (sah > now) list.push({ id: 900 + day, title: "بقي ٣٠ دقيقة على الفجر", body: "وقت السحور يوشك أن ينتهي — والمعتمد إمساك بلدك.", schedule: { at: sah, allowWhileIdle: true }, smallIcon: "ic_stat_zad", channelId: "fasting" });
         if (ift > now) list.push({ id: 950 + day, title: "أذان المغرب — وقت الإفطار", body: "ذهب الظمأ وابتلّت العروق وثبت الأجر إن شاء الله (أبو داود).", schedule: { at: ift, allowWhileIdle: true }, smallIcon: "ic_stat_zad", channelId: "fasting" });
       }
     }
@@ -2013,6 +2013,11 @@ function renderHome() {
   v.innerHTML = `
   ${fridayCard()}
   <div class="card">
+    <h3 style="margin:0 0 6px">${ico("chat")} اسألني</h3>
+    <div class="row"><input id="homeAsk" list="homeSitList" placeholder="كيف حالك الآن؟ هم، رزق، خصومة…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div><datalist id="homeSitList">${SITUATIONS.map(m => `<option value="${esc(m.label)}">`).join("")}</datalist>
+    <div class="chips" style="margin-top:8px">${SITUATIONS.slice(0, 6).map(x => `<button class="chip" data-hask="${x.id}">${esc(x.label)}</button>`).join("")}</div>
+  </div>
+  <div class="card">
     <h3 style="margin:0 0 6px">ملخص يومي</h3>
     ${shown.map(x => `<div class="count"><span>${ico(x.ic)} ${x.t()}</span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.v(g)}</b><button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button></span></div>`).join("")}
     ${shown.length ? "" : `<p class="mid">لا عناصر — أضيفي ما تريدين متابعته.</p>`}
@@ -2021,6 +2026,11 @@ function renderHome() {
   v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = () => { HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });
   v.querySelectorAll("[data-hadd]").forEach(b => b.onclick = () => { HOME.set([...HOME.list(), b.dataset.hadd]); renderHome(); });
   v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => go(b.dataset.hgo));
+  const openAsk = (q, id) => { ASK.q = q || ""; go("tadabbur"); renderTadabbur("ask"); if (id) renderAsk(id); };
+  const ha = v.querySelector("#homeAsk"), hg = v.querySelector("#homeAskGo");
+  if (hg) hg.onclick = () => { const m = SITUATIONS.find(x => x.label === ha.value.trim()); openAsk(m ? "" : ha.value.trim(), m && m.id); };
+  if (ha) ha.onkeydown = e => { if (e.key === "Enter") hg.click(); };
+  v.querySelectorAll("[data-hask]").forEach(b => b.onclick = () => openAsk("", b.dataset.hask));
   const k = document.getElementById("goKahf");
   if (k) k.onclick = () => { const s = QURAN.surahs.find(x => x.n === 18); if (s) Q.page = s.page; go("quran"); };
 }

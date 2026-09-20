@@ -467,3 +467,5 @@ header{position:relative}
 .planlegend{list-style:none;margin:10px 4px 0;padding:0;font-size:15px;line-height:1.9;color:var(--txt)}
 .planlegend li{margin:2px 0}
 .planlegend b{color:var(--gold,#e9d7a1)}
+.xhide{position:absolute;top:8px;left:8px;width:26px;height:26px;border-radius:50%;border:1px solid var(--line,#ccc);background:transparent;color:var(--dim);font-size:13px;cursor:pointer;line-height:1}
+.jhead{flex-wrap:wrap;gap:8px;padding-inline-start:30px}.jhead h3{flex:1 1 55%;font-size:17px}.jhead .btn{flex:0 0 auto;white-space:nowrap}

@@ -172,21 +172,21 @@ function booklet(ids) {
 }
 const D = (t, s, tag) => `<div class="dua">${t}</div><div class="src"><span class="tag ${tag === "ق" ? "q" : tag === "م" ? "m" : "s"}">${tag === "ق" ? "قرآن" : tag === "م" ? "دعاء مباح" : "سنة صحيحة"}</span> ${s}</div>`;
 const STAGES = [
-  { t: "النيّة", icon: "🤍", kind: "info", html: `
+  { t: "النيّة", icon: "heart", kind: "info", html: `
     <p>النيّة محلّها القلب: تعزم على أداء العمرة لله وحده. ولا يُتلفَّظ بالإحرام الآن، بل عند الميقات.</p>
     ${D("«إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى»", "البخاري ١، مسلم ١٩٠٧")}
     ${D("﴿وَأَتِمُّوا الْحَجَّ وَالْعُمْرَةَ لِلَّهِ﴾", "البقرة ١٩٦", "ق")}
     <div class="note">ردّ الحقوق والمظالم والتوبة قبل السفر، والخروج بمال حلال — «العُمرة إلى العُمرة كفّارة لما بينهما» (البخاري ومسلم).</div>` },
-  { t: "الخروج من المنزل", icon: "🏠", kind: "info", secs: ["home"], html: `
+  { t: "الخروج من المنزل", icon: "home", kind: "info", secs: ["home"], html: `
     ${D("بِسْمِ اللَّهِ، تَوَكَّلْتُ عَلَى اللَّهِ، وَلَا حَوْلَ وَلَا قُوَّةَ إِلَّا بِاللَّهِ", "أبو داود ٥٠٩٥، الترمذي ٣٤٢٦ — صحيح: «يُقال له: هُديت وكُفيت ووُقيت»")}
     ${D("اللَّهُمَّ إِنِّي أَعُوذُ بِكَ أَنْ أَضِلَّ أَوْ أُضَلَّ، أَوْ أَزِلَّ أَوْ أُزَلَّ، أَوْ أَظْلِمَ أَوْ أُظْلَمَ، أَوْ أَجْهَلَ أَوْ يُجْهَلَ عَلَيَّ", "أبو داود ٥٠٩٤، النسائي ٥٤٨٦ — صحيح")}
     <div class="note">لا تلبية الآن؛ التلبية تبدأ بعد الإحرام من الميقات.</div>` },
-  { t: "الركوب والسفر (السيارة أو الطائرة)", icon: "✈️", kind: "info", secs: ["ride"], html: `
+  { t: "الركوب والسفر (السيارة أو الطائرة)", icon: "plane", kind: "info", secs: ["ride"], html: `
     ${D("بِسْمِ اللَّهِ، الْحَمْدُ لِلَّهِ ﴿سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ﴾ الْحَمْدُ لِلَّهِ، الْحَمْدُ لِلَّهِ، الْحَمْدُ لِلَّهِ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، سُبْحَانَكَ اللَّهُمَّ إِنِّي ظَلَمْتُ نَفْسِي فَاغْفِرْ لِي، فَإِنَّهُ لَا يَغْفِرُ الذُّنُوبَ إِلَّا أَنْتَ", "أبو داود ٢٦٠٢، الترمذي ٣٤٤٦ — صحيح؛ الآية: الزخرف ١٣–١٤")}
     ${D("اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ، اللَّهُ أَكْبَرُ ﴿سُبْحَانَ الَّذِي سَخَّرَ لَنَا هَذَا وَمَا كُنَّا لَهُ مُقْرِنِينَ وَإِنَّا إِلَى رَبِّنَا لَمُنْقَلِبُونَ﴾ اللَّهُمَّ إِنَّا نَسْأَلُكَ فِي سَفَرِنَا هَذَا الْبِرَّ وَالتَّقْوَى، وَمِنَ الْعَمَلِ مَا تَرْضَى، اللَّهُمَّ هَوِّنْ عَلَيْنَا سَفَرَنَا هَذَا وَاطْوِ عَنَّا بُعْدَهُ، اللَّهُمَّ أَنْتَ الصَّاحِبُ فِي السَّفَرِ، وَالْخَلِيفَةُ فِي الْأَهْلِ، اللَّهُمَّ إِنِّي أَعُوذُ بِكَ مِنْ وَعْثَاءِ السَّفَرِ، وَكَآبَةِ الْمَنْظَرِ، وَسُوءِ الْمُنْقَلَبِ فِي الْمَالِ وَالْأَهْلِ", "مسلم ١٣٤٢ — دعاء النبي ﷺ إذا استوى على راحلته خارجاً إلى سفر")}
     ${D("سَمِعَ سَامِعٌ بِحَمْدِ اللَّهِ وَحُسْنِ بَلَائِهِ عَلَيْنَا، رَبَّنَا صَاحِبْنَا وَأَفْضِلْ عَلَيْنَا، عَائِذًا بِاللَّهِ مِنَ النَّارِ", "مسلم ٢٧١٨ — في السَّحَر من السفر")}
     <div class="note">في الصعود يُكبَّر وفي الهبوط يُسبَّح (البخاري ٢٩٩٣). ولا تلبية بعد؛ حتى الميقات.</div>` },
-  { t: "الميقات والإحرام", icon: "👕", kind: "info", html: `
+  { t: "الميقات والإحرام", icon: "cloth", kind: "info", html: `
     <ul style="font-size:14px">
       <li>الاغتسال والتطيّب في البدن (لا في الثياب) — فعله النبي ﷺ (مسلم ١١٨٩، البخاري ١٥٣٩).</li>
       <li>الرجل يلبس إزاراً ورداءً أبيضين ونعلين؛ والمرأة تلبس ما شاءت من غير زينة ولا نقاب ولا قفّازين (البخاري ١٨٣٨).</li>
@@ -199,7 +199,7 @@ const STAGES = [
     ${D("اللَّهُمَّ مَحِلِّي حَيْثُ حَبَسْتَنِي", "البخاري ٥٠٨٩، مسلم ١٢٠٧")}
     ${D("فَإِنْ حَبَسَنِي حَابِسٌ فَمَحِلِّي حَيْثُ حَبَسْتَنِي", "النسائي ٢٧٦٦ — لفظٌ آخر للاشتراط")}
     <div class="note">من هنا تبدأ محظورات الإحرام: قصّ الشعر والأظفار، الطيب، عقد النكاح، الصيد، تغطية الرأس للرجل، ولبس المخيط المُفصَّل له.</div>` },
-  { t: "التلبية — من الميقات إلى بدء الطواف", icon: "📣", kind: "info", html: `
+  { t: "التلبية — من الميقات إلى بدء الطواف", icon: "voice", kind: "info", html: `
     ${D(TALBIYA, "البخاري ١٥٤٩، مسلم ١١٨٤ — تلبية النبي ﷺ")}
     ${D("لَبَّيْكَ إِلَهَ الْحَقِّ لَبَّيْكَ", "النسائي ٢٧٥٢ — صحيح؛ زيادة ثابتة")}
     ${D("لَبَّيْكَ وَسَعْدَيْكَ، وَالْخَيْرُ فِي يَدَيْكَ، لَبَّيْكَ وَالرَّغْبَاءُ إِلَيْكَ وَالْعَمَلُ", "مسلم ١١٨٤ — من تلبية ابن عمر رضي الله عنهما")}
@@ -208,7 +208,7 @@ const STAGES = [
       <li>يُكثر منها في كل حال: على المركب، وعند الهبوط والصعود، وبعد الصلوات، وعند تغيّر الأحوال.</li>
       <li>تنقطع عند البدء بالطواف (ابن خزيمة، وعليه عمل ابن عباس رضي الله عنهما).</li>
     </ul>` },
-  { t: "دخول مكة والمسجد الحرام ورؤية الكعبة", icon: "🕌", kind: "info", secs: ["makkah", "haram", "kaaba", "door"], html: `
+  { t: "دخول مكة والمسجد الحرام ورؤية الكعبة", icon: "mosque", kind: "info", secs: ["makkah", "haram", "kaaba", "door"], html: `
     <ul style="font-size:14px">
       <li>يُستحب الاغتسال لدخول مكة، ودخولها من أعلاها (كَداء) إن تيسّر (البخاري ١٥٧٣، ١٥٧٦).</li>
       <li>لم يثبت دعاء مخصوص عند رؤية بيوت مكة؛ فيُكثر من التلبية والذكر.</li>
@@ -221,8 +221,8 @@ const STAGES = [
     ${D("اللَّهُمَّ أَنْتَ السَّلَامُ، وَمِنْكَ السَّلَامُ، فَحَيِّنَا رَبَّنَا بِالسَّلَامِ", "أثر عن عمر بن الخطاب (البيهقي) — لا يصح مرفوعاً؛ يُقال بلا نسبة للنبي ﷺ", "م")}
     ${D("اللَّهُمَّ زِدْ هَذَا الْبَيْتَ تَشْرِيفًا وَتَعْظِيمًا وَتَكْرِيمًا وَمَهَابَةً، وَزِدْ مَنْ شَرَّفَهُ وَكَرَّمَهُ مِمَّنْ حَجَّهُ أَوِ اعْتَمَرَهُ تَشْرِيفًا وَتَكْرِيمًا وَتَعْظِيمًا وَبِرًّا", "مرسل عن مكحول (الشافعي في الأم) — ضعيف؛ يُدعى بمعناه", "م")}
     <div class="note">ثم يتوجّه مباشرة إلى الطواف بلا تحيّة مسجد؛ فتحيّة المسجد الحرام للقادم الطواف.</div>` },
-  { t: "الطواف سبعة أشواط", icon: "🕋", kind: "tawaf", after: "تمّ الطواف — غطِّ كتفك الأيمن وصلِّ ركعتين خلف مقام إبراهيم" },
-  { t: "ركعتا الطواف، وزمزم، والرجوع إلى الحجر", icon: "🤲", kind: "info", secs: ["maqam", "hijr", "multazam", "zamzam"], html: `
+  { t: "الطواف سبعة أشواط", icon: "kaaba", kind: "tawaf", after: "تمّ الطواف — غطِّ كتفك الأيمن وصلِّ ركعتين خلف مقام إبراهيم" },
+  { t: "ركعتا الطواف، وزمزم، والرجوع إلى الحجر", icon: "hands", kind: "info", secs: ["maqam", "hijr", "multazam", "zamzam"], html: `
     <ul style="font-size:14px">
       <li>بعد الشوط السابع يغطّي الرجل كتفه الأيمن (ينتهي الاضطباع)، ثم يتقدّم إلى مقام إبراهيم ويقرأ:</li>
     </ul>
@@ -237,8 +237,8 @@ const STAGES = [
       <li>ثم يذهب إلى زمزم فيشرب منها ويصبّ على رأسه (مسلم ١٢١٨، أحمد ١٥٨٧٩ — صحيح). «ماء زمزم لما شُرب له» (ابن ماجه — حسّنه بعض أهل العلم)، ويدعو عند شربه بما شاء.</li>
       <li>ثم يعود إلى الحجر الأسود فيستلمه إن تيسّر، ثم يخرج إلى المسعى (مسلم ١٢١٨).</li>
     </ul>` },
-  { t: "السعي بين الصفا والمروة", icon: "🏃", kind: "saee", after: "تمّ السعي بالمروة — بقي الحلق أو التقصير" },
-  { t: "الحلق أو التقصير — تمّت العمرة", icon: "✂️", kind: "info", html: `
+  { t: "السعي بين الصفا والمروة", icon: "steps", kind: "saee", after: "تمّ السعي بالمروة — بقي الحلق أو التقصير" },
+  { t: "الحلق أو التقصير — تمّت العمرة", icon: "scissors", kind: "info", html: `
     <ul style="font-size:14px">
       <li>الرجل يحلق رأسه كلّه أو يقصّر من جميعه، والحلق أفضل: «اللهم ارحم المحلِّقين» ثلاثاً ثم «والمقصِّرين» (البخاري ١٧٢٧، مسلم ١٣٠١).</li>
       <li>المرأة تقصّ من أطراف شعرها قدر أُنمُلة، ولا تحلق (أبو داود ١٩٨٤ — صحيح).</li>
@@ -252,7 +252,7 @@ const STAGES = [
 /* ============ مراحل الحج (مسار مستقل عن العمرة) ============ */
 const HAJJ_TALBIYA = D(TALBIYA, "البخاري ١٥٤٩، مسلم ١١٨٤ — تلبية النبي ﷺ؛ تستمر حتى رمي جمرة العقبة");
 const HAJJ_STAGES = [
-  { t: "النيّة ونوع الحج", icon: "🤍", kind: "info", html: `
+  { t: "النيّة ونوع الحج", icon: "heart", kind: "info", html: `
     ${D("«إِنَّمَا الْأَعْمَالُ بِالنِّيَّاتِ»", "البخاري ١، مسلم ١٩٠٧")}
     <p><b>أنواع الحج الثلاثة:</b></p>
     <ul style="font-size:14px">
@@ -262,7 +262,7 @@ const HAJJ_STAGES = [
     </ul>
     <p>المتمتّع: لأداء العمرة استخدم مسار «العمرة» ثم عُد هنا يوم التروية.</p>
     <div class="src">حديث جابر في صفة حجة النبي ﷺ (مسلم ١٢١٨)؛ حديث عائشة (البخاري ١٥٦٢).</div>` },
-  { t: "الإحرام من الميقات (للقارن والمفرد)", icon: "👕", kind: "info", html: `
+  { t: "الإحرام من الميقات (للقارن والمفرد)", icon: "cloth", kind: "info", html: `
     <ul style="font-size:14px">
       <li>عند الوصول إلى الميقات (أو محاذاته في الطائرة): الاغتسال والتطيّب في البدن، ولبس الإزار والرداء، وركعتان إن تيسّر، ثم يعقد النيّة بقلبه ويتلفّظ بالنُّسك — ولا تلبية قبل ذلك:</li>
     </ul>
@@ -272,7 +272,7 @@ const HAJJ_STAGES = [
     ${D("اللَّهُمَّ مَحِلِّي حَيْثُ حَبَسْتَنِي", "البخاري ٥٠٨٩، مسلم ١٢٠٧")}
     ${D("فَإِنْ حَبَسَنِي حَابِسٌ فَمَحِلِّي حَيْثُ حَبَسْتَنِي", "النسائي ٢٧٦٦ — لفظٌ آخر للاشتراط")}
     <div class="note">القادم بالحج وحده أو قارناً يطوف طواف القدوم ويسعى سعي الحج عند قدومه مكة، ولا يتحلّل. أمّا المتمتّع فهذه الخطوة لا تخصّه؛ اضغط «التالي».</div>` },
-  { t: "٨ ذو الحجة — يوم التروية (منى)", icon: "⛺", kind: "info", html: `
+  { t: "٨ ذو الحجة — يوم التروية (منى)", icon: "tent", kind: "info", html: `
     <ul style="font-size:14px">
       <li>المتمتّع يُحرم بالحج ضُحى من مكانه، ويقول:</li>
     </ul>
@@ -281,7 +281,7 @@ const HAJJ_STAGES = [
       <li>التوجّه إلى منى، وصلاة الظهر والعصر والمغرب والعشاء والفجر بها، كلُّ صلاة في وقتها قصراً بلا جمع.</li>
       <li>الإكثار من التلبية، والمبيت بمنى سنّة.</li>
     </ul>${HAJJ_TALBIYA}<div class="src">مسلم ١٢١٨ — حديث جابر.</div>` },
-  { t: "٩ ذو الحجة — يوم عرفة", icon: "🏔️", kind: "info", html: `
+  { t: "٩ ذو الحجة — يوم عرفة", icon: "mountain", kind: "info", html: `
     <ul style="font-size:14px">
       <li>التوجّه إلى عرفة بعد شروق الشمس ملبّياً، والتأكد من الوقوف داخل حدودها (بطن عُرَنة ليس من عرفة).</li>
       <li>صلاة الظهر والعصر جمعَ تقديمٍ قصراً بأذان وإقامتَين.</li>
@@ -290,7 +290,7 @@ const HAJJ_STAGES = [
     </ul>
     ${D("لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ، لَهُ الْمُلْكُ وَلَهُ الْحَمْدُ وَهُوَ عَلَى كُلِّ شَيْءٍ قَدِيرٌ", "الترمذي ٣٥٨٥ — حسّنه الألباني: «خير الدعاء دعاء يوم عرفة، وخير ما قلتُ أنا والنبيون من قبلي…»")}
     ${D("﴿رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً وَفِي الْآخِرَةِ حَسَنَةً وَقِنَا عَذَابَ النَّارِ﴾", "البقرة ٢٠١ — أكثر دعاء النبي ﷺ (البخاري ٦٣٨٩)", "ق")}` },
-  { t: "ليلة ١٠ — المبيت بمزدلفة", icon: "🌙", kind: "info", html: `
+  { t: "ليلة ١٠ — المبيت بمزدلفة", icon: "moon", kind: "info", html: `
     <ul style="font-size:14px">
       <li>الدفع إلى مزدلفة بعد الغروب بسكينة ملبّياً، وصلاة المغرب والعشاء بها جمعاً وقصراً للعشاء بأذان وإقامتَين.</li>
       <li>المبيت حتى الفجر، ثم صلاة الفجر مبكّراً، والذكر والدعاء عند المشعر الحرام مستقبل القبلة حتى الإسفار.</li>
@@ -299,12 +299,12 @@ const HAJJ_STAGES = [
     </ul>
     ${D("﴿فَإِذَا أَفَضْتُم مِّنْ عَرَفَاتٍ فَاذْكُرُوا اللَّهَ عِندَ الْمَشْعَرِ الْحَرَامِ وَاذْكُرُوهُ كَمَا هَدَاكُمْ﴾", "البقرة ١٩٨", "ق")}
     <div class="src">مسلم ١٢١٨ — حديث جابر؛ البخاري ١٦٧٨ — رخصة الضعفة.</div>` },
-  { t: "١٠ ذو الحجة — رمي جمرة العقبة", icon: "🪨", kind: "jamarat", total: 7, html: `
+  { t: "١٠ ذو الحجة — رمي جمرة العقبة", icon: "stone", kind: "jamarat", total: 7, html: `
     <p>يقطع التلبية مع أول حصاة، ويرمي جمرة العقبة الكبرى بسبع حصيات متعاقبات، يكبّر مع كل حصاة، ولا يقف للدعاء بعدها.</p>
     <p>وقته من بعد طلوع شمس يوم النحر (وللضعفة بعد منتصف الليل) ويمتد إلى الليل عند الزحام.</p>
     ${D("اللَّهُ أَكْبَرُ", "مسلم ١٢١٨ — يكبّر مع كل حصاة")}
     <div class="src">مسلم ١٢١٨؛ البخاري ١٧٤٩ — قطع التلبية عند الرمي.</div>` },
-  { t: "١٠ ذو الحجة — الهدي والحلق (التحلل الأول)", icon: "✂️", kind: "info", html: `
+  { t: "١٠ ذو الحجة — الهدي والحلق (التحلل الأول)", icon: "scissors", kind: "info", html: `
     <ul style="font-size:14px">
       <li>نحر الهدي على المتمتّع والقارن، ويجوز التوكيل (الجهات المعتمدة). يقول عند النحر:</li>
     </ul>
@@ -313,16 +313,16 @@ const HAJJ_STAGES = [
       <li>ثم الحلق أو التقصير، والحلق أفضل للرجل: «اللهم ارحم المحلِّقين» (البخاري ١٧٢٧، مسلم ١٣٠١). والمرأة تقصّر قدر أُنمُلة.</li>
       <li>بالرمي والحلق يحصل <b>التحلل الأول</b>: يحلّ كل شيء إلا النساء. ثم يتطيّب ويلبس ثيابه.</li>
     </ul>` },
-  { t: "طواف الإفاضة (ركن)", icon: "🕋", kind: "tawaf", after: "تمّ طواف الإفاضة — ركعتان خلف المقام، ثم السعي لمن عليه سعي", html: `<p style="font-size:14px">لا رمَل ولا اضطباع في طواف الإفاضة؛ وبعده ركعتان خلف المقام وشرب زمزم (مسلم ١٢١٨).</p>` },
-  { t: "سعي الحج", icon: "🏃", kind: "saee", after: "تمّ السعي — تمّ التحلل الثاني، حلّ لك كل شيء",
+  { t: "طواف الإفاضة (ركن)", icon: "kaaba", kind: "tawaf", after: "تمّ طواف الإفاضة — ركعتان خلف المقام، ثم السعي لمن عليه سعي", html: `<p style="font-size:14px">لا رمَل ولا اضطباع في طواف الإفاضة؛ وبعده ركعتان خلف المقام وشرب زمزم (مسلم ١٢١٨).</p>` },
+  { t: "سعي الحج", icon: "steps", kind: "saee", after: "تمّ السعي — تمّ التحلل الثاني، حلّ لك كل شيء",
     html: `<p style="font-size:14px">يسعى المتمتّع سعياً ثانياً للحج، والقارن والمفرد يكفيهما سعي واحد إن سعيا بعد طواف القدوم. وبه يحصل <b>التحلل الثاني</b>.</p><div class="src">مسلم ١٢١٨؛ البخاري ١٥٥٦.</div>` },
-  { t: "١١–١٣ ذو الحجة — أيام التشريق ورمي الجمرات", icon: "🪨", kind: "jamarat", total: 21, html: `
+  { t: "١١–١٣ ذو الحجة — أيام التشريق ورمي الجمرات", icon: "stone", kind: "jamarat", total: 21, html: `
     <p>المبيت بمنى ليالي التشريق، ورمي الجمرات الثلاث بعد الزوال كل يوم: الصغرى ثم الوسطى ثم العقبة، بسبع حصيات لكلٍّ مكبّراً مع كل حصاة. يقف بعد الصغرى والوسطى مستقبل القبلة داعياً رافعاً يديه طويلاً، ولا يقف بعد العقبة (البخاري ١٧٥١).</p>
     <p>من تعجّل في يومين خرج من منى قبل غروب يوم ١٢ ولا إثم عليه.</p>
     ${D("﴿وَاذْكُرُوا اللَّهَ فِي أَيَّامٍ مَّعْدُودَاتٍ فَمَن تَعَجَّلَ فِي يَوْمَيْنِ فَلَا إِثْمَ عَلَيْهِ وَمَن تَأَخَّرَ فَلَا إِثْمَ عَلَيْهِ لِمَنِ اتَّقَى﴾", "البقرة ٢٠٣", "ق")}
     ${D("اللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ لَا إِلَهَ إِلَّا اللَّهُ، وَاللَّهُ أَكْبَرُ اللَّهُ أَكْبَرُ وَلِلَّهِ الْحَمْدُ", "تكبير أيام التشريق — أثر عن ابن مسعود (ابن أبي شيبة) بسند صحيح، والتكبير المطلق ثابت", "س")}
     <div class="note">العدّاد أدناه لليوم الواحد (٢١ حصاة = ٣ جمرات × ٧)؛ يُصفَّر لكل يوم.</div>` },
-  { t: "طواف الوداع — تمّ الحج", icon: "🕋", kind: "tawaf", after: "تمّ طواف الوداع — تقبّل الله حجّك",
+  { t: "طواف الوداع — تمّ الحج", icon: "kaaba", kind: "tawaf", after: "تمّ طواف الوداع — تقبّل الله حجّك",
     html: `<p style="font-size:14px">«لا ينفِرَنَّ أحدٌ حتى يكون آخرُ عهده بالبيت» (مسلم ١٣٢٧). يكون آخر ما يفعله الحاج قبل السفر، ولا وداع على الحائض والنُّفَساء (البخاري ١٧٥٥، مسلم ١٣٢٨).</p>${D("«الْحَجُّ الْمَبْرُورُ لَيْسَ لَهُ جَزَاءٌ إِلَّا الْجَنَّةُ»", "البخاري ١٧٧٣، مسلم ١٣٤٩")}` }
 ];
 
@@ -428,7 +428,7 @@ function renderUmrah() {
   v.innerHTML = `
   <div class="card">
     <div class="mid">${hajj ? "مناسك الحج" : "مناسك العمرة"} — الخطوة ${AR(i + 1)} من ${AR(N)}</div>
-    <h3 style="font-size:22px;text-align:center">${st.icon} ${esc(st.t)}</h3>
+    <h3 style="font-size:22px;text-align:center">${ico(st.icon)} ${esc(st.t)}</h3>
     <div class="bar"><i style="width:${(i / (N - 1)) * 100}%"></i></div>
     <div class="steps">${STAGES.map((x, k) => `<button class="stp ${k === i ? "on" : k < i ? "done" : ""}" data-go="${k}" title="${esc(x.t)}">${AR(k + 1)}</button>`).join("")}</div>
     <button class="btn sec sm" id="riteInfo" style="margin-top:8px">تعرّف على ${hajj ? "الحج" : "العمرة"}: المباحات والمحظورات والمبطلات</button>
@@ -441,7 +441,7 @@ function renderUmrah() {
   <div class="stepbar sticky">
     <button class="btn sec" id="prev" ${i === 0 ? "disabled" : ""}>→ السابق</button>
     <span class="mid">${AR(i + 1)} / ${AR(N)}</span>
-    ${pre ? `<button class="btn" id="beginRitual">ابدأ ${rName} ▶</button>` : `<button class="btn" id="next">${last ? "إنهاء ↺" : "التالي ←"}</button>`}
+    ${pre ? `<button class="btn" id="beginRitual">ابدأ ${rName} ${ico("play")}</button>` : `<button class="btn" id="next">${last ? "إنهاء ↺" : "التالي ←"}</button>`}
   </div>`;
   const bg = v.querySelector("#beginRitual");
   if (bg) bg.onclick = () => { S.pre = false; renderUmrah(); window.scrollTo(0, 0); };
@@ -684,8 +684,8 @@ function openComposer(onSaved) {
   const run = () => {
     const r = checkDua(txt.value);
     if (r.level === "empty") { res.innerHTML = `<p class="mid">اكتبي الدعاء أولاً.</p>`; return r; }
-    const head = r.level === "block" ? "✖ لا يجوز بهذا اللفظ"
-      : r.level === "warn" ? "⚠ يحتاج مراجعة" : "✓ لا مانع ظاهر — دعاء مباح";
+    const head = r.level === "block" ? ico("x") + " لا يجوز بهذا اللفظ"
+      : r.level === "warn" ? ico("warn") + " يحتاج مراجعة" : ico("check") + " لا مانع ظاهر — دعاء مباح";
     res.innerHTML = `<div class="card dc-${r.level}"><h3>${head}</h3>` +
       (r.hits.length ? r.hits.map(h => `<div class="card"><div class="dua">${esc(h.why)}</div><div class="src">${esc(h.fix)}</div></div>`).join("")
         : `<p class="mid">ادعي بما شئتِ من خيري الدنيا والآخرة، وأفضله ما وافق القرآن والسنة.</p>`) + `</div>`;
@@ -721,7 +721,7 @@ function openPicker(kind, sh, opts = {}) {
     <div class="chips" id="pkChips">${["الرزق", "الزواج", "الذرية", "العمل", "قضاء الدين", "الهداية", "التوبة", "الهم والكرب", "الشفاء", "الوالدين", "الحسد", "العلم", "النصر", "قرآن", "أدعيتي"].map(c => `<button class="chip" data-q="${c}">${c}</button>`).join("")}</div>
     <div class="sheetList" id="pkList"></div>
     <div class="row"><button class="btn" id="pkSave">حفظ الاختيار (<span id="pkN">${AR(sel.size)}</span>)</button>
-    <button class="btn sec" id="pkNew">✎ اكتبي دعاءك</button></div>
+    <button class="btn sec" id="pkNew">${ico("pen")} اكتبي دعاءك</button></div>
   </div>`;
   document.body.appendChild(wrap);
   const list = wrap.querySelector("#pkList");
@@ -1127,8 +1127,9 @@ function jadTimeCard(x, open) {
   const on = JAD.isOn(x.id);
   const picks = jadPicks(x.id).map(i => LIBMAP[i]).filter(Boolean);
   const gcls = /صحيح/.test(x.g) ? "s" : "h";
-  return `<div class="card ${open ? "" : "dim"}">
-    <div class="count"><h3 style="margin:0">${x.icon} ${esc(x.t)}</h3>
+  return `<div class="card ${open ? "" : "dim"}" style="position:relative">
+    <button class="xhide" data-jhide="${x.id}" title="إخفاء" aria-label="إخفاء">✕</button>
+    <div class="count jhead"><h3 style="margin:0">${ico(x.icon)} ${esc(x.t)}</h3>
       ${x.always ? `<span class="tag h">في كل صلاة</span>` : x.manual ? `<button class="btn sm ${JAD.opts().manual[x.id] ? "" : "sec"}" data-jman="${x.id}">${JAD.opts().manual[x.id] ? "مفعّل الآن" : "أنا فيه الآن"}</button>` : `<button class="btn sm ${on ? "" : "sec"}" data-jon="${x.id}">${on ? "التنبيه مفعّل" : "تنبيه"}</button>`}
     </div>
     ${w ? `<div class="note" style="border-color:var(--gold)"><b>الوقت الآن</b> · من ${hhmm(w[0] % 24)} إلى ${hhmm(w[1] % 24)}</div>` : ""}
@@ -1159,17 +1160,22 @@ function jadwalView() {
     if (x.manual) return !!o.manual[x.id];
     return true;
   };
-  const rest = DUA_TIMES.filter(x => !act.includes(x) && (showAll || todayOnly(x)));
+  const hidden = o.hidden || {}, added = o.added || {};
+  const visible = x => !hidden[x.id] && (added[x.id] || showAll || todayOnly(x));
+  const rest = DUA_TIMES.filter(x => !act.includes(x) && visible(x));
+  const addable = DUA_TIMES.filter(x => !act.includes(x) && !visible(x));
   return `<div class="note">أوقات الدعاء الواردة عن النبي ﷺ فقط، كلٌّ بحديثه ودرجته. يظهر أعلى القائمة ما أنتِ فيه الآن، ويُنبَّه لما فعّلتِه. اختيارك للأدعية تسهيلٌ للتذكير، ويجوز لك أن تدعي بما شئتِ.</div>
   <div class="row">${(ramadan || showAll || fasting) ? `<button class="btn sm ${fasting ? "" : "sec"}" id="jfast">${fasting ? "أنا صائمة اليوم ✓" : "أنا صائمة اليوم"}</button>` : ""}<button class="btn sec sm" id="jnotif">${("Notification" in window && Notification.permission === "granted") ? "التنبيهات مسموحة" : "السماح بالتنبيهات"}</button></div>
   ${act.length ? `<h3 style="margin:14px 4px 6px">الآن</h3>${act.map(x => jadTimeCard(x, true)).join("")}` : `<div class="card"><p class="mid">لا وقت مخصوص الآن — والدعاء مقبول في كل حين ﴿ادْعُونِي أَسْتَجِبْ لَكُمْ﴾ (غافر ٦٠).</p></div>`}
   <h3 style="margin:14px 4px 6px">${showAll ? "كل الأوقات" : "بقية أوقات اليوم"}</h3>
   ${rest.map(x => jadTimeCard(x, false)).join("")}
-  <p class="mid" style="margin:8px 4px">تظهر أوقات الجمعة ورمضان وعرفة والعشر في يومها تلقائياً، والسفر عند الوصول لمطار أو منفذ، والمطر عند نزوله.</p>`;
+  ${addable.length ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px"><span class="mid" style="align-self:center">＋ أضيفي:</span>${addable.map(x => `<button class="btn sec sm" data-jadd="${x.id}">＋ ${esc(x.t)}</button>`).join("")}</div>` : ""}
+  <p class="mid" style="margin:8px 4px">تظهر أوقات الجمعة ورمضان وعرفة والعشر في يومها تلقائياً، والسفر عند الوصول لمطار أو منفذ، والمطر عند نزوله. ✕ تخفي البطاقة، و＋ تعيدها.</p>`;
 }
 function bindJadwal(v) {
   const rerender = () => renderTadabbur("jadwal");
-  const ja = v.querySelector("#jall"); if (ja) ja.onclick = () => { JAD.showAll = !JAD.showAll; rerender(); };
+  v.querySelectorAll("[data-jhide]").forEach(b => b.onclick = () => { const o = JAD.opts(), h = o.hidden || {}, a = o.added || {}; h[b.dataset.jhide] = true; delete a[b.dataset.jhide]; JAD.set({ hidden: h, added: a }); rerender(); });
+  v.querySelectorAll("[data-jadd]").forEach(b => b.onclick = () => { const o = JAD.opts(), h = o.hidden || {}, a = o.added || {}; delete h[b.dataset.jadd]; a[b.dataset.jadd] = true; JAD.set({ hidden: h, added: a }); rerender(); });
   v.querySelectorAll("[data-jon]").forEach(b => b.onclick = async () => {
     const id = b.dataset.jon, on = !JAD.isOn(id);
     if (on && "Notification" in window && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (e) { } }
@@ -1196,7 +1202,7 @@ setInterval(() => {
         if (!NOTIF.on("adhan")) return;
         fire(0, "a", "عند الأذان", "ردّدي مع المؤذن، ثم صلّي على النبي ﷺ، ثم: اللهم ربّ هذه الدعوة التامة والصلاة القائمة…");
         fire(5 / 60, "b", "بين الأذان والإقامة — الدعاء لا يُردّ", jadPicks("adhan").length ? "أدعيتك المختارة في جدولي" : "ادعي بما شئتِ");
-      } else if (NOTIF.on(["iftar", "qadr", "arafah", "jumua"].includes(x.id) ? "season" : "jadwal")) fire(0, "s", x.icon + " " + x.t, x.h.slice(0, 90) + "…");
+      } else if (NOTIF.on(["iftar", "qadr", "arafah", "jumua"].includes(x.id) ? "season" : "jadwal")) fire(0, "s", x.t, x.h.slice(0, 90) + "…");
     });
   });
 }, 30000);
@@ -1291,7 +1297,7 @@ document.querySelectorAll("#nav button").forEach(b => b.onclick = () => go(b.dat
 function drawAvatar() {
   const a = account(), el = document.getElementById("avatar"); if (!el) return;
   const nm = String(a.name || "").trim();
-  el.innerHTML = a.photo ? `<img src="${a.photo}" alt="">` : (nm ? esc(nm[0]) : "👤");
+  el.innerHTML = a.photo ? `<img src="${a.photo}" alt="">` : (nm ? esc(nm[0]) : ico("person"));
   el.onclick = () => go("settings");
 }
 drawAvatar();
@@ -1896,7 +1902,7 @@ const SUM = {
     const clock = now.toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" });
     const left = hh ? `${AR(hh)} س ${AR(mm)} د` : `${AR(mm)} د`;
     if (!this.open) {
-      el.innerHTML = `<div class="card sum"><div class="sumtop"><div><b>${clock}</b> · ${PRAYER_NAMES[n.k]} بعد ${left} · جدول اليوم ${AR(g.sd)}/${AR(g.st)}</div>
+      el.innerHTML = `<div class="card sum"><div class="sumtop"><div><b>${clock}</b> · ${PRAYER_NAMES[n.k]} بعد ${left} · الأذكار ${AR(g.sd)}/${AR(g.st)}</div>
         <button class="cbtn" id="sumtog">▾</button></div></div>`;
     } else {
       el.innerHTML = `<div class="hero">
@@ -1919,8 +1925,8 @@ const SUM = {
       </div>
     </div>
     <div class="card rings">
-      ${ring("الأذكار", g.dh, g.dgoal, "beads")}
-      ${ring("جدول اليوم", g.sd, g.st, "clock")}
+      ${ring("التسبيح", g.dh, g.dgoal, "beads")}
+      ${ring("الأذكار", g.sd, g.st, "clock")}
       ${ring("المصحف", g.pages, g.target, "quran")}
       <div class="mid ringfoot">أيام متتابعة: ${AR(g.streak)}${g.fast ? " · صيام اليوم: " + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") : ""}</div>
     </div>`;
@@ -1989,18 +1995,32 @@ function fridayCard() {
     <div class="src"><span class="tag s">سنة صحيحة</span> البخاري ومسلم، أبو داود، الحاكم — أحكام الجمعة.</div>
   </div>`;
 }
+const HOME_ITEMS = [
+  { id: "rite", t: () => (RITE.k === "hajj" ? "الحج" : "العمرة") + " — الخطوة الحالية", ic: "kaaba", v: () => { const st = RITE.k === "hajj" ? HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)] : STAGES[Math.min(S.stage, STAGES.length - 1)]; return esc(st.t); }, go: "umrah" },
+  { id: "quran", t: () => "المصحف", ic: "quran", v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
+  { id: "adhkar", t: () => "الأذكار", ic: "beads", v: g => `${AR(g.sd)} من ${AR(g.st)} منجزة`, go: "adhkar" },
+  { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", v: g => `${AR(g.dh)} من ${AR(g.dgoal)}`, go: "tadabbur" },
+  { id: "jadwal", t: () => "جدولي", ic: "clock", v: () => { const a = JAD.active(); const on = DUA_TIMES.filter(x => JAD.isOn(x.id)).length; return (a.length ? "الآن: " + esc(a[0].t) + " · " : "") + `${AR(on)} أوقات مفعّلة`; }, go: "tadabbur" },
+  { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
+  { id: "streak", t: () => "أيام متتابعة", ic: "clock", v: g => AR(g.streak), go: "adhkar" },
+];
+const HOME = { def: ["rite", "quran", "adhkar", "tasbih", "jadwal"], list() { return DB.get("homeItems", this.def); }, set(l) { DB.set("homeItems", l); } };
 function renderHome() {
   const v = document.getElementById("v-home"); if (!v) return;
   const g = SUM.progress();
-  const st = RITE.k === "hajj" ? HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)] : STAGES[Math.min(S.stage, STAGES.length - 1)];
+  const shown = HOME.list().map(id => HOME_ITEMS.find(x => x.id === id)).filter(Boolean);
+  const rest = HOME_ITEMS.filter(x => !shown.includes(x));
   v.innerHTML = `
   ${fridayCard()}
   <div class="card">
-    <div class="count"><span>${ico("kaaba")} ${RITE.k === "hajj" ? "الحج" : "العمرة"} — الخطوة الحالية</span><b>${esc(st.t)}</b></div>
-    <div class="count"><span>${ico("quran")} المصحف</span><b>صفحة ${AR(Q.page)} · اليوم ${AR(g.pages)} من ${AR(g.target)}</b></div>
-    <div class="count"><span>${ico("beads")} تسبيح اليوم</span><b>${AR(g.dh)}</b></div>
-    <div class="count"><span>${ico("clock")} جدول اليوم</span><b>${AR(g.sd)} من ${AR(g.st)}</b></div>
+    <h3 style="margin:0 0 6px">ملخص يومي</h3>
+    ${shown.map(x => `<div class="count"><span>${ico(x.ic)} ${x.t()}</span><span style="display:flex;align-items:center;gap:8px"><b data-hgo="${x.go}" style="cursor:pointer">${x.v(g)}</b><button class="xhide" style="position:static" data-hdel="${x.id}" aria-label="شطب">✕</button></span></div>`).join("")}
+    ${shown.length ? "" : `<p class="mid">لا عناصر — أضيفي ما تريدين متابعته.</p>`}
+    ${rest.length ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${rest.map(x => `<button class="btn sec sm" data-hadd="${x.id}">＋ ${x.t()}</button>`).join("")}</div>` : ""}
   </div>`;
+  v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = () => { HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });
+  v.querySelectorAll("[data-hadd]").forEach(b => b.onclick = () => { HOME.set([...HOME.list(), b.dataset.hadd]); renderHome(); });
+  v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => go(b.dataset.hgo));
   const k = document.getElementById("goKahf");
   if (k) k.onclick = () => { const s = QURAN.surahs.find(x => x.n === 18); if (s) Q.page = s.page; go("quran"); };
 }

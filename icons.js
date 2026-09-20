@@ -18,6 +18,25 @@ const ICO_PATHS = {
   play: '<circle cx="12" cy="12" r="9"/><path d="m10 8.5 5 3.5-5 3.5z"/>',
   bell: '<path d="M6 16V11a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20.5a2 2 0 0 0 4 0"/>',
   cloud: '<path d="M7 18h10a4 4 0 0 0 .5-8A5.5 5.5 0 0 0 7 11a3.5 3.5 0 0 0 0 7z"/>',
-  moon: '<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/>'
+  moon: '<path d="M19 14.5A7.5 7.5 0 0 1 9.5 5a7.5 7.5 0 1 0 9.5 9.5z"/>',
+  heart: '<path d="M12 20s-7-4.5-7-10a4 4 0 0 1 7-2.5A4 4 0 0 1 19 10c0 5.5-7 10-7 10z"/>',
+  plane: '<path d="M2.5 13.5 21 10.5 10 3.5 8 5l6 5-8 1.5-3-2-2 1 3.5 3.5L4 19l1.5.5 3-3.5z"/>',
+  cloth: '<path d="M8 4 4 7l2 3 2-1v11h8V9l2 1 2-3-4-3a4 4 0 0 1-8 0z"/>',
+  voice: '<path d="M4 10v4h3l5 4V6L7 10z"/><path d="M16 9a4 4 0 0 1 0 6M18.5 6.5a8 8 0 0 1 0 11"/>',
+  hands: '<path d="M4 13V7.5a1.5 1.5 0 0 1 3 0V12M7 12V6a1.5 1.5 0 0 1 3 0v6M10 12V5.5a1.5 1.5 0 0 1 3 0V12"/><path d="M4 13c0 4 2.5 7 6 7h1c3 0 5-2 5-6v-3.5a1.5 1.5 0 0 0-3 0"/>',
+  steps: '<ellipse cx="8" cy="7" rx="3" ry="4.5"/><ellipse cx="16" cy="13" rx="3" ry="4.5"/><path d="M6 14.5c0 2 4 2 4 0M14 20.5c0 2 4 2 4 0"/>',
+  scissors: '<circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><path d="M8.5 8 20 20M8.5 16 20 4"/>',
+  tent: '<path d="M12 4 2.5 20h19z"/><path d="M12 4v16"/><path d="M8 20l4-8 4 8"/>',
+  mountain: '<path d="M3 19 9.5 7l3.5 6 2-3L21 19z"/><path d="M8 10l1.5 2 1.5-2"/>',
+  stone: '<path d="M7 5h8l4 5-3 9H8L4 10z"/><path d="M8 10h8"/>',
+  rain: '<path d="M7 15h10a4 4 0 0 0 .5-8A5.5 5.5 0 0 0 7 8a3.5 3.5 0 0 0 0 7z"/><path d="M8 18v3M12 18v3M16 18v3"/>',
+  bag: '<rect x="4" y="8" width="16" height="12" rx="2"/><path d="M9 8V5.5A1.5 1.5 0 0 1 10.5 4h3A1.5 1.5 0 0 1 15 5.5V8"/>',
+  sunset: '<path d="M4 17h16"/><path d="M7 17a5 5 0 0 1 10 0"/><path d="M12 6v3M5.5 10l1.5 1.5M18.5 10 17 11.5"/>',
+  star: '<path d="m12 3 2.6 5.6 6 .7-4.5 4.1 1.2 6L12 16.4l-5.3 3 1.2-6L3.4 9.3l6-.7z"/>',
+  sujud: '<circle cx="6" cy="14" r="2"/><path d="M8 15c3-1 6-1 9 0l3 4H4z"/><path d="M13 11c1-2 3-3 5-3"/>',
+  person: '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
+  warn: '<path d="M12 3 2.5 20h19z"/><path d="M12 9v5M12 17h.01"/>',
+  x: '<path d="M6 6l12 12M18 6 6 18"/>',
+  pen: '<path d="M4 20l4-1L19 8l-3-3L5 16z"/><path d="M14 7l3 3"/>'
 };
 function ico(n, cls) { return `<svg class="ico ${cls || ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">${ICO_PATHS[n] || ""}</svg>`; }

@@ -2031,7 +2031,7 @@ function renderHome() {
   v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = e => { e.stopPropagation(); HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });
   v.querySelectorAll("[data-hadd]").forEach(b => b.onclick = () => { HOME.set([...HOME.list(), b.dataset.hadd]); renderHome(); });
   v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => { if (b.dataset.hgo === "ask") { go("tadabbur"); renderTadabbur("ask"); } else go(b.dataset.hgo); });
-  const openAsk = (q, ids) => { go("tadabbur"); renderTadabbur("ask"); if (ids && ids.length) { ASK.q = ids.map(i => (SITUATIONS.find(x => x.id === i) || {}).label || "").join(" ، "); if (ids.length === 1) renderAsk(ids[0]); else renderAsk(); } else { ASK.q = q || ""; renderAsk(); } };
+  const openAsk = (q, ids) => { go("tadabbur"); renderTadabbur("ask"); if (ids && ids.length) { ASK.q = ids.map(i => (SITUATIONS.find(x => x.id === i) || {}).label || "").join(" ، "); if (ids.length === 1) renderAsk(ids[0]); else renderAsk(); } else { ASK.q = q || ""; const h = askMatch(ASK.q).hits; if (h.length) renderAsk(h[0].id); else renderAsk(); } };
   const ha = v.querySelector("#homeAsk"), hg = v.querySelector("#homeAskGo");
   if (hg) hg.onclick = () => { const ids = [...v.querySelectorAll(".hchk:checked")].map(c => c.value); const q = ha.value.trim(); if (!ids.length && !q) return; openAsk(q, q ? [] : ids); if (q && ids.length) { ASK.q = q + " ، " + ids.map(i => SITUATIONS.find(x => x.id === i).label).join(" ، "); renderAsk(); } };
   if (ha) ha.onkeydown = e => { if (e.key === "Enter") hg.click(); };

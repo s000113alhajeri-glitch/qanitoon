@@ -9,19 +9,19 @@
 :root{
   --f1:12px;--f2:14px;--f3:16px;--f4:18px;--f5:20px;--f6:24px;--f7:34px;
 
-  --bg:#f2f6f3;        /* خلفية خضراء فاتحة جداً — راحة بصرية */
-  --bg2:#e6efe9;       /* طبقة ثانية */
+  --bg:#f3f6fa;        /* خلفية سماوية فاتحة جداً */
+  --bg2:#e8eef5;       /* طبقة ثانية */
   --card:#ffffff;      /* بطاقات نظيفة */
-  --line:#d3e2d8;      /* حدود ناعمة */
-  --brand:#3f7d6a;     /* أخضر مزرقّ — طمأنينة */
-  --brand2:#2f6154;    /* درجة أعمق للنص المهم */
+  --line:#d6dfe9;      /* حدود ناعمة */
+  --brand:#2f6f9e;     /* أزرق الهوية */
+  --brand2:#245a83;    /* درجة أعمق للنص المهم */
   --gold:#c2a05a;      /* ذهبي هادئ */
   --accent:#2f6f9e;    /* أزرق سماوي — لون الأزرار */
   --accentTxt:#fff;
   --head:#245a83;      /* لون العناوين */
   --gold2:#a8813c;     /* ذهبي للنص */
-  --txt:#22322c;       /* نص داكن مخضرّ بدل الأسود */
-  --dim:#6b8378;       /* نص ثانوي */
+  --txt:#22303a;       /* نص داكن مزرقّ بدل الأسود */
+  --dim:#6b7a88;       /* نص ثانوي */
   --ok:#5aa17f; --warn:#c79a4e;
   --shadow:0 2px 10px rgba(47,97,84,.07);
 }
@@ -72,31 +72,31 @@ html[data-sky="fajr"]{
   --cloudC:rgba(180,170,200,.45);--cloudOp:.55;--moonOp:.45;--moonTop:12%;
   --sky1:#1b2a4a;--sky2:#41496f;--sky3:#8c7a94;--sunC:#f1c3a0;--sunOp:.35;--sunTop:96%;--starOp:.55;--horizon:rgba(240,196,160,.35);
   --bg:transparent;--bg2:rgba(255,255,255,.10);--card:rgba(24,32,54,.72);--line:rgba(255,255,255,.16);
-  --accent:#8fc4e8;--accentTxt:#0d1b28;--head:#bfe0f5;--brand:#8fd0c0;--brand2:#cfe9e0;--gold:#d9b878;--gold2:#eccf96;--txt:#eef3f6;--dim:#b9c4d6;--shadow:0 6px 20px rgba(0,0,0,.25);
+  --accent:#8fc4e8;--accentTxt:#0d1b28;--head:#bfe0f5;--brand:#9cc9ea;--brand2:#cfe6f5;--gold:#d9b878;--gold2:#eccf96;--txt:#eef3f6;--dim:#b9c4d6;--shadow:0 6px 20px rgba(0,0,0,.25);
 }
 html[data-sky="shuruq"]{
   --cloudC:rgba(255,222,190,.8);--cloudOp:.85;--moonOp:0;
   --sky1:#6fa8d6;--sky2:#f3b98a;--sky3:#ffe2bd;--sunC:#ffd08a;--sunOp:.8;--sunTop:88%;--starOp:0;--horizon:rgba(255,214,160,.55);
   --bg:transparent;--bg2:rgba(255,255,255,.35);--card:rgba(255,253,249,.88);--line:rgba(160,120,80,.20);
-  --brand:#3f7d6a;--brand2:#2f6154;--txt:#2b2820;--dim:#7b6e5f;
+  --brand:#2f6f9e;--brand2:#245a83;--txt:#2b2820;--dim:#7b6e5f;
 }
 html[data-sky="duha"]{
   --cloudC:rgba(255,255,255,.9);--cloudOp:.85;--moonOp:0;
   --sky1:#9fd3ea;--sky2:#d8eef1;--sky3:#f4f8ef;--sunC:#ffe9bb;--sunOp:.6;--sunTop:72%;--starOp:0;--horizon:rgba(255,255,255,.5);
-  --bg:transparent;--bg2:rgba(255,255,255,.4);--card:rgba(255,255,255,.9);--line:rgba(63,125,106,.18);
-  --brand:#3f7d6a;--brand2:#2f6154;--txt:#22322c;--dim:#6b8378;
+  --bg:transparent;--bg2:rgba(255,255,255,.4);--card:rgba(255,255,255,.9);--line:rgba(47,111,158,.18);
+  --brand:#2f6f9e;--brand2:#245a83;--txt:#22303a;--dim:#6b7a88;
 }
 html[data-sky="dhuhr"]{
   --cloudC:rgba(255,255,255,.95);--cloudOp:.7;--moonOp:0;
   --sky1:#8ecbe8;--sky2:#cfe9ef;--sky3:#f6f9f2;--sunC:#fff3cf;--sunOp:.5;--sunTop:8%;--starOp:0;--horizon:rgba(255,255,255,.55);
-  --bg:transparent;--bg2:rgba(255,255,255,.42);--card:rgba(255,255,255,.92);--line:rgba(63,125,106,.18);
-  --brand:#3f7d6a;--brand2:#2f6154;--txt:#22322c;--dim:#6b8378;
+  --bg:transparent;--bg2:rgba(255,255,255,.42);--card:rgba(255,255,255,.92);--line:rgba(47,111,158,.18);
+  --brand:#2f6f9e;--brand2:#245a83;--txt:#22303a;--dim:#6b7a88;
 }
 html[data-sky="asr"]{
   --cloudC:rgba(255,246,228,.85);--cloudOp:.8;--moonOp:0;
   --sky1:#9cc6dd;--sky2:#e2dcc6;--sky3:#f7ecd8;--sunC:#ffd9a0;--sunOp:.6;--sunTop:62%;--starOp:0;--horizon:rgba(255,232,196,.5);
   --bg:transparent;--bg2:rgba(255,255,255,.38);--card:rgba(255,254,250,.9);--line:rgba(140,115,75,.18);
-  --brand:#3f7d6a;--brand2:#2f6154;--txt:#2a2a22;--dim:#7a7365;
+  --brand:#2f6f9e;--brand2:#245a83;--txt:#2a2a22;--dim:#7a7365;
 }
 html[data-sky="maghrib"]{
   --cloudC:rgba(255,180,140,.6);--cloudOp:.8;--moonOp:.3;--moonTop:10%;
@@ -108,7 +108,7 @@ html[data-sky="isha"]{
   --cloudC:rgba(120,140,175,.28);--cloudOp:.45;--moonOp:.95;--moonTop:13%;
   --sky1:#070d1c;--sky2:#101d33;--sky3:#1b2e3f;--sunC:#cfe0ff;--sunOp:.28;--sunTop:22%;--starOp:1;--horizon:rgba(120,160,200,.18);
   --bg:transparent;--bg2:rgba(255,255,255,.08);--card:rgba(15,26,42,.74);--line:rgba(255,255,255,.14);
-  --accent:#8fc4e8;--accentTxt:#0d1b28;--head:#c6e0f4;--brand:#7fc6b4;--brand2:#b9e3d7;--gold:#d6b87c;--gold2:#ecd29a;--txt:#e9f1f7;--dim:#a8b9c9;--shadow:0 6px 22px rgba(0,0,0,.4);
+  --accent:#8fc4e8;--accentTxt:#0d1b28;--head:#c6e0f4;--brand:#8fc4e8;--brand2:#c6e0f4;--gold:#d6b87c;--gold2:#ecd29a;--txt:#e9f1f7;--dim:#a8b9c9;--shadow:0 6px 22px rgba(0,0,0,.4);
 }
 html[data-sky] .qpage{background:rgba(251,247,236,.96)}
 html[data-sky] header{background:var(--bg2);backdrop-filter:blur(14px)}
@@ -223,6 +223,12 @@ details>div{padding:0 12px 12px}
 #v-time .chips{flex-wrap:nowrap}
 #v-time .card .chips{flex-wrap:wrap}
 
+/* ===== زخارف الهوية (SVG مضمّن — يعمل دون إنترنت) ===== */
+:root{
+  --pat-star:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='72' height='72' viewBox='0 0 72 72'><g fill='none' stroke='white' stroke-width='1'><path d='M36 6l7 15 15 7-15 7-7 15-7-15-15-7 15-7z'/><path d='M36 18l4 9 9 4-9 4-4 9-4-9-9-4 9-4z'/><path d='M0 36h12M60 36h12M36 0v12M36 60v12'/><circle cx='0' cy='0' r='6'/><circle cx='72' cy='0' r='6'/><circle cx='0' cy='72' r='6'/><circle cx='72' cy='72' r='6'/></g></svg>");
+  --skyline:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 800 160' preserveAspectRatio='xMidYMax slice'><path fill='black' d='M0 160V120h30V70l6-20 6 20v50h20V95h12V60l5-14 5 14v35h12v25h24V90c0-30 26-44 40-44s40 14 40 44v30h30V40l6-22 6 22v80h16V90h30V80l4-10 4 10v10h10v30h30V70c0-40 34-56 56-56s56 16 56 56v50h14V40l6-22 6 22v80h26V95h12V60l5-14 5 14v35h12v25h20V70l6-20 6 20v50h30v40z'/><rect fill='black' x='330' y='84' width='44' height='36'/><path fill='none' stroke='black' stroke-width='3' d='M330 98h44'/></svg>");
+}
+
 /* ===== بطاقة الملخص ===== */
 .sum{padding:12px}
 .sumtop{display:flex;align-items:center;justify-content:space-between;gap:8px}
@@ -231,17 +237,18 @@ details>div{padding:0 12px 12px}
   radial-gradient(circle at 82% 18%,rgba(255,255,255,.28),transparent 32%),
   radial-gradient(circle at 15% 90%,rgba(194,160,90,.35),transparent 45%),
   linear-gradient(160deg,var(--h1),var(--h2) 60%,var(--h3))}
-:root{--h1:#24564b;--h2:#3f7d6a;--h3:#2f6f9e}
+:root{--h1:#0f3550;--h2:#2f6f9e;--h3:#8a6a30}
 html[data-sky="fajr"]{--h1:#1b2a4a;--h2:#41496f;--h3:#7a6a8a}
 html[data-sky="shuruq"]{--h1:#2f5f86;--h2:#6fa8d6;--h3:#d99a6c}
-html[data-sky="duha"],html[data-sky="dhuhr"]{--h1:#2f6f9e;--h2:#4f97c2;--h3:#3f7d6a}
-html[data-sky="asr"]{--h1:#3f7d6a;--h2:#6aa0b8;--h3:#b08a4a}
+html[data-sky="duha"],html[data-sky="dhuhr"]{--h1:#1c4f78;--h2:#2f6f9e;--h3:#5f93bd}
+html[data-sky="asr"]{--h1:#2a5f86;--h2:#5b93b8;--h3:#b08a4a}
 html[data-sky="maghrib"]{--h1:#3c3b6e;--h2:#8f4f5c;--h3:#c9705f}
 html[data-sky="isha"]{--h1:#070d1c;--h2:#101d33;--h3:#1f3b52}
-.hero-bg::after{content:"";position:absolute;inset:0;opacity:.14;
-  background-image:radial-gradient(circle at 50% 50%,#fff 1.2px,transparent 1.6px),
-  repeating-linear-gradient(45deg,transparent 0 22px,rgba(255,255,255,.25) 22px 23px),
-  repeating-linear-gradient(-45deg,transparent 0 22px,rgba(255,255,255,.25) 22px 23px);background-size:24px 24px,auto,auto}
+.hero-bg::after{content:"";position:absolute;inset:0;opacity:.13;background:var(--pat-star) center/72px 72px repeat}
+.hero-bg::before{content:"";position:absolute;left:0;right:0;bottom:0;height:46%;opacity:.22;
+  background:var(--skyline) center bottom/100% 100% no-repeat;filter:invert(1)}
+.hero::after{content:"";position:absolute;inset:0;border-radius:22px;pointer-events:none;
+  box-shadow:inset 0 0 0 1px rgba(214,180,110,.45),inset 0 0 0 3px rgba(255,255,255,.06)}
 .hero-in{position:relative;padding:14px 16px 12px;text-shadow:0 1px 3px rgba(0,0,0,.35)}
 .hero .mid,.hero .cbtn{color:#fff}
 .hero .cbtn{background:rgba(255,255,255,.18);border-color:transparent}
@@ -334,11 +341,16 @@ nav button{font-size:10px}
     radial-gradient(1.4px 1.4px at 84% 62%,rgba(255,255,255,.4),transparent),
     radial-gradient(1.2px 1.2px at 12% 58%,rgba(255,255,255,.3),transparent);
   animation:spTwinkle 4s ease-in-out infinite alternate}
-#splash .sp-frame{position:relative;padding:30px 34px;border-radius:24px;
-  border:1px solid rgba(214,180,110,.55);
+#splash::after{content:"";position:absolute;left:0;right:0;bottom:0;height:22vh;opacity:.5;pointer-events:none;
+  background:var(--skyline) center bottom/100% 100% no-repeat;filter:brightness(0) saturate(0) opacity(.75)}
+#splash .sp-frame{position:relative;padding:34px 34px 30px;border-radius:180px 180px 24px 24px;
+  border:1px solid rgba(214,180,110,.6);z-index:1;
   box-shadow:0 0 0 1px rgba(214,180,110,.18) inset,0 20px 60px rgba(0,0,0,.35);
-  background:linear-gradient(180deg,rgba(255,255,255,.06),rgba(255,255,255,.02));
+  background-color:rgba(255,255,255,.045);
   animation:spRise 1s ease both}
+#splash .sp-frame::before{content:"";position:absolute;inset:6px;border-radius:174px 174px 20px 20px;border:1px solid rgba(214,180,110,.28);pointer-events:none}
+#splash .sp-frame > *{position:relative}
+#splash .sp-frame::after{content:"";position:absolute;inset:0;border-radius:inherit;opacity:.08;background:var(--pat-star) center/72px 72px;pointer-events:none}
 #splash img{filter:drop-shadow(0 8px 22px rgba(0,0,0,.45));animation:spRise .9s ease both}
 #splash .sp-name{font-family:"Noto Naskh Arabic","Amiri",serif;font-size:var(--f7);font-weight:700;
   color:#f6edd6;margin-top:10px;animation:spRise .9s .1s ease both}

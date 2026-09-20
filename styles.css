@@ -145,6 +145,8 @@ main{padding:14px 14px 20px;max-width:760px;margin:0 auto}
 .tag.q{color:#2f7d63;border-color:#9ccdb8;background:#eaf6f0}
 .tag.h{color:var(--gold2);border-color:#e0cda1;background:#faf4e6}
 .tag.m{color:#5b6aa8;border-color:#c2cae8;background:#eef1fa}
+.tag.u{color:#245a83;border-color:#b9cfe2;background:#eaf2f9}
+.tag.s{color:#2f7d63;border-color:#9ccdb8;background:#eaf6f0}
 .tag.s{color:#2f6154;border-color:#9ccdb8;background:#eaf6f0}
 .tag.d{color:#8a6d22;border-color:#e0cda1;background:#faf4e6}
 

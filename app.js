@@ -269,6 +269,7 @@ function renderUmrah() {
   ${body}
   ${st.html ? `<div class="card">${st.html}</div>` : ""}
   ${duas}
+  ${familyDuaCard()}
   <div class="row">
     ${i > 0 ? `<button class="btn sec" id="prev">السابق</button>` : ""}
     <button class="btn" id="next">${i === STAGES.length - 1 ? "إنهاء وبدء من جديد" : "التالي ←"}</button>
@@ -374,6 +375,7 @@ function buildLib() {
     if (String(l).trim().length < 12) return;
     out.push({ id: "m_" + sec.id + "_" + i, t: l, s: "دعاء مباح — من مختارات المناسك", g: "مناسك: " + sec.title });
   }));
+  NAMES.forEach((x, i) => out.push({ id: "nm_" + i, t: x.n + " — " + x.m, s: x.ms, g: "أسماء الله الحسنى" }));
   PROPHETIC_DUAS.forEach(c => c.items.forEach((x, i) =>
     out.push({ id: "pd_" + c.id + "_" + i, t: x.t, s: (x.g ? x.g + " — " : "") + (x.s || "") + (x.h ? " — " + x.h : ""), g: "الأدعية النبوية: " + c.title, n: x.n })));
   if (typeof QURAN_DUAS !== "undefined") QURAN_DUAS.forEach(c => c.items.forEach((x, i) =>
@@ -724,6 +726,22 @@ function bindCounters(root) {
     SUM.render();
   });
 }
+/* دعاء للأهل والبلد — دعاء مباح؛ فقرة ولاة الأمر تظهر لمن موقعه الإمارات فقط */
+function inUAE() {
+  const p = DB.get("lastpos", null);
+  if (p) return p.lat >= 22.5 && p.lat <= 26.5 && p.lng >= 51.4 && p.lng <= 56.6;
+  try { return Intl.DateTimeFormat().resolvedOptions().timeZone === "Asia/Dubai"; } catch (e) { return false; }
+}
+function familyDuaCard() {
+  const uae = inUAE();
+  return `<details class="card" style="padding:10px 14px"><summary><b>دعاء لأهلي${uae ? " وبلدي" : ""}</b> <span class="tag m">دعاء مباح</span></summary>
+    <div class="dua">﴿رَبِّ اغْفِرْ لِي وَلِوَالِدَيَّ وَلِمَن دَخَلَ بَيْتِيَ مُؤْمِنًا وَلِلْمُؤْمِنِينَ وَالْمُؤْمِنَاتِ﴾</div><div class="src"><span class="tag q">قرآن</span> نوح ٢٨</div>
+    <div class="dua">﴿رَبِّ ارْحَمْهُمَا كَمَا رَبَّيَانِي صَغِيرًا﴾</div><div class="src"><span class="tag q">قرآن</span> الإسراء ٢٤</div>
+    <div class="dua">اللهم اغفر لوالديَّ وارحمهما وعافِهما واعفُ عنهما، وارحم أجدادي وجدّاتي ومن مضى من أهلي، ونوّر قبورهم ووسّع مداخلهم، واحفظ الأحياء منهم وأصلِح ذرّيّاتنا، واجمعنا بهم في جنّات النعيم.</div>
+    ${uae ? `<div class="dua">اللهم ارحم مؤسّسي هذه البلاد ومن سبقهم ومن خلفهم من حكّامها الذين مضوا، وأجزل لهم المثوبة، ووفّق ولاة أمرنا الحاليين لما تحبّ وترضى، وأعِنهم على البرّ والتقوى، واحفظ الإمارات وأهلها وسائر بلاد المسلمين من كل سوء، اللهم انصرنا.</div>` : ""}
+    <div class="src"><span class="tag m">دعاء مباح</span> صياغة عامة ليست حديثاً${uae ? " — الدعاء لولاة الأمر بالصلاح من هدي السلف: قال الفضيل بن عياض والإمام أحمد: «لو كان لي دعوة مستجابة لجعلتها للسلطان»" : ""}. الإجابة والتوفيق من الله وحده.</div>
+  </details>`;
+}
 function duaNotice() {
   return `<details class="card" style="padding:10px 14px"><summary><b>قبل أن تدعو</b></summary>
     <p>${esc(DUA_NOTICE.text)}</p>
@@ -740,14 +758,43 @@ function pitem(x) {
     <div class="src"><span class="tag ${cls}">${cls === "q" ? "قرآن" : cls === "m" ? "دعاء مباح" : "سنة"}</span> <span class="tag ${gcls}">${esc(x.g)}</span> ${esc(x.s)}</div>
   </div>`;
 }
+/* تعلّم التسبيح بأسماء الله الحسنى — تنقّل حر: اسم ← قرآن / سنة / أهل العلم / استشعار */
+const NM = { i: DB.get("nm_i", 0), tab: DB.get("nm_tab", "m") };
+function namesView() {
+  const x = NAMES[Math.min(NM.i, NAMES.length - 1)];
+  const tabs = [["m", "المعنى"], ["q", "من القرآن", x.q.length], ["h", "من السنة الصحيحة", x.h.length], ["u", "أهل العلم", x.u.length], ["f", "استشعار الاسم"]].filter(t => t[2] === undefined || t[2] > 0);
+  if (!tabs.some(t => t[0] === NM.tab)) NM.tab = "m";
+  let body = "";
+  if (NM.tab === "m") body = `<div class="card"><div class="dua">${esc(x.m)}</div><div class="src"><span class="tag u">أهل العلم</span> ${esc(x.ms)}</div></div>`;
+  else if (NM.tab === "q") body = x.q.map(a => `<div class="card"><div class="dua">${esc(a.t)}</div><div class="src"><span class="tag q">قرآن</span> ${esc(a.s)}</div></div>`).join("");
+  else if (NM.tab === "h") body = x.h.map(a => `<div class="card"><div class="dua">${esc(a.t)}</div>${a.n ? `<div class="count"><span>التكرار</span><b>${AR(a.n)}</b></div>${tasbih(x.n + a.t, a.n)}` : ""}<div class="src"><span class="tag h">سنة</span> ${esc(a.s)}</div></div>`).join("");
+  else if (NM.tab === "u") body = x.u.map(a => `<div class="card"><p>${esc(a.t)}</p><div class="src"><span class="tag u">أهل العلم</span> ${esc(a.s)}</div></div>`).join("");
+  else body = `<div class="card"><p class="dua" style="font-size:17px">${esc(x.f)}</p><div class="src"><span class="tag m">توجيه تربوي</span> مبني على كلام أهل العلم، ليس ذكراً مأثوراً يُلتزم لفظه — سبّح بما ثبت، واستشعر المعنى بقلبك.</div></div>`;
+  return `<details class="card" style="padding:10px 14px"><summary><b>لماذا التسبيح بالأسماء؟</b></summary>
+      <div class="dua">${esc(NAMES_INTRO.ayah.t)}</div><div class="src"><span class="tag q">قرآن</span> ${esc(NAMES_INTRO.ayah.s)}</div>
+      <div class="dua">${esc(NAMES_INTRO.hadith.t)}</div><div class="src"><span class="tag h">سنة</span> ${esc(NAMES_INTRO.hadith.s)}</div>
+      ${NAMES_INTRO.ulama.map(u => `<p style="font-size:14px">${esc(u.t)} <span class="src">— ${esc(u.s)}</span></p>`).join("")}
+      <div class="note">${esc(NAMES_INTRO.note)}</div></details>
+    <div class="chips" style="max-height:120px;overflow:auto">${NAMES.map((n, i) => `<button class="chip ${i === NM.i ? "on" : ""}" data-nm="${i}">${esc(n.n)}</button>`).join("")}</div>
+    <div class="card" style="text-align:center"><div class="mid">اسم الله</div><div class="big" style="font-size:34px">${esc(x.n)}</div>
+      <div class="row" style="justify-content:center"><button class="btn sec sm" data-nmi="${(NM.i + NAMES.length - 1) % NAMES.length}">→ السابق</button><span class="mid">${AR(NM.i + 1)} / ${AR(NAMES.length)}</span><button class="btn sec sm" data-nmi="${(NM.i + 1) % NAMES.length}">التالي ←</button></div></div>
+    <div class="chips">${tabs.map(t => `<button class="chip ${t[0] === NM.tab ? "on" : ""}" data-nmt="${t[0]}">${t[1]}${t[2] ? ` (${AR(t[2])})` : ""}</button>`).join("")}</div>
+    ${body}
+    <details><summary>أوقات التسبيح في القرآن</summary><div>${TASBIH_TIMES.map(x => `<div class="card"><h3>${esc(x.title)}</h3><div class="dua">${esc(x.ayah)}</div><div class="src">${esc(x.ref)}</div><p><b>الوقت:</b> ${esc(x.when)}</p><p class="dua">${esc(x.what)}</p><div class="count"><span>التكرار</span><b>${AR(x.n)}</b></div>${tasbih(x.title, x.n)}<div class="src">${esc(x.s)}</div></div>`).join("")}</div></details>`;
+}
+function bindNames(v) {
+  v.querySelectorAll("[data-nm]").forEach(b => b.onclick = () => { NM.i = +b.dataset.nm; DB.set("nm_i", NM.i); renderAdhkar("asma"); });
+  v.querySelectorAll("[data-nmi]").forEach(b => b.onclick = () => { NM.i = +b.dataset.nmi; DB.set("nm_i", NM.i); renderAdhkar("asma"); });
+  v.querySelectorAll("[data-nmt]").forEach(b => b.onclick = () => { NM.tab = b.dataset.nmt; DB.set("nm_tab", NM.tab); renderAdhkar("asma"); });
+}
 const ADHKAR_TABS = [
   { k: "nabawi", t: "الأدعية النبوية", r: () => `<div class="note">كل دعاء مع حديثه ومصدره ودرجته: <span class="tag s">صحيح</span> <span class="tag h">حسن</span> <span class="tag d">فيه خلاف / ضعيف</span>. ما ضُعّف يُدعى بمعناه بلا نسبةٍ جازمة للنبي ﷺ.</div>` + PROPHETIC_DUAS.map(c => `<details><summary>${esc(c.title)} (${AR(c.items.length)})</summary><div>${c.items.map(pitem).join("")}</div></details>`).join("") },
   { k: "salah", t: "بعد الصلاة", r: () => ADHKAR_SALAH.map(item).join("") },
   { k: "sabah", t: "أذكار الصباح", r: () => `<div class="note">وقتها من بعد الفجر إلى طلوع الشمس، ومن فاته فلا حرج أن يقولها إلى الزوال.</div>` + MORNING_EVENING.filter(x => !/المساء خاصة/.test(x.when || "")).map(item).join("") },
   { k: "masa", t: "أذكار المساء", r: () => `<div class="note">وقتها من بعد العصر إلى غروب الشمس، ويمتد إلى نصف الليل لمن فاته.</div>` + MORNING_EVENING.filter(x => !/^الصباح$/.test(x.when || "")).map(item).join("") },
-  { k: "tasbih", t: "أوقات التسبيح", r: () => TASBIH_TIMES.map(x => `<div class="card"><h3>${esc(x.title)}</h3><div class="dua" style="color:#8fe0b6">${esc(x.ayah)}</div><div class="src">${esc(x.ref)}</div><p><b>الوقت:</b> ${esc(x.when)}</p><p class="dua">${esc(x.what)}</p><div class="count"><span>التكرار</span><b>${AR(x.n)}</b></div>${tasbih(x.title, x.n)}<div class="src">${esc(x.s)}</div></div>`).join("") },
+  { k: "asma", t: "تعلّم التسبيح بأسماء الله", r: namesView },
   { k: "safar", t: "السفر", r: () => `<div class="card"><h3>أحكام صلاة المسافر</h3>${SAFAR.ahkam.map(a => `<p><b>${esc(a.t)}:</b> ${esc(a.d)}<div class="src">${esc(a.s)}</div></p>`).join("")}</div>` + SAFAR.adhkar.map(item).join("") },
-  { k: "tadabbur", t: "جدول التدبّر", r: () => TADABBUR_SCHEDULE.map(s => `<div class="card"><h3>${esc(s.salah)} — ${AR(s.mins)} دقيقة</h3><ol>${s.plan.map(p => `<li>${esc(p)}</li>`).join("")}</ol></div>`).join("") },
+  { k: "tadabbur", t: "جدول التدبّر", r: () => familyDuaCard() + TADABBUR_SCHEDULE.map(s => `<div class="card"><h3>${esc(s.salah)} — ${AR(s.mins)} دقيقة</h3><ol>${s.plan.map(p => `<li>${esc(p)}</li>`).join("")}</ol></div>`).join("") },
   { k: "anbiya", t: "أدعية الأنبياء", r: () => PROPHETS_DUA.map(g => `<details open><summary>${esc(g.topic)}</summary><div>${g.items.map(x => `<div class="card"><div class="mid" style="color:var(--gold2)">${esc(x.p)}</div><div class="dua">${esc(x.t)}</div>${x.n && x.n > 1 ? `<div class="count"><span>التكرار المقترح</span><b>${AR(x.n)}</b></div>${tasbih(x.p + x.t, x.n)}` : ""}${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}<div class="src"><span class="tag q">قرآن</span> ${esc(x.s)}</div></div>`).join("")}</div></details>`).join("") },
   { k: "dua", t: "الأدعية المصنّفة", r: () => DUA_CATEGORIES.map(c => `<details><summary>${esc(c.title)}</summary><div>${c.note ? `<div class="note">${esc(c.note)}</div>` : ""}${c.items.map(item).join("")}</div></details>`).join("") },
   { k: "arafah", t: "يوم عرفة", r: () => arafahView() },
@@ -782,6 +829,7 @@ function renderAdhkar(tab) {
   ${cur.r()}`;
   v.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { renderAdhkar(b.dataset.a); window.scrollTo(0, 0); });
   v.querySelectorAll("[data-arw]").forEach(b => b.onclick = () => { DB.set("arafah_who", b.dataset.arw); renderAdhkar("arafah"); });
+  if (k === "asma") bindNames(v);
   bindCounters(v);
 }
 
@@ -895,11 +943,12 @@ function renderAsk(id) {
   const tagOf = { quran: "ق", sunnah: "س", mubah: "م" }[ASK.tab];
   v.innerHTML = `<button class="btn sec sm" id="back">→ رجوع</button>
   ${duaNotice()}
-  <div class="card"><h3>${esc(m.label)}</h3><p class="mid">ذكر ودعاء فقط — بلا نصائح ولا مناقشة تصرفات.</p></div>
+  <div class="card"><h3>${esc(m.label)}</h3><p class="mid">ذكر ودعاء فقط — بلا نصائح ولا مناقشة تصرفات.</p>${m.link ? `<button class="btn sm" id="asklink">افتح «تعلّم التسبيح بأسماء الله» ←</button>` : ""}</div>
   <div class="chips">${tabs.map(t => `<button class="chip ${t[0] === ASK.tab ? "on" : ""}" data-tab="${t[0]}">${t[1]} (${AR(t[2].length)})</button>`).join("")}</div>
   ${cur[2].map(x => item({ ...x, tag: x.tag || tagOf })).join("")}
   <div class="note">${esc(SIT_DISCLAIMER)}</div>`;
   document.getElementById("back").onclick = () => renderAsk();
+  const lk = document.getElementById("asklink"); if (lk) lk.onclick = () => { DB.set("atab", m.link); go("adhkar"); };
   v.querySelectorAll("[data-tab]").forEach(b => b.onclick = () => { ASK.tab = b.dataset.tab; DB.set("ask_tab", ASK.tab); renderAsk(id); });
   bindCounters(v);
 }
@@ -1355,7 +1404,7 @@ function renderTime(tab) {
         <button class="cbtn" data-f="${key}" data-k="">✖</button></div>`);
     }
     const counts = Object.values(log).reduce((a, x) => (a[x] = (a[x] || 0) + 1, a), {});
-    body = `<div class="card"><div class="mid">التاريخ الهجري</div><div class="big">${AR(hj.d)} ${hj.name} ${AR(hj.y)}هـ</div>
+    body = familyDuaCard() + `<div class="card"><div class="mid">التاريخ الهجري</div><div class="big">${AR(hj.d)} ${hj.name} ${AR(hj.y)}هـ</div>
       <div class="count"><span>ضبط يدوي ±يوم</span>
         <button class="cbtn" id="ho-">−</button><b>${AR(DB.get("hoff", 0))}</b><button class="cbtn" id="ho+">+</button></div>
       <div class="note">التقويم هنا حسابي تقريبي، وثبوت الشهر والعيد بالرؤية الشرعية وإعلان الجهة الرسمية في بلدك.</div></div>

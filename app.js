@@ -114,7 +114,8 @@ function riteState(p) {
     get tawaf() { return DB.get(p + "tawaf", 0); }, set tawaf(v) { DB.set(p + "tawaf", v); },
     get saee() { return DB.get(p + "saee", 0); }, set saee(v) { DB.set(p + "saee", v); },
     get saeeAt() { return DB.get(p + "saeeAt", "safa"); }, set saeeAt(v) { DB.set(p + "saeeAt", v); },
-    get jam() { return DB.get(p + "jam", 0); }, set jam(v) { DB.set(p + "jam", v); }
+    get jam() { return DB.get(p + "jam", 0); }, set jam(v) { DB.set(p + "jam", v); },
+    get intro() { return DB.get(p + "intro", true); }, set intro(v) { DB.set(p + "intro", v); }
   };
 }
 const S = riteState("");      // العمرة
@@ -315,12 +316,62 @@ const HAJJ_STAGES = [
     html: `<p style="font-size:14px">«لا ينفِرَنَّ أحدٌ حتى يكون آخرُ عهده بالبيت» (مسلم ١٣٢٧). يكون آخر ما يفعله الحاج قبل السفر، ولا وداع على الحائض والنُّفَساء (البخاري ١٧٥٥، مسلم ١٣٢٨).</p>${D("«الْحَجُّ الْمَبْرُورُ لَيْسَ لَهُ جَزَاءٌ إِلَّا الْجَنَّةُ»", "البخاري ١٧٧٣، مسلم ١٣٤٩")}` }
 ];
 
+
+/* ============ تعرّف على العمرة/الحج قبل البدء ============ */
+const IHRAM_RULES = `
+  <details class="card" open><summary><b>المباحات في الإحرام</b></summary><ul style="font-size:14px">
+    <li>الاغتسال وتغيير ملابس الإحرام وغسلها.</li><li>لبس الساعة والنظارة والخاتم والحزام والنعال.</li>
+    <li>الاستظلال بالمظلّة أو السقف أو الخيمة.</li><li>الحجامة وعصب الجرح، وحكّ الرأس والجسد برفق.</li>
+    <li>الأكل والشرب والتحدّث والبيع والشراء دون رفع صوت أو خصام.</li><li>للمرأة: لبس ما شاءت من الثياب المعتادة بلا زينة ظاهرة، وتغطية الوجه عن الرجال الأجانب بلا نقاب مخصوص.</li></ul></details>
+  <details class="card"><summary><b>محظورات الإحرام (تُوجب الفدية ولا تُفسد النسك)</b></summary><ul style="font-size:14px">
+    <li>حلق الشعر أو قصّه، وتقليم الأظافر.</li><li>الطيب في البدن أو الثياب بعد الإحرام.</li>
+    <li>للرجل: لبس المخيط المحيط بالبدن (القميص، السراويل، الجوارب) وتغطية الرأس بملاصق.</li><li>للمرأة: النقاب والقفازان.</li>
+    <li>عقد النكاح أو الخِطبة، والمباشرة بشهوة.</li><li>قتل الصيد البرّي أو الإعانة عليه.</li></ul>
+    <div class="note">الفدية لمن فعلها عامداً: صيام ثلاثة أيام، أو إطعام ستة مساكين، أو ذبح شاة ﴿فَفِدْيَةٌ مِّن صِيَامٍ أَوْ صَدَقَةٍ أَوْ نُسُكٍ﴾ (البقرة ١٩٦). ومن فعل شيئاً منها ناسياً أو جاهلاً فلا شيء عليه عند كثير من أهل العلم، ونسكه صحيح.</div></details>`;
+const TAWAF_RULES = `<details class="card"><summary><b>ما يُبطل الطواف</b></summary><ul style="font-size:14px">
+    <li>جعل الكعبة عن اليمين (الطواف مع عقارب الساعة).</li><li>المرور من داخل حِجر إسماعيل، فهو من البيت؛ يُعاد ذلك الشوط.</li>
+    <li>نقص شوط أو جزء منه؛ ومن شكّ بنى على الأقلّ.</li><li>قطع الموالاة بفاصل طويل بلا عذر؛ أما قطعه لصلاة الفريضة أو الجنازة فيُكمل من حيث توقّف.</li>
+    <li>انتقاض الوضوء: الطهارة شرطٌ عند الجمهور، فيتوضأ ويُعيد الشوط الذي انتقض فيه ويبني على ما قبله (وفي المسألة قولٌ بالاستئناف، وقول بعدم الاشتراط — فالأمر فيه خلاف). وإن انتقض بعد تمام الطواف فطوافه صحيح، يتوضأ ثم يصلّي الركعتين.</li>
+    <li>النجاسة على البدن أو الثوب عند الجمهور.</li></ul></details>`;
+const SAEE_RULES = `<details class="card"><summary><b>ما يُبطل السعي</b></summary><ul style="font-size:14px">
+    <li>البدء بالمروة قبل الصفا؛ لا يُحسب ذلك الشوط.</li><li>نقص شوط أو الالتفاف قبل نهاية الممر.</li>
+    <li>السعي قبل طواف صحيح.</li><li>من شكّ في العدد بنى على الأقلّ.</li>
+    <li>الفاصل اليسير للراحة والشرب لا يضرّ؛ والانقطاع الطويل بلا عذر يبطله عند بعض أهل العلم.</li>
+    <li>لا تُشترط الطهارة للسعي، فإن انتقض الوضوء أثناءه أكمله وسعيه صحيح.</li></ul></details>`;
+const UMRAH_INTRO = `
+  <div class="card"><h3>تعرّف على العمرة</h3>
+    <p style="font-size:14px"><b>أركانها:</b> الإحرام، الطواف، السعي. <b>واجباتها:</b> الإحرام من الميقات، والحلق أو التقصير.</p>
+    <p style="font-size:14px"><b>خطواتها:</b> الاغتسال ولبس الإحرام عند الميقات ← نية الدخول في النسك بالقلب وقول «لبيك اللهم عمرة» ← التلبية حتى رؤية البيت ← طواف سبعة أشواط ← ركعتان خلف المقام ← زمزم ← سعي سبعة أشواط من الصفا ← الحلق أو التقصير.</p></div>
+  ${IHRAM_RULES}${TAWAF_RULES}${SAEE_RULES}
+  <details class="card"><summary><b>ما يُفسد العمرة</b></summary><ul style="font-size:14px">
+    <li>المُفسد الوحيد: <b>العلاقة الزوجية</b> قبل الفراغ من السعي؛ تفسد بها العمرة، ويلزم إتمامها ثم قضاؤها، وذبح شاة لفقراء الحرم.</li>
+    <li>ترك ركن (الطواف أو السعي): لا تفسد لكن لا تتمّ، ويبقى محرِماً حتى يعود فيأتي به.</li>
+    <li>ما عدا ذلك من المحظورات يوجب الفدية والعمرة صحيحة.</li></ul></details>
+  <div class="note">هذا تعريفٌ مختصر من كلام أهل العلم، ما اتُّفق عليه ذُكر جزماً وما فيه خلاف نُبّه عليه. ولمسألتك الخاصة اسألي جهة الإفتاء في بلدك.</div>`;
+const HAJJ_INTRO = `
+  <div class="card"><h3>تعرّف على الحج</h3>
+    <p style="font-size:14px"><b>أركانه:</b> الإحرام، الوقوف بعرفة، طواف الإفاضة، السعي. <b>واجباته:</b> الإحرام من الميقات، الوقوف بعرفة إلى الغروب، المبيت بمزدلفة، المبيت بمنى ليالي التشريق، رمي الجمار، الحلق أو التقصير، طواف الوداع.</p>
+    <p style="font-size:14px"><b>أيامه:</b> ٨ التروية بمنى ← ٩ عرفة ثم مزدلفة ← ١٠ رمي العقبة والهدي والحلق وطواف الإفاضة والسعي ← ١١–١٣ الرمي والمبيت بمنى ← طواف الوداع.</p>
+    <p style="font-size:14px"><b>أنواعه:</b> تمتّع (عمرة ثم حج، وعليه هدي)، قِران (عمرة وحج بإحرام واحد، وعليه هدي)، إفراد (حج فقط).</p></div>
+  ${IHRAM_RULES}${TAWAF_RULES}${SAEE_RULES}
+  <details class="card"><summary><b>ما يُفسد الحج</b></summary><ul style="font-size:14px">
+    <li><b>العلاقة الزوجية</b> قبل التحلل الأول تُفسد الحج، ويلزم إتمامه وقضاؤه من قابل وذبح بدنة. وبعد التحلل الأول لا تفسده وفيها فدية.</li>
+    <li>فوات الوقوف بعرفة: فات الحج، ويتحلل بعمرة ويقضي.</li>
+    <li>ترك واجب: يُجبر بدم، والحج صحيح.</li></ul></details>
+  <div class="note">تعريفٌ مختصر من كلام أهل العلم، وما فيه خلاف نُبّه عليه. ولمسألتك الخاصة اسألي جهة الإفتاء في بلدك.</div>`;
+function renderIntro(v, hajj, S) {
+  v.innerHTML = `${hajj ? HAJJ_INTRO : UMRAH_INTRO}
+  <div class="stepbar"><button class="btn" id="startRite">ابدأ ${hajj ? "الحج" : "العمرة"} ←</button></div>`;
+  v.querySelector("#startRite").onclick = () => { S.intro = false; renderUmrah(); window.scrollTo(0, 0); };
+}
+
 /* ============ شاشة العمرة ============ */
 function renderHajj() { RITE.k = "hajj"; renderUmrah(); }
 function renderUmrah() {
   const { ST: STAGES, X: S } = cur();
   const hajj = RITE.k === "hajj";
   const v = document.getElementById(hajj ? "v-hajj" : "v-umrah");
+  if (S.intro) return renderIntro(v, hajj, S);
   const i = Math.min(S.stage, STAGES.length - 1);
   const st = STAGES[i];
   let body = "";
@@ -355,6 +406,9 @@ function renderUmrah() {
       ${D("رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ", "أثر عن ابن مسعود وابن عمر (ابن أبي شيبة، البيهقي) — موقوف؛ لا يُنسب للنبي ﷺ", "م")}
       <div class="note">لم يثبت دعاء مخصوص لكل شوط من السعي، وهو قول جمهور أهل العلم.</div></div>`;
   }
+  if (/الميقات والإحرام/.test(st.t)) duas += IHRAM_RULES;
+  if (st.kind === "tawaf") duas += TAWAF_RULES;
+  if (st.kind === "saee") duas += SAEE_RULES;
   if (st.secs) duas += booklet(st.secs);
 
   const N = STAGES.length, last = i === N - 1;
@@ -364,6 +418,7 @@ function renderUmrah() {
     <h3 style="font-size:22px;text-align:center">${st.icon} ${esc(st.t)}</h3>
     <div class="bar"><i style="width:${(i / (N - 1)) * 100}%"></i></div>
     <div class="steps">${STAGES.map((x, k) => `<button class="stp ${k === i ? "on" : k < i ? "done" : ""}" data-go="${k}" title="${esc(x.t)}">${AR(k + 1)}</button>`).join("")}</div>
+    <button class="btn sec sm" id="riteInfo" style="margin-top:8px">تعرّف على ${hajj ? "الحج" : "العمرة"}: المباحات والمحظورات والمبطلات</button>
   </div>
   ${body}
   ${st.html ? `<div class="card">${st.html}</div>` : ""}
@@ -387,6 +442,7 @@ function renderUmrah() {
     if (last) { if (!confirm(hajj ? "إنهاء الحج والبدء من جديد؟" : "إنهاء العمرة والبدء من جديد؟")) return; S.tawaf = 0; S.saee = 0; S.saeeAt = "safa"; S.jam = 0; S.stage = 0; renderUmrah(); window.scrollTo(0, 0); return; }
     enter(i + 1);
   };
+  v.querySelector("#riteInfo").onclick = () => { S.intro = true; renderUmrah(); window.scrollTo(0, 0); };
   v.querySelector("#prev").onclick = () => { if (i > 0) { S.stage = i - 1; renderUmrah(); window.scrollTo(0, 0); } };
   v.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const k = +b.dataset.go; if (k === i) return; if (k < i) { S.stage = k; renderUmrah(); window.scrollTo(0, 0); } else enter(k); });
   if (GPS.id !== null) GPS.tick();

@@ -432,3 +432,13 @@ html[data-motion="off"] .kaaba{animation:none}
 .occ{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
 .occ .card{max-width:520px;width:100%;max-height:85vh;overflow:auto;border:2px solid var(--gold)}
 .card.dim{opacity:.82}
+/* أجزاء الكعبة في شاشة التحميل: الحجر الأسود، الملتزم، الميزاب، الشاذروان البارز */
+.kaaba .f{overflow:visible}
+.kaaba .fr::after{content:"";position:absolute;right:-1px;bottom:34px;width:14px;height:14px;border-radius:50%;
+  background:radial-gradient(circle at 40% 35%,#3a3a3a,#000 70%);border:2px solid #d4b26a;box-shadow:0 0 6px rgba(212,178,106,.6);z-index:2}
+.kaaba .fr .curtain{left:24%}
+.kaaba .fr .studs::after{content:"";position:absolute;right:6px;top:calc(31% + 40px);width:8px;height:70px;
+  background:repeating-linear-gradient(0deg,rgba(212,178,106,.22) 0 2px,transparent 2px 6px);opacity:.9}
+.kaaba .bk .belt::before{content:"";position:absolute;right:26%;top:-36%;width:30px;height:9px;border-radius:0 0 3px 3px;
+  background:linear-gradient(180deg,#f0d693,#9d7833);box-shadow:0 2px 3px rgba(0,0,0,.5)}
+.kaaba .base{height:12px;bottom:-4px;inset-inline:-3px;border-radius:2px}

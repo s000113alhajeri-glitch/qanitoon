@@ -1996,7 +1996,9 @@ function fridayCard() {
   </div>`;
 }
 const HOME_ITEMS = [
-  { id: "rite", t: () => (RITE.k === "hajj" ? "الحج" : "العمرة") + " — الخطوة الحالية", ic: "kaaba", v: () => { const st = RITE.k === "hajj" ? HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)] : STAGES[Math.min(S.stage, STAGES.length - 1)]; return esc(st.t); }, go: "umrah" },
+  { id: "umrah", t: () => "العمرة — الخطوة الحالية", ic: "kaaba", v: () => esc(STAGES[Math.min(S.stage, STAGES.length - 1)].t), go: "umrah" },
+  { id: "hajj", t: () => "الحج — الخطوة الحالية", ic: "hajj", v: () => esc(HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)].t), go: "hajj" },
+  { id: "ask", t: () => "اسألني", ic: "chat", v: () => "اكتبي حالتك لتحصلي على آيات وأدعية", go: "ask" },
   { id: "quran", t: () => "الورد اليومي", ic: "quran", v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
   { id: "adhkar", t: () => "الأذكار", ic: "beads", v: g => `${AR(g.sd)} من ${AR(g.st)} منجزة`, go: "adhkar" },
   { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", v: g => `${AR(g.dh)} من ${AR(g.dgoal)}`, go: "tadabbur" },
@@ -2004,7 +2006,7 @@ const HOME_ITEMS = [
   { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
   { id: "streak", t: () => "أيام متتابعة", ic: "clock", v: g => AR(g.streak), go: "adhkar" },
 ];
-const HOME = { fixed: ["quran", "adhkar", "tasbih"], def: ["rite", "jadwal"], list() { return [...this.fixed, ...DB.get("homeItems", this.def).filter(i => !this.fixed.includes(i))]; }, set(l) { DB.set("homeItems", l.filter(i => !this.fixed.includes(i))); } };
+const HOME = { fixed: ["quran", "adhkar", "tasbih"], def: ["umrah", "jadwal", "ask"], list() { return [...this.fixed, ...DB.get("homeItems", this.def).filter(i => !this.fixed.includes(i) && i !== "rite")]; }, set(l) { DB.set("homeItems", l.filter(i => !this.fixed.includes(i))); } };
 function renderHome() {
   const v = document.getElementById("v-home"); if (!v) return;
   const g = SUM.progress();
@@ -2013,9 +2015,9 @@ function renderHome() {
   v.innerHTML = `
   ${fridayCard()}
   <div class="card">
-    <h3 style="margin:0 0 6px">${ico("chat")} اسألني</h3>
-    <div class="row"><input id="homeAsk" list="homeSitList" placeholder="كيف حالك الآن؟ هم، رزق، خصومة…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div><datalist id="homeSitList">${SITUATIONS.map(m => `<option value="${esc(m.label)}">`).join("")}</datalist>
-    <div class="chips" style="margin-top:8px">${SITUATIONS.slice(0, 6).map(x => `<button class="chip" data-hask="${x.id}">${esc(x.label)}</button>`).join("")}</div>
+    <h3 style="margin:0 0 6px">${ico("chat")} اسألني — أنا الآن…</h3>
+    <div class="chips" style="margin-top:6px">${SITUATIONS.filter(x => x.id !== "tasbih").map(x => `<label class="chip" style="cursor:pointer"><input type="checkbox" class="hchk" value="${x.id}" style="margin-inline-end:6px;accent-color:var(--gold,#e9d7a1)">${esc(x.label)}</label>`).join("")}</div>
+    <div class="row" style="margin-top:8px"><input id="homeAsk" placeholder="أو اكتبي حالتك بكلامك…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div>
   </div>
   <div class="card">
     <h3 style="margin:0 0 6px">ملخص يومي</h3>
@@ -2025,12 +2027,11 @@ function renderHome() {
   </div>`;
   v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = () => { HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });
   v.querySelectorAll("[data-hadd]").forEach(b => b.onclick = () => { HOME.set([...HOME.list(), b.dataset.hadd]); renderHome(); });
-  v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => go(b.dataset.hgo));
-  const openAsk = (q, id) => { ASK.q = q || ""; go("tadabbur"); renderTadabbur("ask"); if (id) renderAsk(id); };
+  v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => { if (b.dataset.hgo === "ask") { go("tadabbur"); renderTadabbur("ask"); } else go(b.dataset.hgo); });
+  const openAsk = (q, ids) => { go("tadabbur"); renderTadabbur("ask"); if (ids && ids.length) { ASK.q = ids.map(i => (SITUATIONS.find(x => x.id === i) || {}).label || "").join(" ، "); if (ids.length === 1) renderAsk(ids[0]); else renderAsk(); } else { ASK.q = q || ""; renderAsk(); } };
   const ha = v.querySelector("#homeAsk"), hg = v.querySelector("#homeAskGo");
-  if (hg) hg.onclick = () => { const m = SITUATIONS.find(x => x.label === ha.value.trim()); openAsk(m ? "" : ha.value.trim(), m && m.id); };
+  if (hg) hg.onclick = () => { const ids = [...v.querySelectorAll(".hchk:checked")].map(c => c.value); const q = ha.value.trim(); if (!ids.length && !q) return; openAsk(q, q ? [] : ids); if (q && ids.length) { ASK.q = q + " ، " + ids.map(i => SITUATIONS.find(x => x.id === i).label).join(" ، "); renderAsk(); } };
   if (ha) ha.onkeydown = e => { if (e.key === "Enter") hg.click(); };
-  v.querySelectorAll("[data-hask]").forEach(b => b.onclick = () => openAsk("", b.dataset.hask));
   const k = document.getElementById("goKahf");
   if (k) k.onclick = () => { const s = QURAN.surahs.find(x => x.n === 18); if (s) Q.page = s.page; go("quran"); };
 }

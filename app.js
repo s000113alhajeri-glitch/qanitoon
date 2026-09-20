@@ -1172,8 +1172,7 @@ function jadwalView() {
   return `<div class="note">أوقات الدعاء الواردة عن النبي ﷺ فقط، كلٌّ بحديثه ودرجته. يظهر أعلى القائمة ما أنتِ فيه الآن، ويُنبَّه لما فعّلتِه. اختيارك للأدعية تسهيلٌ للتذكير، ويجوز لك أن تدعي بما شئتِ.</div>
   <div class="row">${(ramadan || showAll || fasting) ? `<button class="btn sm ${fasting ? "" : "sec"}" id="jfast">${fasting ? "أنا صائمة اليوم ✓" : "أنا صائمة اليوم"}</button>` : ""}</div>
   ${act.length ? `<h3 style="margin:14px 4px 6px">الآن</h3>${act.map(x => jadTimeCard(x, true)).join("")}` : `<div class="card"><p class="mid">لا وقت مخصوص الآن — والدعاء مقبول في كل حين ﴿ادْعُونِي أَسْتَجِبْ لَكُمْ﴾ (غافر ٦٠).</p></div>`}
-  <h3 style="margin:14px 4px 6px">${showAll ? "كل الأوقات" : "بقية أوقات اليوم"}</h3>
-  ${rest.map(x => jadTimeCard(x, false)).join("")}`;
+`;
 }
 function bindJadwal(v) {
   const rerender = () => renderTadabbur("jadwal");

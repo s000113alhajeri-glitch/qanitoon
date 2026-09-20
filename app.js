@@ -12,7 +12,24 @@ const el = (h) => { const t = document.createElement("template"); t.innerHTML = 
 const esc = s => String(s).replace(/[&<>]/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;" }[c]));
 
 /* ============ تنبيه: اهتزاز + بطاقة (بلا صوت) ============ */
-function notify(title, body) {
+/* أصناف التنبيهات: كل صنف بمفتاح مستقل في الإعدادات */
+const NOTIF_CATS = [
+  { id: "prayer", t: "الصلاة (دخول الوقت)", d: true },
+  { id: "adhan", t: "بين الأذان والإقامة (الدعاء لا يُردّ)", d: true },
+  { id: "jadwal", t: "أوقات الدعاء النبوية (جدولي)", d: true },
+  { id: "adhkar", t: "أذكار الصباح والمساء", d: true },
+  { id: "wird", t: "الورد اليومي من القرآن", d: true },
+  { id: "season", t: "المواسم: رمضان، عرفة، الجمعة", d: true },
+  { id: "weather", t: "الطقس والطوارئ (مطر، عاصفة، هزّة)", d: true },
+  { id: "rite", t: "المناسك: الأشواط والمواضع بالموقع", d: true }
+];
+const NOTIF = {
+  opts() { return DB.get("notif", {}); },
+  on(id) { const o = this.opts(); const c = NOTIF_CATS.find(x => x.id === id); return o[id] === undefined ? (c ? c.d : true) : !!o[id]; },
+  set(id, v) { const o = this.opts(); o[id] = v; DB.set("notif", o); }
+};
+function notify(title, body, cat) {
+  if (cat && !NOTIF.on(cat)) return;
   if (navigator.vibrate) navigator.vibrate([120, 60, 120]);
   document.querySelectorAll(".alert").forEach(a => a.remove());
   const a = el(`<div class="alert">${esc(title)}<div style="font-weight:400;font-size:14px">${esc(body || "")}</div></div>`);
@@ -109,26 +126,26 @@ function onSpot(k) {
   const { ST, X: S } = cur();
   const st = ST[S.stage] || {};
   if (k === "hajar") {
-    if (st.kind !== "tawaf") { notify("أنت عند الحجر الأسود", SPOT_DUA.hajar); return; }
+    if (st.kind !== "tawaf") { notify("أنت عند الحجر الأسود", SPOT_DUA.hajar, "rite"); return; }
     if (S.tawaf < 7) {
       S.tawaf = S.tawaf + 1;
-      if (S.tawaf === 7) notify("تمّ الطواف 7 أشواط", st.after || "اذهب إلى مقام إبراهيم وصلِّ ركعتين");
-      else notify("تمّ الشوط " + AR(S.tawaf) + " — ابدأ الشوط " + AR(S.tawaf + 1), SPOT_DUA.hajar);
+      if (S.tawaf === 7) notify("تمّ الطواف 7 أشواط", st.after || "اذهب إلى مقام إبراهيم وصلِّ ركعتين", "rite");
+      else notify("تمّ الشوط " + AR(S.tawaf) + " — ابدأ الشوط " + AR(S.tawaf + 1), SPOT_DUA.hajar, "rite");
     }
     renderUmrah(); return;
   }
   if (k === "safa" || k === "marwa") {
-    if (st.kind !== "saee") { notify("أنت عند " + SPOTS[k].name, SPOT_DUA[k]); return; }
+    if (st.kind !== "saee") { notify("أنت عند " + SPOTS[k].name, SPOT_DUA[k], "rite"); return; }
     if (k !== S.saeeAt) return;           // لا يُحتسب إلا الطرف المقصود
     if (S.saee < 7) {
       S.saee = S.saee + 1;
       S.saeeAt = (k === "safa") ? "marwa" : "safa";
-      if (S.saee === 7) notify("تمّ السعي 7 أشواط", st.after || "انتهى السعي — ثم الحلق أو التقصير");
-      else notify("تمّ الشوط " + AR(S.saee) + " من السعي", "اتجه الآن إلى " + SPOTS[S.saeeAt].name);
+      if (S.saee === 7) notify("تمّ السعي 7 أشواط", st.after || "انتهى السعي — ثم الحلق أو التقصير", "rite");
+      else notify("تمّ الشوط " + AR(S.saee) + " من السعي", "اتجه الآن إلى " + SPOTS[S.saeeAt].name, "rite");
     }
     renderUmrah(); return;
   }
-  notify("أنت عند " + SPOTS[k].name, SPOT_DUA[k]);
+  notify("أنت عند " + SPOTS[k].name, SPOT_DUA[k], "rite");
 }
 
 /* ============ مراحل العمرة ============ */
@@ -789,7 +806,7 @@ function renderQuran() {
   document.getElementById("qprev").onclick = () => { Q.page = p - 1; renderQuran(); window.scrollTo(0, 0); };
   document.getElementById("qnext").onclick = () => { Q.page = p + 1; renderQuran(); window.scrollTo(0, 0); };
   document.getElementById("qmark").onclick = () => { const m = Q.marks; Q.marks = m.includes(p) ? m.filter(x => x !== p) : [...m, p].sort((a, b) => a - b); renderQuran(); };
-  document.getElementById("qdone").onclick = () => { const pl = Q.plan; pl.log[today()] = (pl.log[today()] || 0) + 1; Q.plan = pl; Q.page = p + 1; if (pl.log[today()] === pl.pages) notify("تمّ ورد اليوم", "بارك الله فيك"); renderQuran(); SUM.render(); };
+  document.getElementById("qdone").onclick = () => { const pl = Q.plan; pl.log[today()] = (pl.log[today()] || 0) + 1; Q.plan = pl; Q.page = p + 1; if (pl.log[today()] === pl.pages) notify("تمّ ورد اليوم", "بارك الله فيك", "rite"); renderQuran(); SUM.render(); };
   document.getElementById("qpp").onchange = e => { const pl = Q.plan; pl.pages = Math.max(1, +e.target.value || 1); Q.plan = pl; renderQuran(); show("khatmah"); };
   document.getElementById("qtoday").onclick = () => { show("read"); window.scrollTo(0, 0); };
   const goPage = n => { Q.page = n; renderQuran(); window.scrollTo(0, 0); };
@@ -932,19 +949,32 @@ const ADHKAR_TABS = [
   { k: "nawm", t: "أذكار النوم", r: () => IB_NAWM.map(item).join("") + `<h3>عند الاستيقاظ</h3>` + IB_WAKE.map(item).join("") }
 ];
 /* مكتبة الأدعية كاملة داخل «اسألني» */
+function libAllView() {
+  const f = ASK.lf ? (x => x.k === ASK.lf) : (x => x.k !== "د");
+  const seen = new Set();
+  const list = libSearch(ASK.lq, f).filter(x => { const n = norm(x.t).slice(0, 60); if (seen.has(n)) return false; seen.add(n); return true; });
+  const shown = list.slice(0, 60);
+  return `<p class="mid">${AR(list.length)} دعاء${list.length > shown.length ? " — تظهر أول " + AR(shown.length) + "، ضيّقي البحث" : ""}</p>
+  ${shown.map(x => item(Object.assign({}, x, { tag: x.k === "ق" ? "ق" : x.k === "م" ? "م" : "س" }))).join("")}`;
+}
 const DUA_LIBRARY = [
   { k: "nabawi", t: "الأدعية النبوية", r: () => duaNotice() + `<div class="note">كل دعاء مع حديثه ومصدره ودرجته: <span class="tag s">صحيح</span> <span class="tag h">حسن</span> <span class="tag d">فيه خلاف / ضعيف</span>. ما ضُعّف يُدعى بمعناه بلا نسبةٍ جازمة للنبي ﷺ.</div>` + PROPHETIC_DUAS.map(c => `<details><summary>${esc(c.title)} (${AR(c.items.length)})</summary><div>${c.items.map(pitem).join("")}</div></details>`).join("") },
   { k: "dua", t: "الأدعية المصنّفة", r: () => duaNotice() + DUA_CATEGORIES.filter(catVisible).map(c => `<details><summary>${esc(c.title)}</summary><div>${c.note ? `<div class="note">${esc(c.note)}</div>` : ""}${c.items.map(item).join("")}</div></details>`).join("") },
   { k: "quranic", t: "الأدعية القرآنية", r: () => IB_QURANIC.map(x => item({ ...x, tag: "ق" })).join("") },
   { k: "jawami", t: "جوامع الدعاء", r: () => duaNotice() + IB_JAWAMI.map(item).join("") },
-  { k: "tasabih", t: "تسابيح وفضلها", r: () => IB_TASABIH.map(item).join("") },
   { k: "ahwal", t: "أذكار الأحوال", r: () => IB_OTHER.map(g => `<details><summary>${esc(g.title)} (${AR(g.items.length)})</summary><div>${g.items.map(item).join("")}</div></details>`).join("") + `<details><summary>متفرقة (${AR(IB_MISC.length)})</summary><div>${IB_MISC.map(item).join("")}</div></details>` },
   { k: "anbiya", t: "أدعية الأنبياء", r: () => PROPHETS_DUA.map(g => `<details open><summary>${esc(g.topic)}</summary><div>${g.items.map(x => `<div class="card"><div class="mid" style="color:var(--gold2)">${esc(x.p)}</div><div class="dua">${esc(x.t)}</div>${x.n && x.n > 1 ? `<div class="count"><span>التكرار المقترح</span><b>${AR(x.n)}</b></div>${tasbih(x.p + x.t, x.n)}` : ""}${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}<div class="src"><span class="tag q">قرآن</span> ${esc(x.s)}</div></div>`).join("")}</div></details>`).join("") },
   { k: "safar", t: "السفر", r: () => `<div class="card"><h3>أحكام صلاة المسافر</h3>${SAFAR.ahkam.map(a => `<p><b>${esc(a.t)}:</b> ${esc(a.d)}<div class="src">${esc(a.s)}</div></p>`).join("")}</div>` + SAFAR.adhkar.map(item).join("") },
   { k: "arafah", t: "يوم عرفة", r: () => arafahView() }
 ];
+const TSB = { sub: DB.get("tsb_sub", "asma") };
+function tasbihView() {
+  const subs = [["asma", "التسبيح بأسماء الله الحسنى"], ["fadl", "تسابيح وفضلها"]];
+  return `<div class="chips">${subs.map(x => `<button class="chip ${TSB.sub === x[0] ? "on" : ""}" data-tsb="${x[0]}">${x[1]}</button>`).join("")}</div>
+  ${TSB.sub === "asma" ? namesView() : IB_TASABIH.map(item).join("")}`;
+}
 const TADABBUR_TABS = [
-  { k: "asma", t: "أسماء الله الحسنى", r: namesView },
+  { k: "asma", t: "التسبيح", r: tasbihView },
   { k: "jadwal", t: "جدولي", r: jadwalView },
   { k: "qsearch", t: "بحث في القرآن", r: quranSearchView },
   { k: "ask", t: "اسألني", r: () => "" }
@@ -984,19 +1014,19 @@ function renderTadabbur(tab) {
   const cur = TADABBUR_TABS.find(x => x.k === k) || TADABBUR_TABS[0]; DB.set("ttab", cur.k);
   v.innerHTML = `<div class="chips">${TADABBUR_TABS.map(x => `<button class="chip ${x.k === cur.k ? "on" : ""}" data-a="${x.k}">${x.t}</button>`).join("")}</div><div id="tbody">${cur.r()}</div>`;
   v.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { renderTadabbur(b.dataset.a); window.scrollTo(0, 0); });
-  if (cur.k === "asma") bindNames(v);
+  if (cur.k === "asma") { bindNames(v); v.querySelectorAll("[data-tsb]").forEach(b => b.onclick = () => { TSB.sub = b.dataset.tsb; DB.set("tsb_sub", TSB.sub); renderTadabbur("asma"); }); }
   if (cur.k === "qsearch") bindQuranSearch(v);
   if (cur.k === "ask") renderAsk(undefined, document.getElementById("tbody"));
   if (cur.k === "jadwal") bindJadwal(v);
   bindCounters(v);
 }
 setInterval(() => {
-  const r = DB.get("rem", { on: false }); if (!r.on) return;
-  const now = new Date().toTimeString().slice(0, 5), k = "fired_" + today() + "_" + now;
-  if (DB.get(k, false)) return;
-  if (now === r.sabah) { DB.set(k, true); notify("أذكار الصباح", "حان وقت أذكار الصباح"); }
-  if (now === r.masa) { DB.set(k, true); notify("أذكار المساء", "حان وقت أذكار المساء"); }
-  if (now === r.wird) { DB.set(k, true); notify("وردك من القرآن", "بقي من وردك اليوم ما لم تُتمّه"); }
+  const t = PRAY.times(), h = nowH();
+  const near = (a) => a !== null && Math.abs(h - a) < 0.5 / 60 + 1e-9;
+  const once = (key, fn) => { const k = "fired_" + today() + "_" + key; if (!DB.get(k, false)) { DB.set(k, true); fn(); } };
+  if (near(t.fajr + 20 / 60)) once("sabah", () => notify("أذكار الصباح", "حان وقت أذكار الصباح", "adhkar"));
+  if (near(t.asr + 20 / 60)) once("masa", () => notify("أذكار المساء", "حان وقت أذكار المساء", "adhkar"));
+  if (near(t.isha + 60 / 60)) once("wird", () => { if (!(Q.plan.log || {})[today()]) notify("وردك من القرآن", "لم تُسجّلي وردك اليوم بعد", "wird"); });
 }, 30000);
 
 
@@ -1074,15 +1104,16 @@ setInterval(() => {
         if (near(h, st + off) && !DB.get(k, false)) { DB.set(k, true); notify(title, body); }
       };
       if (x.id === "adhan") {
+        if (!NOTIF.on("adhan")) return;
         fire(0, "a", "عند الأذان", "ردّدي مع المؤذن، ثم صلّي على النبي ﷺ، ثم: اللهم ربّ هذه الدعوة التامة والصلاة القائمة…");
         fire(5 / 60, "b", "بين الأذان والإقامة — الدعاء لا يُردّ", jadPicks("adhan").length ? "أدعيتك المختارة في جدولي" : "ادعي بما شئتِ");
-      } else fire(0, "s", x.icon + " " + x.t, x.h.slice(0, 90) + "…");
+      } else if (NOTIF.on(["iftar", "qadr", "arafah", "jumua"].includes(x.id) ? "season" : "jadwal")) fire(0, "s", x.icon + " " + x.t, x.h.slice(0, 90) + "…");
     });
   });
 }, 30000);
 
 /* ============ اسألني ============ */
-const ASK = { q: "", tab: DB.get("ask_tab", "quran"), lib: DB.get("ask_lib", "") };
+const ASK = { q: "", tab: DB.get("ask_tab", "quran"), lib: DB.get("ask_lib", ""), lq: DB.get("ask_lq", ""), lf: DB.get("ask_lf", "") };
 function askMatch(text) {
   const n = norm(text);
   if (!n.trim()) return { crisis: false, hits: [] };
@@ -1109,12 +1140,17 @@ function renderAsk(id, box) {
     ${hits.length ? `<div class="chips">${hits.slice(0, 4).map(s => `<button class="chip on" data-m="${s.id}">${esc(s.label)}</button>`).join("")}</div>` : ""}
     <div class="grid">${SITUATIONS.filter(s => !hits.includes(s)).map(m => `<button data-m="${m.id}">${esc(m.label)}</button>`).join("")}</div>
     <div class="note">${esc(SIT_DISCLAIMER)}</div>
-    <h3 style="margin:16px 4px 6px">مكتبة الأدعية</h3>
-    <div class="chips">${DUA_LIBRARY.map(l => `<button class="chip ${ASK.lib === l.k ? "on" : ""}" data-lib="${l.k}">${l.t}</button>`).join("")}</div>
-    <div id="asklib">${ASK.lib ? (DUA_LIBRARY.find(l => l.k === ASK.lib) || DUA_LIBRARY[0]).r() : ""}</div>`;
+    <h3 style="margin:16px 4px 6px">كل الأدعية</h3>
+    ${duaNotice()}
+    <input id="libq" placeholder="ابحث بالمعنى: الرزق، الهمّ، الوالدين…" value="${esc(ASK.lq)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
+    <div class="chips">${[["", "الكل"], ["ق", "قرآن"], ["س", "سنة صحيحة"], ["م", "مباح"]].map(f => `<button class="chip ${ASK.lf === f[0] ? "on" : ""}" data-lf="${f[0]}">${f[1]}</button>`).join("")}</div>
+    <div id="asklib">${libAllView()}</div>`;
     const inp = v.querySelector("#askq");
     let tm; inp.oninput = () => { ASK.q = inp.value; clearTimeout(tm); tm = setTimeout(() => { const pos = inp.selectionStart; renderAsk(undefined, v); const i2 = v.querySelector("#askq"); i2.focus(); i2.setSelectionRange(pos, pos); }, 350); };
     v.querySelectorAll("[data-m]").forEach(b => b.onclick = () => renderAsk(b.dataset.m, v));
+    const lq = v.querySelector("#libq");
+    let tm2; lq.oninput = () => { ASK.lq = lq.value; DB.set("ask_lq", ASK.lq); clearTimeout(tm2); tm2 = setTimeout(() => { const a = v.querySelector("#asklib"); a.innerHTML = libAllView(); bindCounters(a); }, 300); };
+    v.querySelectorAll("[data-lf]").forEach(b => b.onclick = () => { ASK.lf = b.dataset.lf; DB.set("ask_lf", ASK.lf); renderAsk(undefined, v); });
     v.querySelectorAll("[data-lib]").forEach(b => b.onclick = () => { ASK.lib = ASK.lib === b.dataset.lib ? "" : b.dataset.lib; DB.set("ask_lib", ASK.lib); renderAsk(undefined, v); const a = v.querySelector("#asklib"); if (a && ASK.lib) a.scrollIntoView({ behavior: "smooth", block: "start" }); });
     v.querySelectorAll("[data-arw]").forEach(b => b.onclick = () => { DB.set("arafah_who", b.dataset.arw); renderAsk(undefined, v); });
     bindCounters(v);
@@ -1358,7 +1394,7 @@ const WX = {
     const key = "wxa_" + s.k + "_" + new Date().toISOString().slice(0, 13);
     if (DB.get(key, false)) return; DB.set(key, true);
     const ev = EVENTS.find(e => e.id === s.ev); if (!ev) return;
-    notify(s.label + " — " + ev.label, ev.items[0].t);
+    notify(s.label + " — " + ev.label, ev.items[0].t, "weather");
   },
   async quakes() {
     if (!navigator.onLine) return DB.get("quakes", []);
@@ -1375,7 +1411,7 @@ const WX = {
         if (!DB.get(k, false)) {
           DB.set(k, true);
           const ev = EVENTS.find(e => e.id === "quake");
-          notify("هزة أرضية قريبة — " + AR(near[0].km) + " كم", ev.items[1].t);
+          notify("هزة أرضية قريبة — " + AR(near[0].km) + " كم", ev.items[1].t, "weather");
         }
       }
       return near;
@@ -1488,7 +1524,7 @@ const PRAY = {
       if (Math.abs(h - t[k]) < 0.6 / 60) {
         const key = "pr_" + today() + "_" + k;
         if (DB.get(key, false)) continue; DB.set(key, true);
-        notify("حان وقت صلاة " + PRAYER_NAMES[k], "تقبل الله منك");
+        notify("حان وقت صلاة " + PRAYER_NAMES[k], "تقبل الله منك", "prayer");
         this.adhan(PRAYER_NAMES[k]);
       }
     }
@@ -1612,10 +1648,14 @@ function renderSettings() {
     <div class="count"><span>إذن الموقع (القبلة، الأوقات، التنبيه بالمواضع)</span><button class="btn sm ${loc ? "" : "sec"}" id="locTog">${loc ? "مفعّل" : "تفعيل"}</button></div>
     <div class="count"><span>دقة GPS</span><b id="gpsAcc">${GPS.acc ? AR(Math.round(GPS.acc)) + " م" : (loc ? "…" : "—")}</b></div>
     <div class="note">يعمل تلقائياً بعد التفعيل مرة واحدة. تنبيهات الجو والمناسبات تظهر وحدها عند وقوعها.</div></div>
+  <div class="card"><h3>التنبيهات</h3>
+    <div class="count"><span>إذن التنبيهات على الجهاز</span><button class="btn sm ${("Notification" in window && Notification.permission === "granted") ? "" : "sec"}" id="ntPerm">${("Notification" in window && Notification.permission === "granted") ? "مسموح" : "السماح"}</button></div>
+    ${NOTIF_CATS.map(c => `<div class="count"><span>${c.t}</span><button class="btn sm ${NOTIF.on(c.id) ? "" : "sec"}" data-nt="${c.id}">${NOTIF.on(c.id) ? "مفعّل" : "متوقف"}</button></div>`).join("")}
+    <div class="note">تعمل التنبيهات داخل التطبيق دائماً؛ وعلى الجهاز عند السماح بها. تنبيهات الطقس والطوارئ تظهر وحدها عند وقوعها بموقعك.</div></div>
   <div class="card"><h3>الصلاة</h3>
     <label>طريقة الحساب</label><select id="pm">${Object.entries(PRAYER_METHODS).map(([id, m]) => `<option value="${id}" ${o.method === id ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select>
     <label>العصر</label><select id="pa"><option value="shafii" ${o.asr === "shafii" ? "selected" : ""}>الجمهور</option><option value="hanafi" ${o.asr === "hanafi" ? "selected" : ""}>الحنفية</option></select>
-    <button class="btn ${o.on ? "sec" : ""} sm" id="pon">${o.on ? "إيقاف تنبيه الصلاة" : "تفعيل تنبيه الصلاة"}</button></div>
+    <div class="note">مفتاح تنبيه الصلاة في قسم «التنبيهات» أعلاه.</div></div>
   <div class="card"><h3>الخصوصية وإخلاء المسؤولية</h3>
     <ul>
       <li>بياناتك وتقدّمك محفوظة في جهازك فقط، ولا تُرسل إلى أي خادم، ولا إعلانات ولا تتبّع شخصي؛ تُعدّ الزيارات مجهولةً بلا كوكيز لمعرفة عدد المستخدمين فقط.</li>
@@ -1635,12 +1675,14 @@ function renderSettings() {
   };
   q("pm").onchange = e => { PRAY.set({ method: e.target.value }); PRAY.strip(); schedulePrayerNotifications(); };
   q("pa").onchange = e => { PRAY.set({ asr: e.target.value }); schedulePrayerNotifications(); };
-  q("pon").onclick = async () => {
-    const on = !PRAY.opts().on;
-    if (on && "Notification" in window && Notification.permission !== "granted") { try { await Notification.requestPermission(); } catch (e) { } }
-    PRAY.set({ on }); renderSettings();
-    if (on) schedulePrayerNotifications(); else { const ln = LN(); if (ln) ln.getPending().then(p => p.notifications.length && ln.cancel(p)).catch(() => { }); }
-  };
+  q("ntPerm").onclick = async () => { if ("Notification" in window) { try { await Notification.requestPermission(); } catch (e) { } } renderSettings(); };
+  v.querySelectorAll("[data-nt]").forEach(b => b.onclick = async () => {
+    const id = b.dataset.nt, on = !NOTIF.on(id);
+    if (on && "Notification" in window && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (e) { } }
+    NOTIF.set(id, on);
+    if (id === "prayer") { PRAY.set({ on }); if (on) schedulePrayerNotifications(); else { const ln = LN(); if (ln) ln.getPending().then(p => p.notifications.length && ln.cancel(p)).catch(() => { }); } }
+    renderSettings();
+  });
 }
 const APP_VERSION = "1.1";
 

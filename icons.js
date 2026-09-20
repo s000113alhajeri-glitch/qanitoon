@@ -7,6 +7,7 @@ const ICO_PATHS = {
   beads: '<circle cx="12" cy="4.5" r="1.6"/><circle cx="17.5" cy="7" r="1.6"/><circle cx="19.5" cy="12.5" r="1.6"/><circle cx="17" cy="18" r="1.6"/><circle cx="7" cy="18" r="1.6"/><circle cx="4.5" cy="12.5" r="1.6"/><circle cx="6.5" cy="7" r="1.6"/><path d="M12 19.5v2"/>',
   check: '<path d="M4 12.5 9 17.5 20 6.5"/>',
   clock: '<circle cx="12" cy="12" r="8.5"/><path d="M12 7.5V12l3.5 2"/>',
+  calendar: '<rect x="3.5" y="5" width="17" height="15.5" rx="2.5"/><path d="M3.5 9.5h17M8 3v4M16 3v4"/><path d="M8 13.5h.01M12 13.5h.01M16 13.5h.01M8 17h.01M12 17h.01"/>',
   chat: '<path d="M20 12a7.5 7.5 0 0 1-11 6.6L4 20l1.4-4.6A7.5 7.5 0 1 1 20 12z"/><path d="M8.5 12h.01M12 12h.01M15.5 12h.01"/>',
   mosque: '<path d="M3 21h18"/><path d="M5 21v-7h14v7"/><path d="M7 14c0-3 5-6 5-6s5 3 5 6"/><path d="M12 8V5.5"/><path d="M11 5.5h2"/><path d="M4 21v-9M20 21v-9"/>',
   sun: '<circle cx="12" cy="12" r="4"/><path d="M12 2.5v2.5M12 19v2.5M2.5 12H5M19 12h2.5M5.3 5.3l1.8 1.8M16.9 16.9l1.8 1.8M5.3 18.7l1.8-1.8M16.9 7.1l1.8-1.8"/>',

@@ -1310,28 +1310,11 @@ async function schedulePrayerNotifications() {
 function fastDB() { return DB.get("fasts", {}); }
 function renderTime(tab) {
   const v = document.getElementById("v-time");
-  let k = tab || DB.get("ttab", "salah"); if (k === "moon" || k === "wx") k = "salah"; DB.set("ttab", k);
-  const tabs = [["salah", "أوقات الصلاة"], ["hijri", "التقويم والصيام"]];
+  const k = "hijri";
+  const tabs = [];
   let body = "";
   const o = PRAY.opts(), t = PRAY.times(), n = PRAY.next();
   const hj = toHijri(new Date(), DB.get("hoff", 0));
-
-  if (k === "salah") {
-    const rows = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"].map(x =>
-      `<div class="count" style="${x === n.k ? "background:var(--bg2);border-radius:10px;padding:4px 8px" : ""}"><span>${PRAYER_NAMES[x]}</span><b>${hhmm(t[x])}</b></div>`).join("");
-    body = `<div class="card"><div class="mid">الصلاة القادمة</div><div class="big">${PRAYER_NAMES[n.k]} — ${hhmm(n.at)}</div>
-      <div class="mid">بعد ${AR(Math.max(0, Math.round(n.in * 60)))} دقيقة</div></div>
-      <div class="card">${rows}</div>
-      <div class="card"><h3>الإعدادات</h3>
-        <label>طريقة الحساب</label>
-        <select id="pm">${Object.entries(PRAYER_METHODS).map(([id, m]) => `<option value="${id}" ${o.method === id ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select>
-        <label>العصر</label>
-        <select id="pa"><option value="shafii" ${o.asr === "shafii" ? "selected" : ""}>الجمهور (مثل الظل)</option><option value="hanafi" ${o.asr === "hanafi" ? "selected" : ""}>الحنفية (مِثلَا الظل)</option></select>
-        <button class="btn ${o.on ? "sec" : ""}" id="pon">${o.on ? "إيقاف تنبيه الصلاة" : "تفعيل تنبيه الصلاة"}</button>
-        <button class="btn sec sm" id="ploc">تحديث موقعي</button>
-      </div>
-      <div class="note">حساب فلكي محلي يعمل بدون إنترنت ويتبع موقعك أينما سافرت. وهو للاستئناس، والمرجع المعتمد تقويم الجهة الرسمية في بلدك (الأوقاف/الإفتاء) والمسجد الذي تصلي فيه.</div>`;
-  }
 
   if (k === "hijri") {
     const fs = fastStatusFor(new Date());
@@ -1366,31 +1349,23 @@ function renderTime(tab) {
         <div class="note">القضاء واجب ومقدَّم على النافلة عند جمهور أهل العلم، ويُبادَر به قبل رمضان القادم.</div></div>
       <div class="card"><h3>تقويم الصيام</h3>${days.join("")}</div>
       <div class="card"><h3>الصيام المستحب</h3>${SUNNAH_FASTS.map(x => `<div class="count"><span>${esc(x.label)}</span><b>${esc(x.rule)}</b></div><div class="src"><span class="tag s">سنة</span> ${esc(x.src)}${x.note ? " — " + esc(x.note) : ""}</div>`).join("")}</div>
-      <div class="card"><h3>السحور والفطر</h3>
+      <div class="card"><h3>السحور والفطر اليوم</h3>
         <div class="count"><span>ينتهي السحور (الفجر)</span><b>${hhmm(t.fajr)}</b></div>
         <div class="count"><span>الفطر (المغرب)</span><b>${hhmm(t.maghrib)}</b></div>
-        ${FAST_DUA.map(x => `<div class="dua">${esc(x.t)}</div><div class="src"><span class="tag ${x.tag === "س" ? "s" : "d"}">${x.tag === "س" ? "سنة صحيحة" : "دعاء مباح"}</span> ${esc(x.s)}</div>${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}`).join("")}</div>`;
+        ${FAST_DUA.map(x => `<div class="dua">${esc(x.t)}</div><div class="src"><span class="tag ${x.tag === "س" ? "s" : "d"}">${x.tag === "س" ? "سنة صحيحة" : "دعاء مباح"}</span> ${esc(x.s)}</div>${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}`).join("")}</div>
+      <details><summary>إعدادات حساب الصلاة والتنبيه</summary><div>
+        <div class="card">
+          <label>طريقة الحساب</label>
+          <select id="pm">${Object.entries(PRAYER_METHODS).map(([id, m]) => `<option value="${id}" ${o.method === id ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select>
+          <label>العصر</label>
+          <select id="pa"><option value="shafii" ${o.asr === "shafii" ? "selected" : ""}>الجمهور (مثل الظل)</option><option value="hanafi" ${o.asr === "hanafi" ? "selected" : ""}>الحنفية (مِثلَا الظل)</option></select>
+          <button class="btn ${o.on ? "sec" : ""}" id="pon">${o.on ? "إيقاف تنبيه الصلاة" : "تفعيل تنبيه الصلاة"}</button>
+          <button class="btn sec sm" id="ploc">تحديث موقعي</button>
+          <div class="note">أوقات الصلاة كاملة تظهر في البطاقة الرئيسية. الحساب فلكي محلي يعمل بدون إنترنت، وهو للاستئناس؛ والمرجع تقويم الجهة الرسمية في بلدك.</div>
+        </div></div></details>`;
   }
 
-  if (k === "moon") {
-    const p = SKY.pos(), m = moonInfo(new Date(), p.lat, p.lng), ec = eclipseWatch(new Date());
-    body = `<div class="card"><div class="mid">القمر الآن</div><div class="big">${esc(m.phase)}</div>
-      <div class="bar"><i style="width:${Math.round(m.illum * 100)}%"></i></div>
-      <div class="count"><span>نسبة الإضاءة</span><b>${AR(Math.round(m.illum * 100))}٪</b></div>
-      <div class="count"><span>عمر القمر</span><b>${AR(m.age.toFixed(1))} يوم</b></div>
-      <div class="count"><span>المنزلة</span><b>${esc(m.mansion)} (${AR(m.mansionIdx + 1)} من 28)</b></div>
-      <div class="count"><span>الاتجاه</span><b>${m.waxing ? "متزايد — يمينه المضيء" : "متناقص — يساره المضيء"}</b></div>
-      <div class="note">شكل القمر وميلانه في خلفية التطبيق يتغيّران فعلياً بحسب اليوم وخط عرض موقعك؛ في الإمارات ومكة يميل الهلال أفقياً أكثر منه في خطوط العرض الشمالية.</div></div>
-      ${ec ? `<div class="card"><h3>${esc(ec.type)}</h3><div class="note">${esc(ec.note)} — والمرجع في الإعلان الجهات الفلكية الرسمية.</div>
-        ${EVENTS.find(e => e.id === "eclipse").items.map(x => `<div class="dua">${esc(x.t)}</div><div class="src"><span class="tag s">سنة صحيحة</span> ${esc(x.s)}</div>`).join("")}</div>` : ""}
-      <div class="card"><h3>منازل القمر الثمانية والعشرون</h3>
-        <div class="note">أسماء عربية قديمة لمواضع القمر في فلكه، يُستأنس بها في معرفة الوقت والفصول. ولا يجوز اعتقاد أن المنازل تؤثر بذاتها في نزول المطر أو الحظ، ومن قال «مُطرنا بنَوْء كذا» معتقداً تأثيره فقد وقع في محذور عظيم (البخاري ومسلم).</div>
-        <div class="chips">${MOON_MANSIONS.map((x, i) => `<span class="chip ${i === m.mansionIdx ? "on" : ""}">${AR(i + 1)}. ${esc(x)}</span>`).join("")}</div></div>
-      <div class="card"><h3>دعاء رؤية الهلال</h3>
-        ${EVENTS.find(e => e.id === "crescent").items.map(x => `<div class="dua">${esc(x.t)}</div><div class="src"><span class="tag s">سنة صحيحة</span> ${esc(x.s)}</div>`).join("")}</div>`;
-  }
-
-  v.innerHTML = `<div class="chips">${tabs.map(([id, t2]) => `<button class="chip ${id === k ? "on" : ""}" data-t="${id}">${t2}</button>`).join("")}</div>${body}`;
+  v.innerHTML = body;
   v.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { renderTime(b.dataset.t); window.scrollTo(0, 0); });
   bindCounters(v);
   const q = id => document.getElementById(id);
@@ -1646,7 +1621,7 @@ function renderHome() {
 /* ============ تشغيل التطبيق ============ */
 document.querySelectorAll("[data-ico]").forEach(i => { i.outerHTML = ico(i.dataset.ico); });
 RENDER.time = () => renderTime();
-TITLES.time = ["الأوقات والتقويم", "الصلاة والتقويم والصيام"];
+TITLES.time = ["التقويم والصيام", "التقويم الهجري وجدول الصيام والقضاء"];
 const HASH_V = location.hash.slice(1);
 go(HASH_V && RENDER[HASH_V] ? HASH_V : DB.get("view", "home"));
 if (DB.get("gps", false)) GPS.start();

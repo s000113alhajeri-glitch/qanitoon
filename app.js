@@ -1297,7 +1297,7 @@ document.querySelectorAll("#nav button").forEach(b => b.onclick = () => go(b.dat
 function drawAvatar() {
   const a = account(), el = document.getElementById("avatar"); if (!el) return;
   const nm = String(a.name || "").trim();
-  el.innerHTML = a.photo ? `<img src="${a.photo}" alt="">` : (nm ? esc(nm[0]) : ico("person"));
+  el.innerHTML = nm ? esc(nm[0]) : ico("person");
   el.onclick = () => go("settings");
 }
 drawAvatar();
@@ -1788,8 +1788,8 @@ function renderSettings() {
   const country = /^\+?971/.test(phone) ? "الإمارات" : /^\+?966/.test(phone) ? "السعودية" : /^\+?965/.test(phone) ? "الكويت" : /^\+?968/.test(phone) ? "عُمان" : /^\+?974/.test(phone) ? "قطر" : /^\+?973/.test(phone) ? "البحرين" : phone ? "دولة أخرى" : "—";
   v.innerHTML = `<h2>ملفي</h2>
   <div class="card"><h3>الحساب</h3>
-    <div class="row" style="align-items:center;gap:12px"><span class="avatar" style="position:static;width:56px;height:56px">${a.photo ? `<img src="${a.photo}" alt="">` : esc((a.name || "؟")[0])}</span>
-      <label class="btn sec sm" style="cursor:pointer">صورة<input id="acPhoto" type="file" accept="image/*" hidden></label>${a.photo ? `<button class="btn sec sm" id="acPhotoDel">حذف الصورة</button>` : ""}</div>
+    <div class="row" style="align-items:center;gap:12px"><span class="avatar" style="position:static;width:56px;height:56px">${esc((a.name || "؟")[0])}</span>
+      </div>
     <label>الاسم</label><input id="acName" value="${esc(a.name)}" autocomplete="name">
     <label>البريد الإلكتروني</label><input id="acMail" type="email" value="${esc(a.email)}" autocomplete="email">
     <label>رقم الهاتف بمفتاح الدولة</label><input id="acPhone" type="tel" placeholder="+9715xxxxxxxx" value="${esc(a.phone)}" autocomplete="tel">
@@ -1819,8 +1819,8 @@ function renderSettings() {
     <div class="note"><a href="policy.html" target="_blank" rel="noopener">النص الكامل</a></div></div>
   <div class="count"><span>الإصدار</span><b>${APP_VERSION}</b></div>`;
   const q = id => document.getElementById(id);
-  q("acPhoto").onchange = e => { const f = e.target.files[0]; if (!f) return; const img = new Image(); const rd = new FileReader(); rd.onload = () => { img.onload = () => { const c = document.createElement("canvas"); c.width = c.height = 128; const x = c.getContext("2d"); const m = Math.min(img.width, img.height); x.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 128, 128); DB.set("acct", Object.assign(account(), { photo: c.toDataURL("image/jpeg", .8) })); drawAvatar(); renderSettings(); }; img.src = rd.result; }; rd.readAsDataURL(f); };
-  const pd = q("acPhotoDel"); if (pd) pd.onclick = () => { const a2 = account(); delete a2.photo; DB.set("acct", a2); drawAvatar(); renderSettings(); };
+
+
   q("acSave").onclick = () => { DB.set("acct", Object.assign(account(), { name: q("acName").value.trim(), email: q("acMail").value.trim(), phone: q("acPhone").value.trim() })); notify("تم الحفظ", ""); drawAvatar(); if (!q("acName").value.trim()) { renderSettings(); return; } DB.set("onboarded", true); go("home"); };
   q("locTog").onclick = () => {
     if (loc) { DB.set("loc", false); GPS.stop(); }

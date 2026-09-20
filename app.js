@@ -99,8 +99,18 @@ const GPS = {
     }
     const st = document.getElementById("gpsInfo");
     if (st) st.textContent = nearestText(c);
+    travelCheck(c.latitude, c.longitude);
   }
 };
+function travelCheck(lat, lng) {
+  const s = travelSpotNear(lat, lng); if (!s) return;
+  const o = JAD.opts(); if (o.manual.safar) return;
+  if (Date.now() - DB.get("travelFire", 0) < 6 * 3600e3) return;
+  DB.set("travelFire", Date.now());
+  o.manual.safar = true; JAD.set({ manual: o.manual });
+  notify("وصلتِ " + s.n, "فُعِّل «في السفر» في جدولي — دعاء السفر ودعوة المسافر المستجابة", "jadwal");
+  if (DB.get("view", "home") === "tadabbur") renderTadabbur("jadwal");
+}
 function nearestText(c) {
   let best = null, bd = 1e9;
   for (const k in SPOTS) { const s = SPOTS[k]; const d = dist(c.latitude, c.longitude, s.lat, s.lng); if (d < bd) { bd = d; best = s.name; } }
@@ -1126,17 +1136,30 @@ function jadTimeCard(x, open) {
 }
 function jadwalView() {
   const act = JAD.active();
-  const rest = DUA_TIMES.filter(x => !act.includes(x));
   const d = new Date().toISOString().slice(0, 10);
-  const fasting = !!JAD.opts().fasting[d];
+  const c = JAD.ctx(), o = JAD.opts();
+  const fasting = !!o.fasting[d];
+  const ramadan = c.hj.m === 9, showAll = !!JAD.showAll;
+  /* اليومي يظهر دائماً؛ الموسمي (الجمعة، الإفطار، العشر، عرفة) في يومه فقط؛ واليدوي (السفر، المطر) عند تفعيله */
+  const todayOnly = x => {
+    if (x.id === "jumua") return c.dow === 5;
+    if (x.id === "iftar") return ramadan || fasting;
+    if (x.id === "qadr") return ramadan && c.hj.d >= 20;
+    if (x.id === "arafah") return c.hj.m === 12 && c.hj.d === 9;
+    if (x.manual) return !!o.manual[x.id];
+    return true;
+  };
+  const rest = DUA_TIMES.filter(x => !act.includes(x) && (showAll || todayOnly(x)));
   return `<div class="note">أوقات الدعاء الواردة عن النبي ﷺ فقط، كلٌّ بحديثه ودرجته. يظهر أعلى القائمة ما أنتِ فيه الآن، ويُنبَّه لما فعّلتِه. اختيارك للأدعية تسهيلٌ للتذكير، ويجوز لك أن تدعي بما شئتِ.</div>
-  <div class="row"><button class="btn sm ${fasting ? "" : "sec"}" id="jfast">${fasting ? "أنا صائمة اليوم ✓" : "أنا صائمة اليوم"}</button><button class="btn sec sm" id="jnotif">${("Notification" in window && Notification.permission === "granted") ? "التنبيهات مسموحة" : "السماح بالتنبيهات"}</button></div>
+  <div class="row">${(ramadan || showAll || fasting) ? `<button class="btn sm ${fasting ? "" : "sec"}" id="jfast">${fasting ? "أنا صائمة اليوم ✓" : "أنا صائمة اليوم"}</button>` : ""}<button class="btn sec sm" id="jnotif">${("Notification" in window && Notification.permission === "granted") ? "التنبيهات مسموحة" : "السماح بالتنبيهات"}</button></div>
   ${act.length ? `<h3 style="margin:14px 4px 6px">الآن</h3>${act.map(x => jadTimeCard(x, true)).join("")}` : `<div class="card"><p class="mid">لا وقت مخصوص الآن — والدعاء مقبول في كل حين ﴿ادْعُونِي أَسْتَجِبْ لَكُمْ﴾ (غافر ٦٠).</p></div>`}
-  <h3 style="margin:14px 4px 6px">بقية الأوقات</h3>
-  ${rest.map(x => jadTimeCard(x, false)).join("")}`;
+  <h3 style="margin:14px 4px 6px">${showAll ? "كل الأوقات" : "بقية أوقات اليوم"}</h3>
+  ${rest.map(x => jadTimeCard(x, false)).join("")}
+  <button class="btn sec sm" id="jall" style="width:100%">${showAll ? "أوقات اليوم فقط" : "كل الأوقات (الجمعة، الإفطار، عرفة، العشر، السفر، المطر) لتفعيلها مسبقاً"}</button>`;
 }
 function bindJadwal(v) {
   const rerender = () => renderTadabbur("jadwal");
+  const ja = v.querySelector("#jall"); if (ja) ja.onclick = () => { JAD.showAll = !JAD.showAll; rerender(); };
   v.querySelectorAll("[data-jon]").forEach(b => b.onclick = async () => {
     const id = b.dataset.jon, on = !JAD.isOn(id);
     if (on && "Notification" in window && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (e) { } }
@@ -1231,7 +1254,7 @@ function renderAsk(id, box) {
 
 /* ============ التنقل ============ */
 const RENDER = { home: () => renderHome(), umrah: () => { RITE.k = "umrah"; renderUmrah(); }, hajj: renderHajj, quran: renderQuran, adhkar: () => renderAdhkar(), tadabbur: () => renderTadabbur(), time: () => renderTime(), settings: () => renderSettings() };
-const TITLES = { home: ["قانتون", "ملخص يومك"], umrah: ["العمرة", "مناسك العمرة خطوة بخطوة"], hajj: ["الحج", "مناسك الحج يوماً بيوم"], quran: ["المصحف", "القراءة والورد والختمة"], adhkar: ["الأذكار", "الصباح والمساء وبعد الصلاة"], tadabbur: ["التدبّر", "أسماء الله والأدعية واسألني"], time: ["جدول رمضان", "سنة النبي ﷺ في رمضان والصيام المستحب"], settings: ["الإعدادات", "الحساب والموقع والخصوصية"] };
+const TITLES = { home: ["قانتون", "ملخص يومك"], umrah: ["العمرة", "مناسك العمرة خطوة بخطوة"], hajj: ["الحج", "مناسك الحج يوماً بيوم"], quran: ["المصحف", "القراءة والورد والختمة"], adhkar: ["الأذكار", "الصباح والمساء وبعد الصلاة"], tadabbur: ["التدبّر", "أسماء الله والأدعية واسألني"], time: ["جدول رمضان", "سنة النبي ﷺ في رمضان والصيام المستحب"], settings: ["ملفي والإعدادات", "الحساب والموقع والخصوصية"] };
 const VIEWS = ["home", "umrah", "hajj", "quran", "adhkar", "tadabbur", "time", "settings"];
 function go(v) {
   if (!RENDER[v]) v = "home";
@@ -1246,6 +1269,51 @@ function go(v) {
   if (location.hash.slice(1) !== v) history.replaceState(null, "", "#" + v);
 }
 document.querySelectorAll("#nav button").forEach(b => b.onclick = () => go(b.dataset.v));
+function drawAvatar() {
+  const a = account(), el = document.getElementById("avatar"); if (!el) return;
+  const nm = String(a.name || "").trim();
+  el.innerHTML = a.photo ? `<img src="${a.photo}" alt="">` : (nm ? esc(nm[0]) : "👤");
+  el.onclick = () => go("settings");
+}
+drawAvatar();
+
+/* ============ المساعدة المحلية «؟» ============ */
+const HELP = {
+  home: ["الرئيسية", "ملخص يومك: الصلاة القادمة، البطاقات الموسمية والمكانية، وتذكيراتك. اضغطي ✕ لإخفاء بطاقة و＋ لإرجاعها."],
+  umrah: ["العمرة", "اضغطي «تعرّف على العمرة» قبل البدء، ثم تابعي الخطوات بزرَي السابق/التالي. في الطواف والسعي: زر + لكل شوط، أو فعّلي الموقع ليُعدّ تلقائياً عند الحجر الأسود والصفا والمروة. «اختر أدعيتك» تسهيل للتذكير فقط."],
+  hajj: ["الحج", "المراحل بترتيب الأيام من التروية إلى الوداع، بعدّاد للأشواط والحصيات. اختاري نوع الحج من صفحة «تعرّف على الحج»."],
+  quran: ["المصحف", "تصفّح بالصفحة أو السورة، علامة مرجعية، بحث بالمعنى أو اللفظ، وخطة ختمة بعدد صفحات يومي مع تسجيل الورد."],
+  adhkar: ["الأذكار", "الصباح والمساء وبعد الصلاة والنوم والجمعة، كلٌّ بعدّاده. اضغطي الرقم لعدّ التكرار."],
+  tadabbur: ["التدبّر", "التسبيح (أسماء الله والتسابيح)، جدولي (أوقات الدعاء النبوية وتنبيهاتها وأدعيتك المختارة)، بحث في القرآن، واسألني: اكتبي حالتك أو ابحثي في كل الأدعية بفلتر قرآن/سنة/مباح."],
+  time: ["رمضان", "الإمساكية والسحور والإفطار وليالي العشر مع أدعيتها."],
+  settings: ["ملفي والإعدادات", "اسمك وصورتك ودولتك، طريقة حساب الصلاة، التنبيهات بأصنافها، الموقع، الخصوصية."]
+};
+const FATWA = [
+  { c: "الإمارات", n: "مجلس الإمارات للإفتاء الشرعي", tel: ["8002422", "+97122052555"], sms: "٢٥٣٥", note: "من داخل الدولة الرقم المجاني، ومن خارجها الرقم الدولي" },
+  { c: "السعودية", n: "الرئاسة العامة للبحوث العلمية والإفتاء", tel: ["8001234567", "0114595555"], site: "alifta.gov.sa" },
+  { c: "دول أخرى", n: "دار الإفتاء أو وزارة الأوقاف في بلدك", tel: [], note: "ابحثي عن الرقم الرسمي في الموقع الحكومي لبلدك" }
+];
+function openHelp() {
+  const v = DB.get("view", "home"), h = HELP[v] || HELP.home;
+  const a = account(), phone = String(a.phone || "").replace(/[\s\-()]/g, "");
+  const mine = /^\+?971/.test(phone) ? "الإمارات" : /^\+?966/.test(phone) ? "السعودية" : "";
+  const list = [...FATWA].sort((x, y) => (x.c === mine ? -1 : y.c === mine ? 1 : 0));
+  const wrap = document.createElement("div"); wrap.className = "sheet";
+  wrap.innerHTML = `<div class="sheetIn">
+    <div class="sheetTop"><b>مساعدة — ${h[0]}</b><button class="btn sec sm" id="hpClose">إغلاق</button></div>
+    <div class="sheetList">
+      <div class="card"><h3>كيف أستعمل هذا القسم؟</h3><p style="font-size:14px">${h[1]}</p></div>
+      <div class="card"><h3>سؤال شرعي أو فتوى؟</h3>
+        <p style="font-size:14px">التطبيق يعرض النصوص بمصادرها ولا يُفتي. لمسألتك الخاصة تواصلي مع جهة الإفتاء الرسمية:</p>
+        ${list.map(f => `<div class="note"><b>${f.c}</b> — ${f.n}<br>${f.tel.map(t => `<a href="tel:${t.replace(/\s/g, "")}" class="chip on" style="display:inline-block;margin:4px 2px">${t}</a>`).join("")}${f.sms ? ` <span class="chip">رسالة نصية: ${f.sms}</span>` : ""}${f.site ? `<br><a href="https://${f.site}" target="_blank" rel="noopener">${f.site}</a>` : ""}${f.note ? `<br><small>${f.note}</small>` : ""}</div>`).join("")}
+      </div>
+      <div class="card"><h3>مشكلة في التطبيق؟</h3><p style="font-size:14px">حدّثي الصفحة مرتين لتجديد النسخة. إن لم تظهر التنبيهات فافتحي ملفي ← التنبيهات ← «السماح».</p></div>
+    </div></div>`;
+  document.body.appendChild(wrap);
+  wrap.querySelector("#hpClose").onclick = () => wrap.remove();
+  wrap.onclick = e => { if (e.target === wrap) wrap.remove(); };
+}
+document.getElementById("helpBtn").onclick = openHelp;
 addEventListener("hashchange", () => { const h = location.hash.slice(1); if (h && RENDER[h]) go(h); });
 
 /* ============ سماء التطبيق: لون الوقت ============
@@ -1310,6 +1378,7 @@ const SKY = {
     if (!navigator.geolocation) { if (!quiet) notify("تعذّر تحديد الموقع", "جهازك لا يدعم تحديد الموقع"); return; }
     navigator.geolocation.getCurrentPosition(p => {
       DB.set("lastpos", { lat: p.coords.latitude, lng: p.coords.longitude });
+      travelCheck(p.coords.latitude, p.coords.longitude);
       SKY.apply(); MOON.draw(); WX.refresh(true); PRAY.strip(); SUM.render();
       if (DB.get("view", "home") === "time") renderTime();
       if (!quiet) notify("تم تحديث موقعك", "القبلة وأوقات الصلاة تتبع موقعك الآن");
@@ -1692,8 +1761,10 @@ function renderSettings() {
   const a = account(), o = PRAY.opts(), loc = DB.get("loc", false);
   const phone = String(a.phone || "").replace(/[\s\-()]/g, "");
   const country = /^\+?971/.test(phone) ? "الإمارات" : /^\+?966/.test(phone) ? "السعودية" : /^\+?965/.test(phone) ? "الكويت" : /^\+?968/.test(phone) ? "عُمان" : /^\+?974/.test(phone) ? "قطر" : /^\+?973/.test(phone) ? "البحرين" : phone ? "دولة أخرى" : "—";
-  v.innerHTML = `<h2>الإعدادات</h2>
+  v.innerHTML = `<h2>ملفي</h2>
   <div class="card"><h3>الحساب</h3>
+    <div class="row" style="align-items:center;gap:12px"><span class="avatar" style="position:static;width:56px;height:56px">${a.photo ? `<img src="${a.photo}" alt="">` : esc((a.name || "؟")[0])}</span>
+      <label class="btn sec sm" style="cursor:pointer">صورة<input id="acPhoto" type="file" accept="image/*" hidden></label>${a.photo ? `<button class="btn sec sm" id="acPhotoDel">حذف الصورة</button>` : ""}</div>
     <label>الاسم</label><input id="acName" value="${esc(a.name)}" autocomplete="name">
     <label>البريد الإلكتروني</label><input id="acMail" type="email" value="${esc(a.email)}" autocomplete="email">
     <label>رقم الهاتف بمفتاح الدولة</label><input id="acPhone" type="tel" placeholder="+9715xxxxxxxx" value="${esc(a.phone)}" autocomplete="tel">
@@ -1723,7 +1794,9 @@ function renderSettings() {
     <div class="note"><a href="policy.html" target="_blank" rel="noopener">النص الكامل</a></div></div>
   <div class="count"><span>الإصدار</span><b>${APP_VERSION}</b></div>`;
   const q = id => document.getElementById(id);
-  q("acSave").onclick = () => { DB.set("acct", { name: q("acName").value.trim(), email: q("acMail").value.trim(), phone: q("acPhone").value.trim() }); notify("تم الحفظ", ""); renderSettings(); };
+  q("acPhoto").onchange = e => { const f = e.target.files[0]; if (!f) return; const img = new Image(); const rd = new FileReader(); rd.onload = () => { img.onload = () => { const c = document.createElement("canvas"); c.width = c.height = 128; const x = c.getContext("2d"); const m = Math.min(img.width, img.height); x.drawImage(img, (img.width - m) / 2, (img.height - m) / 2, m, m, 0, 0, 128, 128); DB.set("acct", Object.assign(account(), { photo: c.toDataURL("image/jpeg", .8) })); drawAvatar(); renderSettings(); }; img.src = rd.result; }; rd.readAsDataURL(f); };
+  const pd = q("acPhotoDel"); if (pd) pd.onclick = () => { const a2 = account(); delete a2.photo; DB.set("acct", a2); drawAvatar(); renderSettings(); };
+  q("acSave").onclick = () => { DB.set("acct", Object.assign(account(), { name: q("acName").value.trim(), email: q("acMail").value.trim(), phone: q("acPhone").value.trim() })); notify("تم الحفظ", ""); drawAvatar(); renderSettings(); };
   q("locTog").onclick = () => {
     if (loc) { DB.set("loc", false); GPS.stop(); }
     else { DB.set("loc", true); GPS.start(); SKY.locate(true); }

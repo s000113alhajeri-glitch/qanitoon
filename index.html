@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#2f6f9e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>قانتون — العمرة والحج والأذكار والمصحف</title>
+<link rel="manifest" href="manifest.json">
+<link rel="icon" href="icon.svg">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div class="revbar">نسخة للمراجعة الشرعية — غير معتمدة رسمياً</div>
+<div id="splash" aria-hidden="true">
+  <div class="sp-frame">
+    <div class="kaabaWrap">
+      <div class="shadow"></div>
+      <div class="kaaba">
+        <div class="f fr"><i class="belt"></i><i class="studs"></i><i class="curtain"></i><i class="base"></i></div>
+        <div class="f bk"><i class="belt"></i><i class="studs"></i><i class="curtain"></i><i class="base"></i></div>
+        <div class="f lf"><i class="belt"></i><i class="studs"></i><i class="curtain"></i><i class="base"></i></div>
+        <div class="f rt"><i class="belt"></i><i class="studs"></i><i class="curtain"></i><i class="base"></i></div>
+        <div class="f tp"></div>
+      </div>
+    </div>
+    <div class="sp-name">قانتون</div>
+    <div class="sp-rule"></div>
+    <div class="sp-ayah">﴿كُلٌّ لَّهُ قَانِتُونَ﴾</div>
+    <div class="sp-ref">البقرة ١١٦</div>
+  </div>
+</div>
+<div id="sky">
+  <canvas id="stars"></canvas>
+  <div id="sun"></div>
+  <div id="moon"><canvas id="moonc" width="160" height="160"></canvas></div>
+  <canvas id="rain"></canvas>
+  <canvas id="life"></canvas>
+  <div id="clouds">
+    <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+    <div class="cloud c4"></div><div class="cloud c5"></div>
+  </div>
+  <div id="horizon"></div>
+</div>
+<header>
+  <h1 id="hTitle">قانتون</h1>
+  <div class="sub" id="hSub">يعمل بدون إنترنت</div>
+  <div id="skyName" class="skyname"></div>
+  <div id="pstrip" class="pstrip"></div>
+</header>
+
+<main>
+  <div id="summary"></div>
+  <section id="v-home"></section>
+  <section id="v-umrah" class="hidden"></section>
+  <section id="v-quran" class="hidden"></section>
+  <section id="v-adhkar" class="hidden"></section>
+  <section id="v-wird" class="hidden"></section>
+  <section id="v-ask" class="hidden"></section>
+  <section id="v-time" class="hidden"></section>
+</main>
+
+<nav id="nav">
+  <button data-v="home" class="on"><span>🏠</span>الرئيسية</button>
+  <button data-v="umrah"><span>🕋</span>العمرة</button>
+  <button data-v="quran"><span>📖</span>المصحف</button>
+  <button data-v="adhkar"><span>📿</span>الأذكار</button>
+  <button data-v="wird"><span>✅</span>الورد</button>
+  <button data-v="time"><span>🕰️</span>الأوقات</button>
+  <button data-v="ask"><span>💬</span>اسألني</button>
+</nav>
+
+<script src="manasik.js"></script>
+<script src="content.js"></script>
+<script src="spots.js"></script>
+<script src="quran.js"></script>
+<script src="nature.js"></script>
+<script src="qurandua.js"></script>
+<script src="duacheck.js"></script>
+<script src="app.js"></script>
+</body>
+</html>

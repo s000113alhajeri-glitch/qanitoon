@@ -415,3 +415,11 @@ nav button{font-size:10px}
 html[data-motion="off"] .kaaba{animation:none}
 
 .revbar{position:sticky;top:0;z-index:50;text-align:center;font-size:var(--f1);padding:3px 8px;background:#b9873a;color:#fff}
+.ribbon{vertical-align:middle;fill:none;stroke:var(--gold);stroke-width:1.6}
+.ribbon.on{fill:var(--gold);stroke:var(--gold)}
+.qpage{position:relative}
+.qribbon{position:absolute;top:-6px;left:14px;filter:drop-shadow(0 1px 1px rgba(0,0,0,.25))}
+.qribbon .ribbon{width:26px;height:36px}
+.src.fadl{color:var(--brand2)}
+.occ{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
+.occ .card{max-width:520px;width:100%;max-height:85vh;overflow:auto;border:2px solid var(--gold)}

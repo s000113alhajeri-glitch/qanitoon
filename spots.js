@@ -1,41 +1,51 @@
 /* رسوم توضيحية لمواضع الطواف والسعي — رسم هندسي بدون صور ذوات أرواح، يعمل بدون إنترنت */
 
 const KAABA_PLAN = `
-<svg viewBox="0 0 320 300" width="100%" role="img" aria-label="مخطط الكعبة من الأعلى مع مواضع الطواف">
-  <rect x="0" y="0" width="320" height="300" fill="none"/>
-  <!-- مسار الطواف -->
-  <ellipse cx="160" cy="150" rx="140" ry="122" fill="none" stroke="#cfd9e2" stroke-width="2" stroke-dasharray="6 6"/>
-  <!-- الحِجر (حِجر إسماعيل) -->
-  <path d="M110 92 A 62 62 0 0 0 110 208" fill="#eef4f8" stroke="#9db6c8" stroke-width="3"/>
-  <text x="74" y="154" font-size="11" fill="#245a83" text-anchor="middle">الحِجر</text>
-  <!-- الكعبة -->
-  <rect x="110" y="92" width="116" height="116" rx="4" fill="#2b2b2b" stroke="#1c1c1c" stroke-width="2"/>
-  <rect x="110" y="120" width="116" height="16" fill="#c9a227" opacity=".85"/>
-  <text x="168" y="158" font-size="13" fill="#e9d7a1" text-anchor="middle">الكعبة</text>
-  <!-- الباب والملتزم -->
-  <rect x="196" y="186" width="26" height="20" fill="#c9a227"/>
-  <text x="243" y="200" font-size="10" fill="#245a83" text-anchor="middle">الباب</text>
-  <text x="176" y="224" font-size="10" fill="#245a83" text-anchor="middle">المُلتزم</text>
-  <!-- الحجر الأسود -->
-  <circle cx="226" cy="208" r="9" fill="#3a3a3a" stroke="#c9a227" stroke-width="3"/>
-  <text x="272" y="232" font-size="11" fill="#245a83" text-anchor="middle">الحجر الأسود</text>
-  <line x1="226" y1="217" x2="226" y2="272" stroke="#2f6f9e" stroke-width="3"/>
-  <text x="226" y="286" font-size="10" fill="#2f6f9e" text-anchor="middle">خط بداية الشوط ونهايته</text>
-  <!-- الركن اليماني -->
-  <circle cx="110" cy="208" r="7" fill="none" stroke="#2f6f9e" stroke-width="3"/>
-  <text x="66" y="228" font-size="11" fill="#245a83" text-anchor="middle">الركن اليماني</text>
-  <!-- مقام إبراهيم -->
-  <circle cx="262" cy="120" r="12" fill="#dcb75a" stroke="#8a6d1f" stroke-width="2"/>
-  <text x="288" y="100" font-size="10" fill="#245a83" text-anchor="middle">مقام إبراهيم</text>
-  <!-- اتجاه الطواف -->
-  <path d="M40 60 A 130 130 0 0 1 96 30" fill="none" stroke="#2f6f9e" stroke-width="2"/>
-  <path d="M96 30 l -12 -2 l 6 9 z" fill="#2f6f9e"/>
-  <text x="70" y="22" font-size="10" fill="#2f6f9e" text-anchor="middle">اتجاه الطواف</text>
+<svg viewBox="0 0 340 320" width="100%" role="img" aria-label="مخطط الكعبة من الأعلى مع مواضع الطواف">
+  <!-- الشمال أعلى الرسم؛ الكعبة أركانها نحو الجهات الأربع: الحجر الأسود شرقاً (يمين)، اليماني جنوباً (أسفل)، الشامي غرباً (يسار)، العراقي شمالاً (أعلى) -->
+  <text x="170" y="14" font-size="10" fill="#8a97a3" text-anchor="middle">شمال ↑</text>
+  <!-- مسار الطواف: عكس اتجاه الساعة والكعبة عن يسار الطائف -->
+  <circle cx="170" cy="165" r="128" fill="none" stroke="#cfd9e2" stroke-width="2" stroke-dasharray="6 6"/>
+  <path d="M90 258 A 128 128 0 0 1 60 210" fill="none" stroke="#2f6f9e" stroke-width="2.5"/>
+  <path d="M60 210 l -3 13 l 11 -6 z" fill="#2f6f9e"/>
+  <text x="62" y="282" font-size="10" fill="#2f6f9e" text-anchor="middle">اتجاه الطواف</text>
+  <text x="62" y="294" font-size="9" fill="#8a97a3" text-anchor="middle">الكعبة عن يسارك</text>
+  <!-- حِجر إسماعيل: قوس ملاصق للضلع الشمالي الغربي (بين الركن الشامي والعراقي) -->
+  <path d="M170 107 A 41 41 0 0 0 112 165 Z" fill="#eef4f8" stroke="#9db6c8" stroke-width="3"/>
+  <text x="70" y="84" font-size="11" fill="#245a83" text-anchor="middle">حِجر إسماعيل</text>
+  <text x="70" y="97" font-size="9" fill="#8a97a3" text-anchor="middle">يُطاف من خارجه</text>
+  <!-- الكعبة: مربع مائل -->
+  <polygon points="170,107 228,165 170,223 112,165" fill="#2b2b2b" stroke="#1c1c1c" stroke-width="2"/>
+  <polygon points="170,121 214,165 170,209 126,165" fill="none" stroke="#c9a227" stroke-width="5" opacity=".8"/>
+  <text x="170" y="169" font-size="13" fill="#e9d7a1" text-anchor="middle">الكعبة</text>
+  <!-- الأركان -->
+  <text x="190" y="94" font-size="10" fill="#8a97a3" text-anchor="middle">الركن العراقي</text>
+  <text x="80" y="182" font-size="10" fill="#8a97a3" text-anchor="middle">الركن الشامي</text>
+  <!-- الحجر الأسود: الركن الشرقي -->
+  <circle cx="228" cy="165" r="9" fill="#3a3a3a" stroke="#c9a227" stroke-width="3"/>
+  <text x="284" y="156" font-size="11" fill="#245a83" text-anchor="middle">الحجر الأسود</text>
+  <line x1="237" y1="165" x2="322" y2="165" stroke="#2f6f9e" stroke-width="3"/>
+  <text x="270" y="188" font-size="10" fill="#2f6f9e" text-anchor="middle">خط بداية الشوط ونهايته</text>
+  <!-- الباب: على الضلع الشمالي الشرقي (بين الحجر الأسود والركن العراقي)، قريب من الحجر -->
+  <rect x="204" y="128" width="14" height="14" fill="#c9a227" transform="rotate(45 211 135)"/>
+  <text x="218" y="118" font-size="10" fill="#245a83" text-anchor="middle">الباب</text>
+  <!-- الملتزم: ما بين الباب والحجر الأسود -->
+  <line x1="222" y1="145" x2="228" y2="158" stroke="#dcb75a" stroke-width="4"/>
+  <text x="262" y="144" font-size="10" fill="#245a83" text-anchor="middle">الملتزم</text>
+  <!-- مقام إبراهيم: قبالة الباب على بُعد أمتار -->
+  <circle cx="266" cy="92" r="11" fill="#dcb75a" stroke="#8a6d1f" stroke-width="2"/>
+  <text x="266" y="74" font-size="10" fill="#245a83" text-anchor="middle">مقام إبراهيم</text>
+  <!-- الركن اليماني: الجنوبي، مقابل الحجر الأسود، قبله مباشرة في الطواف -->
+  <circle cx="170" cy="223" r="7" fill="none" stroke="#2f6f9e" stroke-width="3"/>
+  <text x="170" y="245" font-size="11" fill="#245a83" text-anchor="middle">الركن اليماني</text>
+  <text x="200" y="262" font-size="9" fill="#8a97a3" text-anchor="middle">بينه وبين الحجر الأسود: ربنا آتنا في الدنيا حسنة…</text>
+  <!-- الصفا (جهة الجنوب الشرقي) -->
+  <text x="262" y="300" font-size="10" fill="#8a97a3" text-anchor="middle">إلى الصفا والمسعى ←</text>
 </svg>`;
 
 const SPOT_ART = [
   {
-    k: "hajar", name: "الحجر الأسود", where: "في الركن الشرقي للكعبة، على يمينك عند بداية الطواف — يعرفه الناس بالإطار الفضي البيضاوي.",
+    k: "hajar", name: "الحجر الأسود", where: "في الركن الشرقي للكعبة، بجوار الباب (بينهما الملتزم)؛ تجعل الكعبة عن يسارك وتبدأ منه — يُعرف بالإطار الفضي البيضاوي.",
     what: "حجر أسود مثبّت في زاوية الكعبة داخل إطار من الفضة. يبدأ منه الشوط وينتهي عنده. والثابت: استلامه وتقبيله إن تيسّر بلا مزاحمة، وإلا أشار إليه بيده وكبّر «الله أكبر» ولا يقبّل يده.",
     art: `<svg viewBox="0 0 200 150" width="100%" role="img" aria-label="رسم الحجر الأسود في إطاره الفضي">
       <rect x="10" y="10" width="180" height="130" rx="6" fill="#2b2b2b"/>
@@ -46,7 +56,7 @@ const SPOT_ART = [
     </svg>`
   },
   {
-    k: "yamani", name: "الركن اليماني", where: "الركن الذي قبل الحجر الأسود مباشرة وأنت تطوف (جهة اليمن).",
+    k: "yamani", name: "الركن اليماني", where: "الركن الجنوبي المقابل للحجر الأسود، تمرّ به قبل الحجر مباشرة وأنت تطوف (جهة اليمن).",
     what: "ركن من أركان الكعبة بلا إطار ولا علامة لامعة. السنة استلامه باليد فقط إن تيسّر بلا تقبيل ولا إشارة إن لم يتيسّر، ويقول بينه وبين الحجر: ﴿رَبَّنَا آتِنَا فِي الدُّنْيَا حَسَنَةً…﴾.",
     art: `<svg viewBox="0 0 200 150" width="100%" role="img" aria-label="رسم الركن اليماني">
       <path d="M20 140 L20 30 L110 10 L110 140 Z" fill="#2b2b2b"/>

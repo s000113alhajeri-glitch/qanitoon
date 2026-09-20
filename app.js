@@ -960,7 +960,7 @@ function item(x) {
   const tag = cls === "q" ? "قرآن" : cls === "m" ? "دعاء مباح" : "سنة";
   return `<div class="card">
     <div class="dua">${esc(x.t)}</div>
-    <div class="count"><span>التكرار المطلوب</span><b>${AR(x.n || 1)}</b></div>${tasbih(x.t, x.n || 1)}
+    ${x.info ? `<div class="note">حديث للتذكّر والعمل — ليس ذكراً يُعدّ.</div>` : `<div class="count"><span>التكرار المطلوب</span><b>${AR(x.n || 1)}</b></div>${tasbih(x.t, x.n || 1)}`}
     ${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}
     <div class="src"><span class="tag ${cls}">${tag}</span> المصدر: ${esc(src)}${x.when ? " — " + esc(x.when) : ""}</div>
     ${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}

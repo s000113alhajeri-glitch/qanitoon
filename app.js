@@ -385,8 +385,12 @@ function renderUmrah() {
   const i = Math.min(S.stage, STAGES.length - 1);
   const st = STAGES[i];
   let body = "";
+  const ritual = st.kind === "tawaf" || st.kind === "saee";
+  const pre = ritual && S.pre !== false;
+  const rName = st.kind === "tawaf" ? "الطواف" : "السعي";
 
-  if (st.kind === "tawaf") body = counterCard("tawaf");
+  if (pre) body = "";
+  else if (st.kind === "tawaf") body = counterCard("tawaf");
   else if (st.kind === "saee") body = counterCard("saee");
   else if (st.kind === "jamarat") body = jamaratCard(st);
 
@@ -416,6 +420,8 @@ function renderUmrah() {
       ${D("رَبِّ اغْفِرْ وَارْحَمْ، إِنَّكَ أَنْتَ الْأَعَزُّ الْأَكْرَمُ", "أثر عن ابن مسعود وابن عمر (ابن أبي شيبة، البيهقي) — موقوف؛ لا يُنسب للنبي ﷺ", "م")}
       <div class="note">لم يثبت دعاء مخصوص لكل شوط من السعي، وهو قول جمهور أهل العلم.</div></div>`;
   }
+  if (ritual && !pre) duas = `<details class="card" style="padding:10px 14px"><summary><b>الثابت في ${rName}</b> — للمراجعة</summary>${duas}</details>`;
+  if (pre) duas = `<div class="card" style="text-align:center"><h3>قبل أن تبدأ ${rName}</h3><p class="mid">اقرأ الصفة أدناه مرة، ثم «ابدأ ${rName}» ليظهر العدّاد والدعاء.</p></div>` + duas;
   if (st.secs) duas += booklet(st.secs);
 
   const N = STAGES.length, last = i === N - 1;
@@ -435,23 +441,27 @@ function renderUmrah() {
   <div class="stepbar sticky">
     <button class="btn sec" id="prev" ${i === 0 ? "disabled" : ""}>→ السابق</button>
     <span class="mid">${AR(i + 1)} / ${AR(N)}</span>
-    <button class="btn" id="next">${last ? "إنهاء ↺" : "التالي ←"}</button>
+    ${pre ? `<button class="btn" id="beginRitual">ابدأ ${rName} ▶</button>` : `<button class="btn" id="next">${last ? "إنهاء ↺" : "التالي ←"}</button>`}
   </div>`;
+  const bg = v.querySelector("#beginRitual");
+  if (bg) bg.onclick = () => { S.pre = false; renderUmrah(); window.scrollTo(0, 0); };
 
   const enter = k => {
     const nx = STAGES[k];
     if (nx.kind === "tawaf") S.tawaf = 0;
     if (nx.kind === "saee") { S.saee = 0; S.saeeAt = "safa"; }
     if (nx.kind === "jamarat") S.jam = 0;
+    S.pre = true;
     S.stage = k; renderUmrah(); window.scrollTo(0, 0);
   };
-  v.querySelector("#next").onclick = () => {
+  const nb = v.querySelector("#next");
+  if (nb) nb.onclick = () => {
     if (last) { if (!confirm(hajj ? "إنهاء الحج والبدء من جديد؟" : "إنهاء العمرة والبدء من جديد؟")) return; S.tawaf = 0; S.saee = 0; S.saeeAt = "safa"; S.jam = 0; S.stage = 0; renderUmrah(); window.scrollTo(0, 0); return; }
     enter(i + 1);
   };
   v.querySelector("#riteInfo").onclick = () => { S.intro = true; renderUmrah(); window.scrollTo(0, 0); };
-  v.querySelector("#prev").onclick = () => { if (i > 0) { S.stage = i - 1; renderUmrah(); window.scrollTo(0, 0); } };
-  v.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const k = +b.dataset.go; if (k === i) return; if (k < i) { S.stage = k; renderUmrah(); window.scrollTo(0, 0); } else enter(k); });
+  v.querySelector("#prev").onclick = () => { if (i > 0) { S.stage = i - 1; S.pre = false; renderUmrah(); window.scrollTo(0, 0); } };
+  v.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const k = +b.dataset.go; if (k === i) return; if (k < i) { S.stage = k; S.pre = false; renderUmrah(); window.scrollTo(0, 0); } else enter(k); });
   if (GPS.id !== null) GPS.tick();
 
   v.querySelectorAll("[data-inc]").forEach(b => b.onclick = () => {

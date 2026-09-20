@@ -1,4 +1,4 @@
-const CACHE = "qanitoon-en-v4";
+const CACHE = "qanitoon-en-v5";
 const ASSETS = [
   "./", "./index.html", "./styles.css", "./app.js",
   "./i18n.js", "./quran_en.js", "./icons.js", "./content.js", "./situations.js", "./hisn.js", "./islambook.js", "./names.js", "./spots.js", "./manasik.js", "./quran.js", "./nature.js", "./qurandua.js", "./duacheck.js", "./jadwal.js",

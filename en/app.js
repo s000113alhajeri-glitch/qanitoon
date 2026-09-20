@@ -1951,7 +1951,7 @@ const SUM = {
           <div class="hero-time">
             <div class="clock">${clock}</div>
             <div class="nextp">${ico("bell")} ${PRAYER_NAMES[n.k]}${n.tomorrow ? " (غداً)" : ""} ${hhmm(n.at)}</div>
-            <div class="left">بعد <b>${left}</b></div>
+            <div class="left">${tr("بعد")} <b>${LANG.cur === "en" ? left.replace(" س", " h").replace(" د", " min").replace(/[٠-٩]/g, d => "٠١٢٣٤٥٦٧٨٩".indexOf(d)) : left}</b></div>
           </div>
           <div class="hero-qibla">
             <div class="qibla"><i id="qarrow" style="transform:rotate(${rot}deg)">↑</i></div>

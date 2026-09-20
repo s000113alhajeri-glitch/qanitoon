@@ -1790,7 +1790,7 @@ function renderSettings() {
   const country = /^\+?971/.test(phone) ? "الإمارات" : /^\+?966/.test(phone) ? "السعودية" : /^\+?965/.test(phone) ? "الكويت" : /^\+?968/.test(phone) ? "عُمان" : /^\+?974/.test(phone) ? "قطر" : /^\+?973/.test(phone) ? "البحرين" : phone ? "دولة أخرى" : "—";
   v.innerHTML = `<h2>ملفي</h2>
   <div class="card"><h3>الحساب</h3>
-    <div class="row" style="align-items:center;gap:12px"><span class="avatar" style="position:static;width:56px;height:56px">${esc((a.name || "؟")[0])}</span>
+    <div class="row" style="align-items:center;gap:12px"><span class="avatar" style="position:static;width:56px;height:56px;flex:0 0 56px">${esc((a.name || "؟")[0])}</span>
       </div>
     <label>الاسم</label><input id="acName" value="${esc(a.name)}" autocomplete="name">
     <label>البريد الإلكتروني</label><input id="acMail" type="email" value="${esc(a.email)}" autocomplete="email">

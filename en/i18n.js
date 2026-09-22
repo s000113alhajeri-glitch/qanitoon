@@ -1,6 +1,6 @@
 /* Qanitoon — English edition: meaning-based UI translation layer.
    Quran, hadith and du'a texts (.dua) stay in Arabic; Quran gets Saheeh International meanings. */
-const LANG = { cur: localStorage.getItem("qn_lang") || "en" };
+const LANG = { cur: localStorage.getItem("qn_lang") || "ar" };
 const EN = {
   /* nav & titles */
   "قانتون": "Qanitoon", "الرئيسية": "Home", "العمرة": "Umrah", "الحج": "Hajj", "المصحف": "Quran", "الأذكار": "Adhkar",
@@ -138,7 +138,7 @@ const EN = {
   "بكرةً وأصيلاً": "Early morning and late afternoon", "بالعشيّ والإبكار": "Evening and early morning",
   /* misc */
   "الفجر": "Fajr", "الظهر": "Dhuhr", "العصر": "Asr", "المغرب": "Maghrib", "العشاء": "Isha", "الشروق": "Sunrise", "القبلة": "Qibla",
-  "البقرة ١١٦": "Al-Baqarah 116", "﴿كُلٌّ لَّهُ قَانِتُونَ﴾": "﴿كُلٌّ لَّهُ قَانِتُونَ﴾ “All are devoutly obedient to Him”",
+  "البقرة ١١٦": "Al-Baqarah 116", 
   "القانتون: الخاضعون الخاشعون لله المطيعون له، وقيل: المصلّون — تفسير ابن كثير والطبري": "Al-Qanitoon: those humbly and devoutly obedient to Allah; some said: those who pray — Ibn Kathir, At-Tabari"
 };
 
@@ -152,9 +152,9 @@ const RULES = [
   [/^سُورَةُ (.+)$/, (m) => { const i = QURAN.surahs.findIndex(x => x.name === m[1]); return i >= 0 ? `Surah ${SURAH_EN[i]}` : null; }],
   [/^صفحة (\d+) من (\d+)$/, (m) => `Page ${m[1]} of ${m[2]}`],
   [/^الجزء (\d+)$/, (m) => `Juz ${m[1]}`],
-  [/^المصدر: (.+)$/, (m) => "Source: " + books(m[1])],
+  [/^المصدر: (.+)$/, (m) => "Source: " + srcParts(m[1])],
   [/^(.*)(الإفراد|القِران|التمتّع)(.*)$/, () => null],
-  [/^الفضل: (.+)$/, (m) => "Virtue: " + m[1]],
+  [/^الفضل: (.+)$/, (m) => "Virtue: " + (EN[m[1].trim()] || srcParts(m[1]))],
   [/^(.+) \((\d+)\)$/, (m) => EN[m[1]] ? `${EN[m[1]]} (${m[2]})` : null],
   [/^ذُكر في القرآن \((\d+)\)$/, (m) => `Mentioned in the Quran (${m[1]})`],
   [/^بعد (\d+) س (\d+) د$/, (m) => `in ${m[1]} h ${m[2]} min`],
@@ -176,6 +176,26 @@ const RULES = [
 ];
 const HIJRI_EN = { "محرم": "Muharram", "صفر": "Safar", "ربيع الأول": "Rabi' al-Awwal", "ربيع الآخر": "Rabi' al-Thani", "جمادى الأولى": "Jumada al-Ula", "جمادى الآخرة": "Jumada al-Akhirah", "رجب": "Rajab", "شعبان": "Sha'ban", "رمضان": "Ramadan", "شوال": "Shawwal", "ذو القعدة": "Dhul-Qa'dah", "ذو الحجة": "Dhul-Hijjah" };
 const AR_L = "[\\u0621-\\u064A\\u0660-\\u0669]";
+/* translate a source line segment by segment (— / ؛ / :), using exact EN entries first, then book/surah names */
+let EN_ND = null;
+function enLook(k) {
+  if (EN[k]) return EN[k];
+  if (!EN_ND) { EN_ND = {}; Object.keys(EN).forEach(x => { EN_ND[ND(x)] = EN[x]; }); }
+  return EN_ND[ND(k)] || "";
+}
+const ND = (x) => AD(x).replace(/[\u064B-\u065F\u0670]/g, "").replace(/\s+/g, " ").trim();
+function srcParts(s) {
+  if (enLook(s.trim())) return enLook(s.trim());
+  return String(s).split(/( — |؛ ?|: )/).map(seg => {
+    if (/^( — |؛ ?|: )$/.test(seg)) return seg === "؛ " || seg === "؛" ? "; " : seg;
+    const k = seg.trim(); if (!k) return seg;
+    const paren = k.match(/^\((.+)\)$/);
+    if (paren && enLook(paren[1])) return "(" + enLook(paren[1]) + ")";
+    if (enLook(k)) return enLook(k);
+    const inner = seg.replace(/\(([^()]+)\)/g, (m0, x) => enLook(x) ? "(" + enLook(x) + ")" : m0);
+    return books(inner);
+  }).join("");
+}
 function books(s) {
   let t = AD(s).replace(/،/g, ",").replace(/[\u064B-\u065F\u0670]/g, "");
   const rep = (a, e) => { t = t.replace(new RegExp("(^|[^\\u0621-\\u064A])(و?)" + a.replace(/[.*+?^${}()|[\]\\]/g, "\\$&") + "(?=$|[^\\u0621-\\u064A])", "g"), "$1$2" + e); };
@@ -234,7 +254,7 @@ Object.assign(EN, {
   "إذا شككت في ضبط كلمة فارجع إلى مصحف مطبوع معتمد أو أهل العلم بالقراءات.": "If unsure about a word's vowelling, refer to an approved printed Quran or scholars of recitation.",
   "النص: الرسم العثماني من مشروع تنزيل (Tanzil.net) — 114 سورة، 6236 آية، 604 صفحات. عند أي اشتباه في ضبط كلمة فالمرجع مصحف المدينة المطبوع.": "Text: Uthmani script from the Tanzil project (Tanzil.net) — 114 surahs, 6236 verses, 604 pages. English meanings: Saheeh International. For any doubt about a word, the printed Madinah Mushaf is the reference.",
   "البحث بالكلمة أو الموضوع في القرآن: من باب التدبّر ← بحث في القرآن.": "Search the Quran by word or theme: Reflect → Search the Quran.",
-  "يستعيذ ثم يبسمل ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ﴾ — إلا سورة التوبة (براءة) فلا بسملة في أولها، ويكفي التعوّذ.": "Say the isti'adhah then the basmalah ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ﴾, except Surah At-Tawbah, which has no basmalah at its start; the isti'adhah suffices.",
+  "يستعيذ ثم يبسمل ﴿بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ﴾ — إلا سورة التوبة (براءة) فلا بسملة في أولها، ويكفي التعوّذ.": "Say the isti'adhah then the basmalah (“In the name of Allah, the Most Gracious, the Most Merciful”), except Surah At-Tawbah, which has no basmalah at its start; the isti'adhah suffices.",
   "من وصل بينهما لا يبسمل، وله السكت أو الوصل أو الوقف.": "Whoever joins them does not say the basmalah; one may pause briefly, join, or stop.",
   "النحل ٩٨ — هذا هو الثابت المشروع قبل القراءة.": "An-Nahl 98 — this is what is authentically prescribed before reading.",
   "النحل ٩٨؛ كتب التجويد المعتمدة (المقدمة الجزرية وشروحها)؛ فتاوى اللجنة الدائمة.": "An-Nahl 98; standard tajweed works (Al-Jazariyyah and its commentaries); Permanent Committee fatwas.",
@@ -274,6 +294,15 @@ Object.assign(EN, {
 });
 RULES.push([/^مناسك (العمرة|الحج) — الخطوة (\d+) من (\d+)$/, (m) => `${EN[m[1]]} rites — step ${m[2]} of ${m[3]}`]);
 RULES.push([/^حان وقت صلاة (.+)$/, (m) => `Time for ${EN[m[1]] || m[1]} prayer`]);
+RULES.push([/^(\d+) من التسابيح لليوم$/, (m) => `${m[1]} tasbih items for today`]);
+RULES.push([/^احتساب «(.+)» في عدّاد اكتمال اليوم$/, (m) => `Count "${EN[m[1]] || m[1]}" toward today's completion`]);
+RULES.push([/^القبلة (\d+)° من الشمال$/, (m) => `Qibla ${m[1]}° from north`]);
+RULES.push([/^(\d+) من (\d+)$/, (m) => `${m[1]} of ${m[2]}`]);
+RULES.push([/^×(\d+) — (.+)$/, (m) => `×${m[1]} — ${EN[m[2].trim()] || m[2]}`]);
+RULES.push([/^(\d+) دعاء — تظهر أول (\d+)، ضيّق البحث$/, (m) => `${m[1]} du'as — showing the first ${m[2]}; narrow your search`]);
+RULES.push([/^(\d+) دعاء$/, (m) => `${m[1]} du'as`]);
+RULES.push([/^صفحة (\d+) — (.+)$/, (m) => { const i = QURAN.surahs.findIndex(x => x.name === m[2]); return `Page ${m[1]} — ${i >= 0 ? SURAH_EN[i] : m[2]}`; }]);
+RULES.push([/^(بأسماء الله|أوقات القرآن): (.+)$/, (m) => `${EN[m[1]]}: ${EN[m[2]] || m[2]}`]);
 const PRAYER_EN = { "الفجر": "Fajr", "الشروق": "Sunrise", "الظهر": "Dhuhr", "العصر": "Asr", "المغرب": "Maghrib", "العشاء": "Isha" };
 RULES.unshift([/^(.+?هـ) · (\S+) (\d\d:\d\d) · بعد (?:(\d+) س )?(\d+) د$/, (m) => `${trRules(m[1]) || m[1]} · ${PRAYER_EN[m[2]] || m[2]} ${m[3]} · in ${m[4] ? m[4] + "h " : ""}${m[5]}m`]);
 RULES.unshift([/^(\S+) بعد (.+?) · الأذكار (\d+)\/(\d+)$/, (m) => `${PRAYER_EN[m[1]] || m[1]} in ${m[2].replace(" س", "h").replace(" د", "m")} · Adhkar ${m[3]}/${m[4]}`]);
@@ -291,16 +320,28 @@ function translateNode(root) {
     }
   });
   const nodes = []; while (walker.nextNode()) nodes.push(walker.currentNode);
-  nodes.forEach(n => { const k = n.nodeValue.trim(); const t = EN[k] || trRules(k); if (t) n.nodeValue = n.nodeValue.replace(k, t); });
+  nodes.forEach(n => { const k = n.nodeValue.trim(); const t = EN[k] || trRules(k); if (t) n.nodeValue = n.nodeValue.replace(k, t); isolateArabic(n); });
   root.querySelectorAll("[placeholder],[aria-label],[title]").forEach(e => ["placeholder", "aria-label", "title"].forEach(a => {
     const v = e.getAttribute(a); if (v && EN[v.trim()]) e.setAttribute(a, EN[v.trim()]);
   }));
+}
+/* keep Arabic runs (with their brackets) in their own RTL isolate so LTR lines never reorder ﴿﴾ « » */
+const AR_RUN = /[﴿«"“(]?[\u0600-\u06FF][\u0600-\u06FF\s،؛:ـ۝.,\-–]*[﴾»"”)]?/g;
+function isolateArabic(n) {
+  const v = n.nodeValue; if (!/[A-Za-z]/.test(v) || !/[\u0621-\u064A]/.test(v)) return;
+  const p = n.parentElement; if (!p || p.tagName === "BDI" || p.closest(".dua,#v-quran,#qpage")) return;
+  const frag = document.createDocumentFragment(); let last = 0;
+  v.replace(AR_RUN, (m, i) => { if (i > last) frag.appendChild(document.createTextNode(v.slice(last, i))); const b = document.createElement("bdi"); b.dir = "rtl"; b.textContent = m; frag.appendChild(b); last = i + m.length; return m; });
+  if (!last) return;
+  if (last < v.length) frag.appendChild(document.createTextNode(v.slice(last)));
+  p.replaceChild(frag, n);
 }
 function applyLang() {
   const en = LANG.cur === "en";
   document.documentElement.lang = en ? "en" : "ar";
   document.documentElement.dir = en ? "ltr" : "rtl";
   document.body.classList.toggle("en", en);
+  const spEn = document.querySelector(".sp-ayah-en"); if (spEn) spEn.textContent = en ? "“All are devoutly obedient to Him”" : "";
   const b = document.getElementById("langBtn"); if (b) b.textContent = en ? "عربي" : "English";
   if (en) { translateNode(document.body); annotateMeanings(document.body); }
 }
@@ -346,7 +387,7 @@ function annotateMeanings(root) {
   const els = root.matches(".dua,.q,li,p,.note,.mid,.hd,b,.src,.card>div") ? [root] : [];
   els.push(...root.querySelectorAll(".dua,.q,li,p,.note,.mid,.hd,.src,.card>div"));
   els.forEach(el => {
-    if (el.dataset.tr || el.closest("#v-quran .page,#qpage,.ayTr,textarea,button")) return;
+    if (el.dataset.tr || el.closest("#splash,#v-quran .page,#qpage,.ayTr,textarea,button")) return;
     const t = el.textContent.trim();
     if (!/[\u0621-\u064A]{2}/.test(qnorm(t)) || t.length < 12) return;
     if ([...el.children].some(c => /[\u0621-\u064A]{2}.*[\u0621-\u064A]{2}/.test(c.textContent) && c.textContent.trim().length > 12 && !c.matches("span,b,i,em"))) return;

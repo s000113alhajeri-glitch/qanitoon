@@ -263,7 +263,7 @@ html[data-sky="isha"]{--h1:#070d1c;--h2:#101d33;--h3:#1f3b52}
 .hero-time .left{font-size:var(--f4)}
 .hero-time .left b{font-size:var(--f5)}
 .hero .ico{color:#fff}
-.hero-qibla{text-align:center;min-width:92px}
+.hero-qibla{text-align:center;min-width:92px;background:none;border:0;padding:0;color:inherit;font:inherit;cursor:pointer}
 .hero-qibla .qibla{width:72px;height:72px;border:2px solid rgba(255,255,255,.55);background:rgba(255,255,255,.14)}
 .hero-qibla .qibla i{color:#fff;font-size:34px}
 .hero-btns{margin-top:10px}
@@ -436,6 +436,10 @@ html[data-motion="off"] .kaaba{animation:none}
 .occ{position:fixed;inset:0;z-index:60;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;padding:16px}
 .occ .card{max-width:520px;width:100%;max-height:85vh;overflow:auto;border:2px solid var(--gold)}
 .card.dim{opacity:.82}
+button.card.sect{display:block;width:100%;text-align:start;font:inherit;color:inherit;cursor:pointer}
+button.card.sect p{color:var(--muted,#5b6b7a);font-size:var(--f3);line-height:1.7}
+button.card.sect h3::after{content:" ›";color:var(--muted,#5b6b7a)}
+.sectdesc{margin-top:0}
 /* أجزاء الكعبة في شاشة التحميل: الحجر الأسود، الملتزم، الميزاب، الشاذروان البارز */
 .kaaba .f{overflow:visible}
 .kaaba .fr::after{content:"";position:absolute;right:-2px;bottom:36px;width:15px;height:15px;border-radius:50%;
@@ -504,11 +508,12 @@ header{position:relative}
 .htile .htl{font-size:13px;line-height:1.35;display:flex;align-items:center;gap:4px;justify-content:center}
 .htile .xhide{position:absolute;top:4px;left:4px}
 
+.chips.seg{display:flex;gap:6px}.chips.seg .chip{flex:1;text-align:center;padding:9px 6px;font-size:15px}
+
 /* English edition */
-.langBtn{position:absolute;top:10px;left:14px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);color:#fff;border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer}
-.langBtn{left:auto;right:14px}
-html[dir=ltr] .langBtn{left:auto;right:14px}
-body.en{font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans",sans-serif}
+.langBtn{position:absolute;top:14px;inset-inline-start:14px;background:var(--bg,#fff);border:1px solid var(--line);color:var(--head,#245a83);border-radius:999px;padding:4px 12px;font-size:13px;cursor:pointer;z-index:5}
+header h1,header .sub{padding-inline-start:84px;padding-inline-end:56px}
+body.en{font-family:-apple-system,"Segoe UI",Roboto,"Noto Sans","Noto Naskh Arabic","Amiri",sans-serif}
 body.en .dua,body.en .big,body.en .ayTr+span,body.en #v-quran .page,body.en .chip.ar{direction:rtl;font-family:inherit}
 body.en .ayTr{direction:ltr;text-align:left;font-size:14px;color:var(--dim);margin:2px 0 10px;line-height:1.5}
 body.en #v-quran span{direction:rtl}
@@ -517,5 +522,7 @@ body.en .src,body.en .note,body.en .mid,body.en li,body.en p,body.en summary,bod
 body.en .dua{direction:rtl;text-align:right;line-height:2.05;font-family:"Noto Naskh Arabic","Amiri",serif}
 body.en header h1{font-family:inherit}
 html[dir=ltr] .avatar{left:auto;right:12px}
-html[dir=ltr] .langBtn{left:14px;right:auto}
-html[dir=ltr] header h1{padding-left:70px}
+
+#splash .sp-ayah{direction:rtl;unicode-bidi:isolate;text-align:center}
+#splash .sp-ayah-en{font-size:var(--f3);color:#fff;direction:ltr;margin-top:2px;min-height:0}
+#splash .sp-ayah-en:empty{display:none}

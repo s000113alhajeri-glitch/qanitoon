@@ -357,7 +357,7 @@ const UMRAH_INTRO = `
     <li>المُفسد الوحيد: <b>العلاقة الزوجية</b> قبل الفراغ من السعي؛ تفسد بها العمرة، ويلزم إتمامها ثم قضاؤها، وذبح شاة لفقراء الحرم.</li>
     <li>ترك ركن (الطواف أو السعي): لا تفسد لكن لا تتمّ، ويبقى محرِماً حتى يعود فيأتي به.</li>
     <li>ما عدا ذلك من المحظورات يوجب الفدية والعمرة صحيحة.</li></ul></details>
-  <div class="note">هذا تعريفٌ مختصر من كلام أهل العلم، ما اتُّفق عليه ذُكر جزماً وما فيه خلاف نُبّه عليه. ولمسألتك الخاصة اسألي جهة الإفتاء في بلدك.</div>`;
+  <div class="note">هذا تعريفٌ مختصر من كلام أهل العلم، ما اتُّفق عليه ذُكر جزماً وما فيه خلاف نُبّه عليه. ولمسألتك الخاصة اسأل جهة الإفتاء في بلدك.</div>`;
 const HAJJ_INTRO = `
   <div class="card"><h3>تعرّف على الحج</h3>
     <p style="font-size:14px"><b>أركانه:</b> الإحرام، الوقوف بعرفة، طواف الإفاضة، السعي. <b>واجباته:</b> الإحرام من الميقات، الوقوف بعرفة إلى الغروب، المبيت بمزدلفة، المبيت بمنى ليالي التشريق، رمي الجمار، الحلق أو التقصير، طواف الوداع.</p>
@@ -368,7 +368,7 @@ const HAJJ_INTRO = `
     <li><b>العلاقة الزوجية</b> قبل التحلل الأول تُفسد الحج، ويلزم إتمامه وقضاؤه من قابل وذبح بدنة. وبعد التحلل الأول لا تفسده وفيها فدية.</li>
     <li>فوات الوقوف بعرفة: فات الحج، ويتحلل بعمرة ويقضي.</li>
     <li>ترك واجب: يُجبر بدم، والحج صحيح.</li></ul></details>
-  <div class="note">تعريفٌ مختصر من كلام أهل العلم، وما فيه خلاف نُبّه عليه. ولمسألتك الخاصة اسألي جهة الإفتاء في بلدك.</div>`;
+  <div class="note">تعريفٌ مختصر من كلام أهل العلم، وما فيه خلاف نُبّه عليه. ولمسألتك الخاصة اسأل جهة الإفتاء في بلدك.</div>`;
 function renderIntro(v, hajj, S) {
   v.innerHTML = `${hajj ? HAJJ_INTRO : UMRAH_INTRO}
   <div style="height:70px"></div><div class="stepbar sticky"><button class="btn" id="startRite">ابدأ ${hajj ? "الحج" : "العمرة"} ←</button></div>`;
@@ -551,21 +551,21 @@ function classifyDua(t, s, tag) {
 function buildLib() {
   const out = [];
   DUA_CATEGORIES.forEach(c => c.items.forEach((x, i) =>
-    out.push({ id: "c_" + c.id + "_" + i, t: x.t, s: x.s || "", g: c.title, k: classifyDua(x.t, x.s, x.tag) })));
+    out.push({ id: "c_" + c.id + "_" + i, t: x.t, s: x.s || "", g: c.title, n: x.n, note: x.note, info: x.info, f: x.f, k: classifyDua(x.t, x.s, x.tag) })));
   PROPHETS_DUA.forEach((c, ci) => c.items.forEach((x, i) =>
-    out.push({ id: "p_" + ci + "_" + i, t: x.t, s: (x.p ? x.p + " — " : "") + (x.s || ""), g: "أدعية الأنبياء: " + c.topic, k: "ق" })));
+    out.push({ id: "p_" + ci + "_" + i, t: x.t, s: (x.p ? x.p + " — " : "") + (x.s || ""), g: "أدعية الأنبياء: " + c.topic, n: x.n, note: x.note, k: "ق" })));
   ADHKAR_SALAH.forEach((x, i) =>
-    out.push({ id: "a_" + i, t: x.t, s: x.s || "", g: "أذكار أدبار الصلوات", k: classifyDua(x.t, x.s), timed: true }));
+    out.push({ id: "a_" + i, t: x.t, s: x.s || "", g: "أذكار أدبار الصلوات", n: x.n, note: x.note, f: x.f, k: classifyDua(x.t, x.s), timed: true }));
   MORNING_EVENING.forEach((x, i) =>
-    out.push({ id: "me_" + i, t: x.t, s: x.s || "", g: "أذكار الصباح والمساء", k: classifyDua(x.t, x.s), timed: true }));
+    out.push({ id: "me_" + i, t: x.t, s: x.s || "", g: "أذكار الصباح والمساء", n: x.n, note: x.note, when: x.when, f: x.f, k: classifyDua(x.t, x.s), timed: true }));
   NAMES.forEach((x, i) => out.push({ id: "nm_" + i, t: x.n + " — " + x.m, s: x.ms, g: "أسماء الله الحسنى", k: "م", timed: true }));
   PROPHETIC_DUAS.forEach(c => c.items.forEach((x, i) => {
     const grade = x.g || "";
     const k = grade === "ق" || grade === "قرآن" ? "ق" : grade === "م" ? "م" : /ضعيف|خلاف|موقوف/.test(grade) ? "د" : /صحيح|حسن/.test(grade) ? "س" : classifyDua(x.t, x.s);
-    out.push({ id: "pd_" + c.id + "_" + i, t: x.t, s: (grade ? grade + " — " : "") + (x.s || "") + (x.h ? " — " + x.h : ""), g: "الأدعية النبوية: " + c.title, n: x.n, k, timed: c.id === "sabah" });
+    out.push({ id: "pd_" + c.id + "_" + i, t: x.t, s: (grade ? grade + " — " : "") + (x.s || "") + (x.h ? " — " + x.h : ""), g: "الأدعية النبوية: " + c.title, n: x.n, note: x.note, info: x.info, f: x.f, k, timed: c.id === "sabah" });
   }));
   if (typeof QURAN_DUAS !== "undefined") QURAN_DUAS.forEach(c => c.items.forEach((x, i) =>
-    out.push({ id: c.id + "_" + i, t: x.t, s: "قرآن — " + (x.s || ""), g: "أدعية القرآن: " + c.title, k: "ق" })));
+    out.push({ id: c.id + "_" + i, t: x.t, s: "قرآن — " + (x.s || ""), g: "أدعية القرآن: " + c.title, n: x.n, note: x.note, k: "ق" })));
   getMyDuas().forEach(x =>
     out.push({ id: x.id, t: x.t, s: "دعاء مباح — من إنشائك", g: "أدعيتي الخاصة", k: "م", mine: true }));
   return out;
@@ -662,9 +662,9 @@ function myDuasCard(kind, sh) {
     <h3>أدعيتي في الشوط ${AR(sh)}</h3>
     ${fixed}
     ${items.length ? items.map(x => `<div class="card"><div class="dua">${esc(x.t)}</div><div class="src">${esc(x.s)}</div></div>`).join("")
-      : `<p class="mid">ما اخترتِ أدعية لهذا الشوط بعد.</p>`}
+      : `<p class="mid">لم تختر أدعية لهذا الشوط بعد.</p>`}
     <button class="btn" data-pick="${kind}" data-sh="${sh}">＋ اختر أدعيتك من المكتبة</button>
-    <div class="note">لم يثبت عن النبي ﷺ دعاء مخصوص لكل شوط؛ فاختيارك هنا تسهيلٌ للتذكير فقط، ليس سنة ولا واجباً، ويجوز لك أن تدعي بما شئتِ. المكتبة تعرض القرآن والسنة الصحيحة فقط، وما تكتبينه بنفسك يُوسم دعاءً مباحاً. يُحفظ اختيارك في جهازك.</div>
+    <div class="note">لم يثبت عن النبي ﷺ دعاء مخصوص لكل شوط؛ فاختيارك هنا تسهيلٌ للتذكير فقط، ليس سنة ولا واجباً، ويجوز لك أن تدعو بما شئت. المكتبة تعرض القرآن والسنة الصحيحة فقط، وما تكتبينه بنفسك يُوسم دعاءً مباحاً. يُحفظ اختيارك في جهازك.</div>
   </div>`;
 }
 
@@ -697,8 +697,8 @@ function openComposer(onSaved) {
   const wrap = document.createElement("div");
   wrap.className = "sheet";
   wrap.innerHTML = `<div class="sheetIn">
-    <div class="sheetTop"><b>اكتبي دعاءك</b><button class="btn sec sm" id="cmClose">إغلاق</button></div>
-    <textarea id="cmTxt" rows="4" placeholder="اكتبي دعاءك بلفظك… مثال: اللهم ارزقني واشف أمي"></textarea>
+    <div class="sheetTop"><b>اكتب دعاءك</b><button class="btn sec sm" id="cmClose">إغلاق</button></div>
+    <textarea id="cmTxt" rows="4" placeholder="اكتب دعاءك بلفظك… مثال: اللهم ارزقني واشف أمي"></textarea>
     <div class="row"><button class="btn sec" id="cmCheck">فحص الدعاء</button><button class="btn" id="cmSave">حفظ في مكتبتي</button></div>
     <div id="cmRes"></div>
     <div class="note">الفحص آلي مساعد ينبّه على المخالفات الظاهرة فقط، ولا يغني عن سؤال أهل العلم. وما تكتبينه دعاء مباح من إنشائك، لا يُنسب للنبي صلى الله عليه وسلم ولا يُجعل سنة.</div>
@@ -707,19 +707,19 @@ function openComposer(onSaved) {
   const txt = wrap.querySelector("#cmTxt"), res = wrap.querySelector("#cmRes");
   const run = () => {
     const r = checkDua(txt.value);
-    if (r.level === "empty") { res.innerHTML = `<p class="mid">اكتبي الدعاء أولاً.</p>`; return r; }
+    if (r.level === "empty") { res.innerHTML = `<p class="mid">اكتب الدعاء أولاً.</p>`; return r; }
     const head = r.level === "block" ? ico("x") + " لا يجوز بهذا اللفظ"
       : r.level === "warn" ? ico("warn") + " يحتاج مراجعة" : ico("check") + " لا مانع ظاهر — دعاء مباح";
     res.innerHTML = `<div class="card dc-${r.level}"><h3>${head}</h3>` +
       (r.hits.length ? r.hits.map(h => `<div class="card"><div class="dua">${esc(h.why)}</div><div class="src">${esc(h.fix)}</div></div>`).join("")
-        : `<p class="mid">ادعي بما شئتِ من خيري الدنيا والآخرة، وأفضله ما وافق القرآن والسنة.</p>`) + `</div>`;
+        : `<p class="mid">ادعُ بما شئت من خيري الدنيا والآخرة، وأفضله ما وافق القرآن والسنة.</p>`) + `</div>`;
     return r;
   };
   wrap.querySelector("#cmCheck").onclick = run;
   wrap.querySelector("#cmSave").onclick = () => {
     const r = run();
     if (r.level === "empty") return;
-    if (r.level === "block") { res.innerHTML += `<div class="note">لا يُحفظ هذا الدعاء ولا يُضاف لأشواطك حتى تُعدّلي صياغته.</div>`; return; }
+    if (r.level === "block") { res.innerHTML += `<div class="note">لا يُحفظ هذا الدعاء ولا يُضاف لأشواطك حتى تُعدّل صياغته.</div>`; return; }
     const list = getMyDuas();
     const id = "u_" + Date.now();
     list.push({ id, t: txt.value.trim() });
@@ -742,11 +742,11 @@ function openPicker(kind, sh, opts = {}) {
       <button class="btn sec sm" id="pkClose">إغلاق</button>
     </div>
     <input id="pkSearch" placeholder="ابحث: الرزق، الزواج، الوالدين…">
-    <p class="mid" style="margin:0">افتحي العنوان وعلّمي ✓ ما تريدين ثم «حفظ».</p>
+    <p class="mid" style="margin:0">افتح العنوان وعلّم ✓ ما تريد ثم «حفظ».</p>
     <div class="chips" id="pkChips">${["الرزق", "الزواج", "الذرية", "العمل", "قضاء الدين", "الهداية", "التوبة", "الهم والكرب", "الشفاء", "الوالدين", "الحسد", "العلم", "النصر", "قرآن", "أدعيتي"].map(c => `<button class="chip" data-q="${c}">${c}</button>`).join("")}</div>
     <div class="sheetList" id="pkList"></div>
     <div class="row"><button class="btn" id="pkSave">حفظ الاختيار (<span id="pkN">${AR(sel.size)}</span>)</button>
-    <button class="btn sec" id="pkNew">${ico("pen")} اكتبي دعاءك</button></div>
+    <button class="btn sec" id="pkNew">${ico("pen")} اكتب دعاءك</button></div>
   </div>`;
   document.body.appendChild(wrap);
   const list = wrap.querySelector("#pkList");
@@ -852,7 +852,7 @@ function renderQuran() {
       <button class="btn" id="qtoday">اقرأ ورد اليوم</button>
     </div>
     ${p >= 604 ? `<div class="card"><h3>دعاء ختم القرآن</h3>
-      <p class="mid">أتممتِ الختمة — تقبّل الله منك.</p>
+      <p class="mid">أتممت الختمة — تقبّل الله منك.</p>
       <div class="note">لم يثبت عن النبي ﷺ دعاء مخصوص لختم القرآن، وهذا الدعاء المشهور من أدعية السلف والقرّاء، يُدعى به كدعاء مباح لا سنةً منسوبة.</div>
       <div class="dua">${esc(IB_KHATM.replace(/\s*\*\s*/g, "\n"))}</div>
       <div class="src"><span class="tag m">دعاء مباح</span> المصدر: مأثور عن القرّاء والسلف — ليس حديثاً</div>
@@ -1038,8 +1038,7 @@ function namesView() {
       <div>${x.q.length ? `<span class="tag q">ورد الاسم نفسه في القرآن</span>` : x.h.length ? `<span class="tag h">ورد الاسم نفسه في السنة الصحيحة</span>` : `<span class="tag d">لم يرد بهذا اللفظ في القرآن ولا في حديث صحيح؛ من التعداد المشهور</span>`}</div>
       <div class="row" style="justify-content:center"><button class="btn sec sm" data-nmi="${(NM.i + NAMES.length - 1) % NAMES.length}">→ السابق</button><span class="mid">${AR(NM.i + 1)} / ${AR(NAMES.length)}</span><button class="btn sec sm" data-nmi="${(NM.i + 1) % NAMES.length}">التالي ←</button></div></div>
     <div class="chips">${tabs.map(t => `<button class="chip ${t[0] === NM.tab ? "on" : ""}" data-nmt="${t[0]}">${t[1]}${t[2] ? ` (${AR(t[2])})` : ""}</button>`).join("")}</div>
-    ${body}
-    <details><summary>أوقات التسبيح في القرآن</summary><div>${TASBIH_TIMES.map(x => `<div class="card"><h3>${esc(x.title)}</h3><div class="dua">${esc(x.ayah)}</div><div class="src">${esc(x.ref)}</div><p><b>الوقت:</b> ${esc(x.when)}</p><p class="dua">${esc(x.what)}</p><div class="count"><span>التكرار</span><b>${AR(x.n)}</b></div>${tasbih(x.title, x.n)}<div class="src">${esc(x.s)}</div></div>`).join("")}</div></details>`;
+    ${body}`;
 }
 function bindNames(v) {
   v.querySelectorAll("[data-nm]").forEach(b => b.onclick = () => { NM.i = +b.dataset.nm; DB.set("nm_i", NM.i); renderTadabbur("asma"); });
@@ -1059,7 +1058,7 @@ function libAllView() {
   const seen = new Set();
   const list = libSearch(ASK.lq, f).filter(x => { const n = norm(x.t).slice(0, 60); if (seen.has(n)) return false; seen.add(n); return true; });
   const shown = list.slice(0, 60);
-  return `<p class="mid">${AR(list.length)} دعاء${list.length > shown.length ? " — تظهر أول " + AR(shown.length) + "، ضيّقي البحث" : ""}</p>
+  return `<p class="mid">${AR(list.length)} دعاء${list.length > shown.length ? " — تظهر أول " + AR(shown.length) + "، ضيّق البحث" : ""}</p>
   ${shown.map(x => item(Object.assign({}, x, { tag: x.k === "ق" ? "ق" : x.k === "م" ? "م" : "س" }))).join("")}`;
 }
 const DUA_LIBRARY = [
@@ -1072,11 +1071,48 @@ const DUA_LIBRARY = [
   { k: "safar", t: "السفر", r: () => `<div class="card"><h3>أحكام صلاة المسافر</h3>${SAFAR.ahkam.map(a => `<p><b>${esc(a.t)}:</b> ${esc(a.d)}<div class="src">${esc(a.s)}</div></p>`).join("")}</div>` + SAFAR.adhkar.map(item).join("") },
   { k: "arafah", t: "يوم عرفة", r: () => arafahView() }
 ];
-const TSB = { sub: DB.get("tsb_sub", "asma") };
+/* التسبيح: يمين = تعلّم (أوقات التسبيح في القرآن / أسماء الله / التسابيح وفضلها)، يسار = سبّح اليوم (اختيار يُحسب في عدّاد الرئيسية) */
+const TSB = { sub: ["learn", "today"].includes(DB.get("tsb_sub", "today")) ? DB.get("tsb_sub", "today") : "today", learn: DB.get("tsb_learn", "times"), edit: false };
+const tsbId = key => "t" + Math.abs([...key].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
+function tsbPool() {
+  const p = [];
+  IB_TASABIH.forEach(x => p.push({ key: x.t, t: x.t, n: x.n || 100, s: x.s, f: x.f, g: "تسابيح مأثورة" }));
+  NAMES.forEach(x => x.h.forEach(a => { if (a.n) p.push({ key: x.n + a.t, t: a.t, n: a.n, s: a.s, g: "بأسماء الله: " + x.n }); }));
+  TASBIH_TIMES.forEach(x => p.push({ key: x.title, t: x.what, n: x.n, s: x.s, g: "أوقات القرآن: " + x.title }));
+  const seen = new Set();
+  return p.filter(x => { const id = tsbId(x.key); if (seen.has(id)) return false; seen.add(id); return true; });
+}
+const tsbSel = () => DB.get("tsb_today", []);
+function tsbTodayView() {
+  const pool = tsbPool(), sel = tsbSel();
+  const chosen = pool.filter(x => sel.includes(tsbId(x.key)));
+  if (!chosen.length || TSB.edit) {
+    const groups = [...new Set(pool.map(x => x.g.split(":")[0]))];
+    return `<div class="note">اختر ما تسبّح به اليوم، ويُحسب في عدّاد «التسبيح اليوم» في الرئيسية.</div>
+    ${groups.map(g => `<details ${g === "تسابيح مأثورة" ? "open" : ""}><summary>${esc(g)}</summary><div>${pool.filter(x => x.g.split(":")[0] === g).map(x => `<label class="card row" style="gap:10px;align-items:flex-start"><input type="checkbox" class="tsbchk" value="${tsbId(x.key)}" ${sel.includes(tsbId(x.key)) ? "checked" : ""}><span><span class="dua" style="font-size:16px">${esc(x.t)}</span><div class="src">×${AR(x.n)}${x.g.includes(":") ? " — " + esc(x.g.split(":")[1].trim()) : ""}</div></span></label>`).join("")}</div></details>`).join("")}
+    <button class="btn" id="tsbSave" style="width:100%;margin-top:8px">حفظ اختيار اليوم</button>`;
+  }
+  return `<div class="row" style="justify-content:space-between;align-items:center"><span class="mid">${AR(chosen.length)} من التسابيح لليوم</span><button class="btn sec sm" id="tsbEdit">تعديل الاختيار</button></div>
+  ${chosen.map(x => `<div class="card"><div class="mid" style="font-size:12px">${esc(x.g)}</div><div class="dua">${esc(x.t)}</div><div class="count"><span>التكرار</span><b>${AR(x.n)}</b></div>${tasbih(x.key, x.n)}${x.s ? `<div class="src"><span class="tag h">سنة</span> ${esc(x.s)}</div>` : ""}${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("")}`;
+}
+function tsbLearnView() {
+  const subs = [["times", "أوقات التسبيح في القرآن"], ["asma", "أسماء الله الحسنى"], ["fadl", "التسابيح وفضلها"]];
+  let body = "";
+  if (TSB.learn === "times") body = TASBIH_TIMES.map(x => `<div class="card"><h3>${esc(x.title)}</h3><div class="dua">${esc(x.ayah)}</div><div class="src"><span class="tag q">قرآن</span> ${esc(x.ref)}</div><p><b>الوقت:</b> ${esc(x.when)}</p><p class="dua">${esc(x.what)}</p><div class="src">${esc(x.s)}</div></div>`).join("");
+  else if (TSB.learn === "asma") body = namesView();
+  else body = IB_TASABIH.map(x => `<div class="card"><div class="dua">${esc(x.t)}</div><div class="src"><span class="tag h">سنة</span> ${esc(x.s || "")}</div>${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("");
+  return `<div class="chips">${subs.map(x => `<button class="chip ${TSB.learn === x[0] ? "on" : ""}" data-tsbl="${x[0]}">${x[1]}</button>`).join("")}</div>${body}`;
+}
 function tasbihView() {
-  const subs = [["asma", "التسبيح بأسماء الله الحسنى"], ["fadl", "تسابيح وفضلها"]];
-  return `<div class="chips">${subs.map(x => `<button class="chip ${TSB.sub === x[0] ? "on" : ""}" data-tsb="${x[0]}">${x[1]}</button>`).join("")}</div>
-  ${TSB.sub === "asma" ? namesView() : IB_TASABIH.map(item).join("")}`;
+  const subs = [["learn", "تعلّم"], ["today", "سبّح اليوم"]];
+  return `<div class="chips seg">${subs.map(x => `<button class="chip ${TSB.sub === x[0] ? "on" : ""}" data-tsb="${x[0]}">${x[1]}</button>`).join("")}</div>
+  ${TSB.sub === "learn" ? tsbLearnView() : tsbTodayView()}`;
+}
+function bindTasbih(v) {
+  v.querySelectorAll("[data-tsb]").forEach(b => b.onclick = () => { TSB.sub = b.dataset.tsb; TSB.edit = false; DB.set("tsb_sub", TSB.sub); renderTadabbur("asma"); });
+  v.querySelectorAll("[data-tsbl]").forEach(b => b.onclick = () => { TSB.learn = b.dataset.tsbl; DB.set("tsb_learn", TSB.learn); renderTadabbur("asma"); });
+  const e = v.querySelector("#tsbEdit"); if (e) e.onclick = () => { TSB.edit = true; renderTadabbur("asma"); };
+  const s = v.querySelector("#tsbSave"); if (s) s.onclick = () => { DB.set("tsb_today", [...v.querySelectorAll(".tsbchk:checked")].map(c => c.value)); TSB.edit = false; SUM.render(); renderTadabbur("asma"); };
 }
 const TADABBUR_TABS = [
   { k: "asma", t: "التسبيح", r: tasbihView },
@@ -1110,8 +1146,11 @@ function renderAdhkar(tab) {
   const cur = ADHKAR_TABS.find(x => x.k === k) || ADHKAR_TABS[0]; DB.set("atab", cur.k);
   v.innerHTML = `<div class="chips">${ADHKAR_TABS.map(x => `<button class="chip ${x.k === cur.k ? "on" : ""}" data-a="${x.k}">${x.t}</button>`).join("")}</div>
   <div class="note">العدّاد يُحفظ لليوم ويعود للصفر تلقائياً مع اليوم الجديد. التصنيف: <span class="tag q">قرآن</span> آية، <span class="tag h">سنة</span> ثابت عن النبي ﷺ، <span class="tag m">دعاء مباح</span> ليس حديثاً.</div>
+  ${["sabah", "masa"].includes(cur.k) ? "" : `<label class="card row" style="gap:10px;align-items:center"><input type="checkbox" id="aopt" ${DB.get("adhkarOpt", []).includes(cur.k) ? "checked" : ""}><span>احتساب «${cur.t}» في عدّاد اكتمال اليوم <span class="mid">(الأساس: الصباح والمساء)</span></span></label>`}
   ${cur.r()}`;
   v.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { renderAdhkar(b.dataset.a); window.scrollTo(0, 0); });
+  const ao = document.getElementById("aopt");
+  if (ao) ao.onchange = () => { const o = DB.get("adhkarOpt", []).filter(x => x !== cur.k); if (ao.checked) o.push(cur.k); DB.set("adhkarOpt", o); SUM.render(); };
   bindCounters(v);
 }
 function renderTadabbur(tab) {
@@ -1120,7 +1159,7 @@ function renderTadabbur(tab) {
   const cur = TADABBUR_TABS.find(x => x.k === k) || TADABBUR_TABS[0]; DB.set("ttab", cur.k);
   v.innerHTML = `<div class="chips">${TADABBUR_TABS.map(x => `<button class="chip ${x.k === cur.k ? "on" : ""}" data-a="${x.k}">${x.t}</button>`).join("")}</div><div id="tbody">${cur.r()}</div>`;
   v.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { renderTadabbur(b.dataset.a); window.scrollTo(0, 0); });
-  if (cur.k === "asma") { bindNames(v); v.querySelectorAll("[data-tsb]").forEach(b => b.onclick = () => { TSB.sub = b.dataset.tsb; DB.set("tsb_sub", TSB.sub); renderTadabbur("asma"); }); }
+  if (cur.k === "asma") { bindNames(v); bindTasbih(v); }
   if (cur.k === "qsearch") bindQuranSearch(v);
   if (cur.k === "ask") renderAsk(undefined, document.getElementById("tbody"));
   if (cur.k === "lib") renderLib(document.getElementById("tbody"));
@@ -1133,7 +1172,7 @@ setInterval(() => {
   const once = (key, fn) => { const k = "fired_" + today() + "_" + key; if (!DB.get(k, false)) { DB.set(k, true); fn(); } };
   if (near(t.fajr + 20 / 60)) once("sabah", () => notify("أذكار الصباح", "حان وقت أذكار الصباح", "adhkar"));
   if (near(t.asr + 20 / 60)) once("masa", () => notify("أذكار المساء", "حان وقت أذكار المساء", "adhkar"));
-  if (near(t.isha + 60 / 60)) once("wird", () => { if (!(Q.plan.log || {})[today()]) notify("وردك من القرآن", "لم تُسجّلي وردك اليوم بعد", "wird"); });
+  if (near(t.isha + 60 / 60)) once("wird", () => { if (!(Q.plan.log || {})[today()]) notify("وردك من القرآن", "لم تُسجّل وردك اليوم بعد", "wird"); });
 }, 30000);
 
 
@@ -1171,7 +1210,7 @@ function jadTimeCard(x, open) {
     ${x.pre ? `<details ${open ? "open" : ""}><summary><b>${esc(x.pre.title)}</b></summary>${x.pre.items.map(i => `<div class="card"><div class="dua">${esc(i.t)}</div><div class="src"><span class="tag h">سنة</span> ${esc(i.s)}</div></div>`).join("")}</details>` : ""}
     ${x.fixed ? `<details ${open ? "open" : ""}><summary><b>الثابت في هذا الوقت</b></summary>${x.fixed.map(i => `<div class="card"><div class="dua">${esc(i.t)}</div>${i.n > 1 ? tasbih("jad_" + x.id + i.t, i.n) : ""}<div class="src"><span class="tag h">سنة</span> ${esc(i.s)}</div></div>`).join("")}</details>` : ""}
     <details ${open ? "open" : ""}><summary><b>أدعيتي في هذا الوقت</b> (${AR(picks.length)})</summary>
-      ${picks.map(i => `<div class="card"><div class="dua">${esc(i.t)}</div><div class="src"><span class="tag ${i.k === "ق" ? "q" : i.k === "س" ? "h" : "m"}">${i.k === "ق" ? "قرآن" : i.k === "س" ? "سنة" : "دعاء مباح"}</span> ${esc(i.s)}</div></div>`).join("") || `<p class="mid">لم تختاري شيئاً بعد — وتدعين بما شئتِ.</p>`}
+      ${picks.map(i => `<div class="card"><div class="dua">${esc(i.t)}</div><div class="src"><span class="tag ${i.k === "ق" ? "q" : i.k === "س" ? "h" : "m"}">${i.k === "ق" ? "قرآن" : i.k === "س" ? "سنة" : "دعاء مباح"}</span> ${esc(i.s)}</div></div>`).join("") || `<p class="mid">لم تختر شيئاً بعد — وتدعو بما شئت.</p>`}
       <div class="row"><button class="btn sm" data-pick="jad" data-sh="${x.id}">اختيار من المكتبة</button><button class="btn sec sm" data-jwrite="${x.id}">أكتب دعائي</button></div>
     </details>
   </div>`;
@@ -1196,7 +1235,7 @@ function jadwalView() {
   const visible = x => !hidden[x.id] && (added[x.id] || showAll || todayOnly(x));
   const rest = DUA_TIMES.filter(x => !act.includes(x) && visible(x));
   const addable = DUA_TIMES.filter(x => !act.includes(x) && !visible(x));
-  return `<div class="note">أوقات الدعاء الواردة عن النبي ﷺ فقط، كلٌّ بحديثه ودرجته. يظهر أعلى القائمة ما أنتِ فيه الآن، ويُنبَّه لما فعّلتِه. اختيارك للأدعية تسهيلٌ للتذكير، ويجوز لك أن تدعي بما شئتِ.</div>
+  return `<div class="note">أوقات الدعاء الواردة عن النبي ﷺ فقط، كلٌّ بحديثه ودرجته. يظهر أعلى القائمة ما أنت فيه الآن، ويُنبَّه لما فعّلته. اختيارك للأدعية تسهيلٌ للتذكير، ويجوز لك أن تدعو بما شئت.</div>
   <div class="row">${(ramadan || showAll || fasting) ? `<button class="btn sm ${fasting ? "" : "sec"}" id="jfast">${fasting ? "أنا صائمة اليوم ✓" : "أنا صائمة اليوم"}</button>` : ""}</div>
   ${act.length ? `<h3 style="margin:14px 4px 6px">الآن</h3>${act.map(x => jadTimeCard(x, true)).join("")}` : `<div class="card"><p class="mid">لا وقت مخصوص الآن — والدعاء مقبول في كل حين ﴿ادْعُونِي أَسْتَجِبْ لَكُمْ﴾ (غافر ٦٠).</p></div>`}
 `;
@@ -1230,7 +1269,7 @@ setInterval(() => {
       if (x.id === "adhan") {
         if (!NOTIF.on("adhan")) return;
         fire(0, "a", "عند الأذان", "ردّدي مع المؤذن، ثم صلّي على النبي ﷺ، ثم: اللهم ربّ هذه الدعوة التامة والصلاة القائمة…");
-        fire(5 / 60, "b", "بين الأذان والإقامة — الدعاء لا يُردّ", jadPicks("adhan").length ? "أدعيتك المختارة في جدولي" : "ادعي بما شئتِ");
+        fire(5 / 60, "b", "بين الأذان والإقامة — الدعاء لا يُردّ", jadPicks("adhan").length ? "أدعيتك المختارة في جدولي" : "ادعُ بما شئت");
       } else if (NOTIF.on(["iftar", "qadr", "arafah", "jumua"].includes(x.id) ? "season" : "jadwal")) fire(0, "s", x.t, x.h.slice(0, 90) + "…");
     });
   });
@@ -1333,19 +1372,19 @@ drawAvatar();
 
 /* ============ المساعدة المحلية «؟» ============ */
 const HELP = {
-  home: ["الرئيسية", "ملخص يومك: الصلاة القادمة، البطاقات الموسمية والمكانية، وتذكيراتك. اضغطي ✕ لإخفاء بطاقة و＋ لإرجاعها."],
-  umrah: ["العمرة", "اضغطي «تعرّف على العمرة» قبل البدء، ثم تابعي الخطوات بزرَي السابق/التالي. في الطواف والسعي: زر + لكل شوط، أو فعّلي الموقع ليُعدّ تلقائياً عند الحجر الأسود والصفا والمروة. «اختر أدعيتك» تسهيل للتذكير فقط."],
-  hajj: ["الحج", "المراحل بترتيب الأيام من التروية إلى الوداع، بعدّاد للأشواط والحصيات. اختاري نوع الحج من صفحة «تعرّف على الحج»."],
+  home: ["الرئيسية", "ملخص يومك: الصلاة القادمة، البطاقات الموسمية والمكانية، وتذكيراتك. اضغط ✕ لإخفاء بطاقة و＋ لإرجاعها."],
+  umrah: ["العمرة", "اضغط «تعرّف على العمرة» قبل البدء، ثم تابع الخطوات بزرَي السابق/التالي. في الطواف والسعي: زر + لكل شوط، أو فعّل الموقع ليُعدّ تلقائياً عند الحجر الأسود والصفا والمروة. «اختر أدعيتك» تسهيل للتذكير فقط."],
+  hajj: ["الحج", "المراحل بترتيب الأيام من التروية إلى الوداع، بعدّاد للأشواط والحصيات. اختر نوع الحج من صفحة «تعرّف على الحج»."],
   quran: ["المصحف", "تصفّح بالصفحة أو السورة، علامة مرجعية، بحث بالمعنى أو اللفظ، وخطة ختمة بعدد صفحات يومي مع تسجيل الورد."],
-  adhkar: ["الأذكار", "الصباح والمساء وبعد الصلاة والنوم والجمعة، كلٌّ بعدّاده. اضغطي الرقم لعدّ التكرار."],
-  tadabbur: ["التدبّر", "التسبيح (أسماء الله والتسابيح)، جدولي (أوقات الدعاء النبوية وتنبيهاتها وأدعيتك المختارة)، بحث في القرآن، واسألني: اكتبي حالتك أو ابحثي في كل الأدعية بفلتر قرآن/سنة/مباح."],
+  adhkar: ["الأذكار", "الصباح والمساء وبعد الصلاة والنوم والجمعة، كلٌّ بعدّاده. اضغط الرقم لعدّ التكرار."],
+  tadabbur: ["التدبّر", "التسبيح (أسماء الله والتسابيح)، جدولي (أوقات الدعاء النبوية وتنبيهاتها وأدعيتك المختارة)، بحث في القرآن، واسألني: اكتب حالتك أو ابحث في كل الأدعية بفلتر قرآن/سنة/مباح."],
   time: ["رمضان", "الإمساكية والسحور والإفطار وليالي العشر مع أدعيتها."],
   settings: ["ملفي والإعدادات", "اسمك وصورتك ودولتك، طريقة حساب الصلاة، التنبيهات بأصنافها، الموقع، الخصوصية."]
 };
 const FATWA = [
   { c: "الإمارات", n: "مجلس الإمارات للإفتاء الشرعي", tel: ["8002422", "+97122052555"], sms: "٢٥٣٥", note: "من داخل الدولة الرقم المجاني، ومن خارجها الرقم الدولي" },
   { c: "السعودية", n: "الرئاسة العامة للبحوث العلمية والإفتاء", tel: ["8001234567", "0114595555"], site: "alifta.gov.sa" },
-  { c: "دول أخرى", n: "دار الإفتاء أو وزارة الأوقاف في بلدك", tel: [], note: "ابحثي عن الرقم الرسمي في الموقع الحكومي لبلدك" }
+  { c: "دول أخرى", n: "دار الإفتاء أو وزارة الأوقاف في بلدك", tel: [], note: "ابحث عن الرقم الرسمي في الموقع الحكومي لبلدك" }
 ];
 function openHelp() {
   const v = DB.get("view", "home"), h = HELP[v] || HELP.home;
@@ -1358,10 +1397,10 @@ function openHelp() {
     <div class="sheetList">
       <div class="card"><h3>كيف أستعمل هذا القسم؟</h3><p style="font-size:14px">${h[1]}</p></div>
       <div class="card"><h3>سؤال شرعي أو فتوى؟</h3>
-        <p style="font-size:14px">التطبيق يعرض النصوص بمصادرها ولا يُفتي. لمسألتك الخاصة تواصلي مع جهة الإفتاء الرسمية:</p>
+        <p style="font-size:14px">التطبيق يعرض النصوص بمصادرها ولا يُفتي. لمسألتك الخاصة تواصل مع جهة الإفتاء الرسمية:</p>
         ${list.map(f => `<div class="note"><b>${f.c}</b> — ${f.n}<br>${f.tel.map(t => `<a href="tel:${t.replace(/\s/g, "")}" class="chip on" style="display:inline-block;margin:4px 2px">${t}</a>`).join("")}${f.sms ? ` <span class="chip">رسالة نصية: ${f.sms}</span>` : ""}${f.site ? `<br><a href="https://${f.site}" target="_blank" rel="noopener">${f.site}</a>` : ""}${f.note ? `<br><small>${f.note}</small>` : ""}</div>`).join("")}
       </div>
-      <div class="card"><h3>مشكلة في التطبيق؟</h3><p style="font-size:14px">حدّثي الصفحة مرتين لتجديد النسخة. إن لم تظهر التنبيهات فافتحي ملفي ← التنبيهات ← «السماح».</p></div>
+      <div class="card"><h3>مشكلة في التطبيق؟</h3><p style="font-size:14px">حدّث الصفحة مرتين لتجديد النسخة. إن لم تظهر التنبيهات فافتح ملفي ← التنبيهات ← «السماح».</p></div>
     </div></div>`;
   document.body.appendChild(wrap);
   wrap.querySelector("#hpClose").onclick = () => wrap.remove();
@@ -1434,7 +1473,7 @@ const SKY = {
       DB.set("lastpos", { lat: p.coords.latitude, lng: p.coords.longitude });
       travelCheck(p.coords.latitude, p.coords.longitude);
       SKY.apply(); MOON.draw(); WX.refresh(true); PRAY.strip(); SUM.render();
-      if (DB.get("view", "home") === "time") renderTime();
+      if (DB.get("view", "home") === "time") renderTime(RT_CUR);
       if (!quiet) notify("تم تحديث موقعك", "القبلة وأوقات الصلاة تتبع موقعك الآن");
     }, () => {
       if (!quiet) notify("تعذّر تحديد الموقع", "اسمح للموقع من إعدادات الجهاز/المتصفح — حالياً تُحسب الأوقات لـ " + SKY.fallbackName());
@@ -1778,13 +1817,23 @@ async function schedulePrayerNotifications() {
 /* ============ تبويب الأوقات: الصلاة، التقويم، القمر، الصيام، الطقس ============ */
 function fastDB() { return DB.get("fasts", {}); }
 /* ============ جدول رمضان ============ */
+let RT_CUR = "";
 function renderTime(tab) {
   const v = document.getElementById("v-time");
   const t = PRAY.times();
   const hj = toHijri(new Date(), DB.get("hoff", 0));
-  const k = tab || DB.get("rtab", "sunnah");
-  DB.set("rtab", k);
-  const tabs = [["sunnah", "سنة النبي عليه الصلاة والسلام في رمضان"], ["dua", "أدعية الصائم والإفطار"], ["qiyam", "أدعية القيام"], ["days", "القضاء"], ["nafl", "الصيام المستحب"]];
+  const k = tab === undefined ? "" : tab; RT_CUR = k;
+  const tabs = [
+    ["sunnah", "سنة النبي عليه الصلاة والسلام في رمضان", "ما ثبت من هديه ﷺ في الشهر: السحور وتعجيل الفطر والجود وتلاوة القرآن والاعتكاف، كل سنة بحديثها ومصدرها وفضلها."],
+    ["dua", "أدعية الصائم والإفطار", "مواقيت السحور والإفطار اليوم، وما يُقال عند الفطر وعند الإفطار عند قوم، بعدّاد لكل دعاء."],
+    ["qiyam", "أدعية القيام", "استفتاح صلاة الليل ودعاء الوتر وليلة القدر وما يُقال في الثلث الأخير."],
+    ["days", "القضاء", "التاريخ الهجري، وحساب الأيام التي أفطرتها وما قضيته منها والباقي."],
+    ["nafl", "الصيام المستحب", "ست من شوال والاثنين والخميس وعاشوراء وعرفة والأيام البيض، كل صيام بحكمه ودليله."]];
+  if (!k) {
+    v.innerHTML = `<h2>جدول رمضان</h2><div class="note">اختر قسماً لعرض محتواه.</div>${tabs.map(x => `<button class="card sect" data-t="${x[0]}"><h3>${x[1]}</h3><p>${x[2]}</p></button>`).join("")}`;
+    v.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { renderTime(b.dataset.t); window.scrollTo(0, 0); });
+    return;
+  }
   const missed = DB.get("missed", 0), made = DB.get("madeup", 0);
   let body = "";
   if (k === "sunnah") body = RAMADAN_SUNNAH.map(x => `<div class="card"><h3>${esc(x.t)}</h3><div class="dua">${esc(x.h)}</div><div class="src"><span class="tag h">سنة</span> المصدر: ${esc(x.s)}</div>${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("");
@@ -1799,7 +1848,8 @@ function renderTime(tab) {
       <div class="count"><span>قضيتُ منها</span><button class="cbtn" id="u-">−</button><b style="font-size:20px">${AR(made)}</b><button class="cbtn" id="u+">+</button></div>
       <div class="count"><span>الباقي</span><b>${AR(Math.max(0, missed - made))}</b></div></div>`;
   else body = SUNNAH_FASTS.map(x => `<div class="card"><div class="count"><span><b>${esc(x.label)}</b></span><b>${esc(x.rule)}</b></div><div class="src"><span class="tag h">سنة</span> المصدر: ${esc(x.src)}</div>${x.note ? `<div class="src fadl">الفضل: ${esc(x.note)}</div>` : ""}</div>`).join("");
-  v.innerHTML = `<h2>جدول رمضان</h2><div class="tabs">${tabs.map(x => `<button class="chip ${x[0] === k ? "on" : ""}" data-t="${x[0]}">${x[1]}</button>`).join("")}</div>${body}`;
+  const cur = tabs.find(x => x[0] === k);
+  v.innerHTML = `<h2>جدول رمضان</h2><div class="tabs"><button class="chip" data-t="">← الأقسام</button>${tabs.map(x => `<button class="chip ${x[0] === k ? "on" : ""}" data-t="${x[0]}">${x[1]}</button>`).join("")}</div><div class="note sectdesc">${cur ? cur[2] : ""}</div>${body}`;
   v.querySelectorAll("[data-t]").forEach(b => b.onclick = () => { renderTime(b.dataset.t); window.scrollTo(0, 0); });
   bindCounters(v);
   const q = id => document.getElementById(id);
@@ -1911,19 +1961,15 @@ const SUM = {
   progress() {
     const d = today();
     const pl = Q.plan, pages = pl.log[d] || 0;
-    let dh = 0;
-    try {
-      for (let i = 0; i < localStorage.length; i++) {
-        const k = localStorage.key(i);
-        if (k && k.startsWith("zh_cnt_") && k.endsWith("_" + d)) dh += (JSON.parse(localStorage.getItem(k)) || 0);
-      }
-    } catch (e) { }
+    let dh = 0, dgoal = 0;
+    const sel = tsbSel();
+    tsbPool().forEach(x => { const id = tsbId(x.key); if (!sel.includes(id)) return; dgoal += x.n; dh += Math.min(x.n, DB.get("cnt_" + id + "_" + d, 0)); });
     const fasts = fastDB()[d];
-    const sched = [...IB_SABAH, ...IB_MASA, ...IB_SALAH, ...IB_NAWM, ...IB_WAKE];
-    let sd = 0;
-    sched.forEach(x => { const id = "t" + Math.abs([...x.t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7)); if (DB.get("cnt_" + id + "_" + d, 0) >= (x.n || 1)) sd++; });
-    const dgoal = DB.get("dhgoal", 300);
-    return { pages, target: pl.pages, dh, dgoal, sd, st: sched.length, streak: DB.get("streak", 0), fast: fasts };
+    const opt = DB.get("adhkarOpt", []);
+    const sched = [...IB_SABAH, ...IB_MASA, ...(opt.includes("salah") ? IB_SALAH : []), ...(opt.includes("nawm") ? IB_NAWM : []), ...(opt.includes("wake") ? IB_WAKE : [])];
+    let sd = 0, st = 0; const seenId = new Set();
+    sched.forEach(x => { if (x.info) return; const id = "t" + Math.abs([...x.t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7)); if (seenId.has(id)) return; seenId.add(id); st++; if (DB.get("cnt_" + id + "_" + d, 0) >= (x.n || 1)) sd++; });
+    return { pages, target: pl.pages, dh, dgoal, sd, st, streak: DB.get("streak", 0), fast: fasts };
   },
   render() {
     const el = document.getElementById("summary"); if (!el) return;
@@ -1950,17 +1996,18 @@ const SUM = {
             <div class="nextp">${ico("bell")} ${PRAYER_NAMES[n.k]}${n.tomorrow ? " (غداً)" : ""} ${hhmm(n.at)}</div>
             <div class="left">بعد <b>${left}</b></div>
           </div>
-          <div class="hero-qibla">
+          <button class="hero-qibla" id="qbtn" type="button">
             <div class="qibla"><i id="qarrow" style="transform:rotate(${rot}deg)">↑</i></div>
-            <div class="mid">القبلة ${AR(Math.round(qb))}°</div>
-            <div class="mid" id="qstat">${this.heading === null ? "من الشمال" : this.status(qb)}</div>
-          </div>
+            <div class="mid">القبلة ${AR(Math.round(qb))}° من الشمال</div>
+            <div class="mid" id="qstat">${this.heading === null ? (this.nosensor ? "البوصلة تعمل على الجوال فقط" : "اضغط لتفعيل البوصلة") : this.status(qb)}</div>
+          </button>
         </div>
       </div>
     </div>
 `;
-      if (!this.listening && DB.get("loc", false) && !this.tried) { this.tried = true; this.compass(); }
     }
+    const qbn = document.getElementById("qbtn");
+    if (qbn) qbn.onclick = () => { if (!SKY.hasPos()) SKY.locate(false); this.compass(); };
     const t = document.getElementById("sumtog");
     if (t) t.onclick = () => { this.open = !this.open; DB.set("sumopen", this.open); this.render(); };
   },
@@ -1978,12 +2025,12 @@ const SUM = {
   },
   async compass() {
     if (this.listening) return;
-    if (!("DeviceOrientationEvent" in window)) return;
+    if (!("DeviceOrientationEvent" in window)) { this.nosensor = true; this.render(); return; }
     try {
       const D = window.DeviceOrientationEvent;
       if (typeof D.requestPermission === "function") {
         const r = await D.requestPermission();
-        if (r !== "granted") return;
+        if (r !== "granted") { notify("البوصلة", "اسمح بالوصول للحركة والاتجاه من إعدادات المتصفح"); return; }
       }
       let last = 0, got = false;
       const on = e => {
@@ -1992,7 +2039,7 @@ const SUM = {
         else if (e.absolute && e.alpha !== null) h = (360 - e.alpha) % 360;
         else if (e.type === "deviceorientationabsolute" && e.alpha !== null) h = (360 - e.alpha) % 360;
         if (h === null) return;
-        if (screen.orientation && screen.orientation.angle) h = (h + screen.orientation.angle) % 360;
+        if (e.webkitCompassHeading === undefined && screen.orientation && screen.orientation.angle) h = (h + screen.orientation.angle) % 360;
         this.heading = h; got = true;
         const now = Date.now(); if (now - last < 120) return; last = now;
         this.tick();
@@ -2000,7 +2047,7 @@ const SUM = {
       if ("ondeviceorientationabsolute" in window) addEventListener("deviceorientationabsolute", on, true);
       else addEventListener("deviceorientation", on, true);
       this.listening = true; this.render();
-      setTimeout(() => { if (!got) { this.listening = false; this.render(); } }, 4000);
+      setTimeout(() => { if (!got) { this.listening = false; this.nosensor = true; this.render(); } }, 4000);
     } catch (e) { }
   }
 };
@@ -2029,7 +2076,7 @@ const HOME_ITEMS = [
   { id: "hajj", t: () => "الحج — الخطوة الحالية", ic: "hajj", p: () => [H.stage, HAJJ_STAGES.length - 1], v: () => esc(HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)].t), go: "hajj" },
   { id: "quran", t: () => "الورد اليومي", ic: "quran", p: g => [g.pages, g.target], v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
   { id: "adhkar", t: () => "الأذكار", ic: "beads", p: g => [g.sd, g.st], v: g => `${AR(g.sd)} من ${AR(g.st)} منجزة`, go: "adhkar" },
-  { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", p: g => [g.dh, g.dgoal], v: g => `${AR(g.dh)} من ${AR(g.dgoal)}`, go: "tadabbur" },
+  { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", p: g => g.dgoal ? [g.dh, g.dgoal] : null, v: g => g.dgoal ? `${AR(g.dh)} من ${AR(g.dgoal)}` : "اختر", go: "tadabbur" },
   { id: "jadwal", t: () => "جدولي", ic: "clock", p: () => [DUA_TIMES.filter(x => JAD.isOn(x.id)).length, DUA_TIMES.length], v: () => { const a = JAD.active(); const on = DUA_TIMES.filter(x => JAD.isOn(x.id)).length; return (a.length ? "الآن: " + esc(a[0].t) + " · " : "") + `${AR(on)} أوقات مفعّلة`; }, go: "tadabbur" },
   { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", p: () => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return [Math.min(u, m), m]; }, v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
 ];
@@ -2042,15 +2089,15 @@ function renderHome() {
   v.innerHTML = `
   ${fridayCard()}
   <div class="card askBanner">
-    <h3 style="margin:0 0 6px">${ico("chat")} اكتب حالتي</h3>
-    <div class="row"><input id="homeAsk" placeholder="كيف حالك الآن؟ مثلاً: أنا بخير، فرحان/ة، زعلان/ة، حزين/ة…" style="flex:1"><button class="btn sm" id="homeAskGo">ادعي</button></div>
-    <div class="mid" style="margin:8px 0 4px;font-size:13px">اقتراحات:</div>
-    <div class="chips" id="homeSug">${SITUATIONS.filter(x => x.id !== "tasbih").map((x, i) => `<label class="chip${i >= 4 ? " more hidden" : ""}"><input type="checkbox" class="hchk" value="${x.id}">${esc(x.label)}</label>`).join("")}<button class="chip" id="homeMore">المزيد ▾</button></div>
+    <h3 style="margin:0 0 4px">${ico("chat")} كيف حالك اليوم؟</h3>
+    <div class="mid" style="margin:0 0 8px;font-size:13px">اختر حالك أو اكتبه بكلمتك، ونهديك ما يناسبه من دعاء وذكر من القرآن والسنة.</div>
+    <div class="chips" id="homeSug">${[...SITUATIONS.filter(x => x.id === "shukr"), ...SITUATIONS.filter(x => x.id !== "tasbih" && x.id !== "shukr")].map((x, i) => `<label class="chip${i >= 4 ? " more hidden" : ""}"><input type="checkbox" class="hchk" value="${x.id}">${esc(x.label)}</label>`).join("")}<button class="chip" id="homeMore">المزيد ▾</button></div>
+    <div class="row" style="margin-top:8px"><input id="homeAsk" placeholder="أو اكتب حالك هنا" style="flex:1"><button class="btn sm" id="homeAskGo">ادعُ</button></div>
   </div>
   <div class="card">
     <h3 style="margin:0 0 6px">ملخص يومي</h3>
-    <div class="hgrid">${shown.map(x => `<div class="htile" data-hgo="${x.go}">${x.p ? miniRing(...x.p(g)) : `<span class="mring"><b>${x.v(g)}</b></span>`}<span class="htl">${ico(x.ic)} ${x.t()}</span>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</div>`).join("")}</div>
-    ${shown.length ? "" : `<p class="mid">لا عناصر — أضيفي ما تريدين متابعته.</p>`}
+    <div class="hgrid">${shown.map(x => `<div class="htile" data-hgo="${x.go}">${x.p && x.p(g) ? miniRing(...x.p(g)) : `<span class="mring"><b>${x.v(g)}</b></span>`}<span class="htl">${ico(x.ic)} ${x.t()}</span>${HOME.fixed.includes(x.id) ? "" : `<button class="xhide" data-hdel="${x.id}" aria-label="شطب">✕</button>`}</div>`).join("")}</div>
+    ${shown.length ? "" : `<p class="mid">لا عناصر — أضف ما تريد متابعته.</p>`}
     ${rest.length ? `<div class="row" style="flex-wrap:wrap;gap:6px;margin-top:8px">${rest.map(x => `<button class="btn sec sm" data-hadd="${x.id}">＋ ${x.t()}</button>`).join("")}</div>` : ""}
   </div>`;
   v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = e => { e.stopPropagation(); HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });

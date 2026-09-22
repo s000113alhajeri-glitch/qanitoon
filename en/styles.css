@@ -552,3 +552,5 @@ html[dir=ltr] .avatar{left:auto;right:12px}
 .count.sm b{font-size:var(--f4);min-width:28px;text-align:center}
 .count.sm .cbtn{width:36px;height:36px;font-size:var(--f4)}
 .count.sm span{font-size:var(--f3)}
+
+body.en .ayTl{direction:ltr;text-align:left;font-size:14px;font-style:italic;color:var(--ink);margin:2px 0 0;line-height:1.5}

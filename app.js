@@ -2137,7 +2137,7 @@ function renderHome() {
   <div class="card askBanner">
     <h3 style="margin:0 0 4px">${ico("chat")} كيف حالك اليوم؟</h3>
     <div class="mid" style="margin:0 0 8px;font-size:13px">اختر حالك أو اكتبه بكلمتك، ونهديك ما يناسبه من دعاء وذكر من القرآن والسنة.</div>
-    <div class="chips" id="homeSug">${[...SITUATIONS.filter(x => x.id === "shukr"), ...SITUATIONS.filter(x => x.id !== "tasbih" && x.id !== "shukr")].map((x, i) => `<label class="chip${i >= 4 ? " more hidden" : ""}"><input type="checkbox" class="hchk" value="${x.id}">${esc(x.label)}</label>`).join("")}<button class="chip" id="homeMore">المزيد ▾</button></div>
+    <div class="chips" id="homeSug">${[...SITUATIONS.filter(x => x.id === "shukr"), ...SITUATIONS.filter(x => x.id !== "tasbih" && x.id !== "shukr")].map((x, i) => `<label class="chip${i >= 1 ? " more hidden" : ""}"><input type="checkbox" class="hchk" value="${x.id}">${esc(x.label)}</label>`).join("")}<button class="chip" id="homeMore">المزيد ▾</button></div>
     <div class="row" style="margin-top:8px"><input id="homeAsk" placeholder="أو اكتب حالك هنا" style="flex:1"><button class="btn sm" id="homeAskGo">ادعُ</button></div>
   </div>
   <div class="card">

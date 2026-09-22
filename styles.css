@@ -161,6 +161,8 @@ button{font-family:inherit}
 .btn.sm{padding:10px;font-size:var(--f3)}
 .row{display:flex;gap:8px;align-items:center}
 .row>*{flex:1}
+.row>input[type=checkbox]{flex:0 0 20px;width:20px;height:20px;accent-color:var(--accent);margin-top:2px}
+label.card.row{cursor:pointer}
 .stepbar{display:flex;gap:8px;align-items:center;margin:8px 0}
 .stepbar .btn{flex:1;margin:0}
 .stepbar .mid{flex:0 0 auto;min-width:64px;text-align:center}
@@ -509,3 +511,7 @@ header{position:relative}
 .htile .xhide{position:absolute;top:4px;left:4px}
 
 .chips.seg{display:flex;gap:6px}.chips.seg .chip{flex:1;text-align:center;padding:9px 6px;font-size:15px}
+.dateMain{font-size:var(--f5);font-weight:700;text-align:center;color:var(--txt);line-height:1.4}
+.count.sm b{font-size:var(--f4);min-width:28px;text-align:center}
+.count.sm .cbtn{width:36px;height:36px;font-size:var(--f4)}
+.count.sm span{font-size:var(--f3)}

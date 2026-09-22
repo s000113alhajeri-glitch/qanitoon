@@ -161,6 +161,8 @@ button{font-family:inherit}
 .btn.sm{padding:10px;font-size:var(--f3)}
 .row{display:flex;gap:8px;align-items:center}
 .row>*{flex:1}
+.row>input[type=checkbox]{flex:0 0 20px;width:20px;height:20px;accent-color:var(--accent);margin-top:2px}
+label.card.row{cursor:pointer}
 .stepbar{display:flex;gap:8px;align-items:center;margin:8px 0}
 .stepbar .btn{flex:1;margin:0}
 .stepbar .mid{flex:0 0 auto;min-width:64px;text-align:center}
@@ -526,3 +528,7 @@ html[dir=ltr] .avatar{left:auto;right:12px}
 #splash .sp-ayah{direction:rtl;unicode-bidi:isolate;text-align:center}
 #splash .sp-ayah-en{font-size:var(--f3);color:#fff;direction:ltr;margin-top:2px;min-height:0}
 #splash .sp-ayah-en:empty{display:none}
+.dateMain{font-size:var(--f5);font-weight:700;text-align:center;color:var(--txt);line-height:1.4}
+.count.sm b{font-size:var(--f4);min-width:28px;text-align:center}
+.count.sm .cbtn{width:36px;height:36px;font-size:var(--f4)}
+.count.sm span{font-size:var(--f3)}

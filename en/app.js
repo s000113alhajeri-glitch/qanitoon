@@ -1415,6 +1415,7 @@ addEventListener("hashchange", () => { const h = location.hash.slice(1); if (h &
 /* ============ سماء التطبيق: لون الوقت ============
    تدرّج السماء يتغيّر مع الشمس في موقعك: فجر، شروق، ضحى، ظهر، عصر، غروب، ليل بنجوم.
    الحساب فلكي محلي بلا إنترنت، وهو للجمال فقط لا لتحديد أوقات الصلاة. */
+const G_MONTHS = ["يناير", "فبراير", "مارس", "أبريل", "مايو", "يونيو", "يوليو", "أغسطس", "سبتمبر", "أكتوبر", "نوفمبر", "ديسمبر"];
 const SKY_PHASES = {
   fajr: "الفجر — قبيل الشروق",
   shuruq: "الشروق",
@@ -1830,7 +1831,7 @@ function renderTime(tab) {
     ["sunnah", "سنة النبي عليه الصلاة والسلام في رمضان", "ما ثبت من هديه ﷺ في الشهر: السحور وتعجيل الفطر والجود وتلاوة القرآن والاعتكاف، كل سنة بحديثها ومصدرها وفضلها."],
     ["dua", "أدعية الصائم والإفطار", "مواقيت السحور والإفطار اليوم، وما يُقال عند الفطر وعند الإفطار عند قوم، بعدّاد لكل دعاء."],
     ["qiyam", "أدعية القيام", "استفتاح صلاة الليل ودعاء الوتر وليلة القدر وما يُقال في الثلث الأخير."],
-    ["days", "القضاء", "التاريخ الهجري، وحساب الأيام التي أفطرتها وما قضيته منها والباقي."],
+    ["days", "القضاء", "التاريخ الهجري والميلادي، وحساب الأيام التي أفطرتها وما قضيته منها والباقي."],
     ["nafl", "الصيام المستحب", "ست من شوال والاثنين والخميس وعاشوراء وعرفة والأيام البيض، كل صيام بحكمه ودليله."]];
   if (!k) {
     v.innerHTML = `<h2>جدول رمضان</h2><div class="note">اختر قسماً لعرض محتواه.</div>${tabs.map(x => `<button class="card sect" data-t="${x[0]}"><h3>${x[1]}</h3><p>${x[2]}</p></button>`).join("")}`;
@@ -1843,13 +1844,21 @@ function renderTime(tab) {
   else if (k === "dua") body = `<div class="card"><div class="count"><span>ينتهي السحور (الفجر)</span><b>${hhmm(t.fajr)}</b></div><div class="count"><span>الإفطار (المغرب)</span><b>${hhmm(t.maghrib)}</b></div></div>`
     + FAST_DUA.map(x => item({ ...x, tag: x.tag || "س" })).join("") + familyDuaItems();
   else if (k === "qiyam") body = QIYAM_DUA.map(x => item({ ...x, tag: x.tag || "س" })).join("") + familyDuaItems();
-  else if (k === "days") body = `<div class="card"><div class="mid">التاريخ الهجري</div><div class="big">${AR(hj.d)} ${hj.name} ${AR(hj.y)}هـ</div>
-      <div class="count"><span>ضبط يدوي ±يوم</span><button class="cbtn" id="ho-">−</button><b>${AR(DB.get("hoff", 0))}</b><button class="cbtn" id="ho+">+</button></div>
+  else if (k === "days") {
+    const cal = DB.get("cal", "h");
+    const now = new Date();
+    const gd = AR(now.getDate()) + " " + G_MONTHS[now.getMonth()] + " " + AR(now.getFullYear()) + "م";
+    const hd = AR(hj.d) + " " + hj.name + " " + AR(hj.y) + "هـ";
+    body = `<div class="card">
+      <div class="chips" style="margin:0 0 8px"><button class="chip ${cal === "h" ? "on" : ""}" data-cal="h">هجري</button><button class="chip ${cal === "g" ? "on" : ""}" data-cal="g">ميلادي</button></div>
+      <div class="dateMain">${cal === "h" ? hd : gd}</div><div class="mid" style="text-align:center">${cal === "h" ? gd : hd}</div>
+      <div class="count sm"><span>ضبط الهجري ±يوم</span><button class="cbtn" id="ho-">−</button><b>${AR(DB.get("hoff", 0))}</b><button class="cbtn" id="ho+">+</button></div>
       <div class="note">ثبوت الشهر والعيد بالرؤية الشرعية وإعلان الجهة الرسمية في بلدك.</div></div>
-    <div class="card"><h3>أيام أفطرتها</h3>
-      <div class="count"><span>أيام أفطرتها في رمضان</span><button class="cbtn" id="m-">−</button><b style="font-size:20px">${AR(missed)}</b><button class="cbtn" id="m+">+</button></div>
-      <div class="count"><span>قضيتُ منها</span><button class="cbtn" id="u-">−</button><b style="font-size:20px">${AR(made)}</b><button class="cbtn" id="u+">+</button></div>
-      <div class="count"><span>الباقي</span><b>${AR(Math.max(0, missed - made))}</b></div></div>`;
+    <div class="card"><h3>قضاء رمضان</h3>
+      <div class="count sm"><span>أيام أفطرتها</span><button class="cbtn" id="m-">−</button><b>${AR(missed)}</b><button class="cbtn" id="m+">+</button></div>
+      <div class="count sm"><span>قضيتُ منها</span><button class="cbtn" id="u-">−</button><b>${AR(made)}</b><button class="cbtn" id="u+">+</button></div>
+      <div class="count sm"><span>الباقي عليّ</span><b>${AR(Math.max(0, missed - made))}</b></div></div>`;
+  }
   else body = SUNNAH_FASTS.map(x => `<div class="card"><div class="count"><span><b>${esc(x.label)}</b></span><b>${esc(x.rule)}</b></div><div class="src"><span class="tag h">سنة</span> المصدر: ${esc(x.src)}</div>${x.note ? `<div class="src fadl">الفضل: ${esc(x.note)}</div>` : ""}</div>`).join("");
   const cur = tabs.find(x => x[0] === k);
   v.innerHTML = `<h2>جدول رمضان</h2><div class="tabs"><button class="chip" data-t="">← الأقسام</button>${tabs.map(x => `<button class="chip ${x[0] === k ? "on" : ""}" data-t="${x[0]}">${x[1]}</button>`).join("")}</div><div class="note sectdesc">${cur ? cur[2] : ""}</div>${body}`;
@@ -1857,6 +1866,7 @@ function renderTime(tab) {
   bindCounters(v);
   const q = id => document.getElementById(id);
   const bump = (id, key, d) => { if (q(id)) q(id).onclick = () => { DB.set(key, Math.max(0, DB.get(key, 0) + d)); renderTime(k); }; };
+  v.querySelectorAll("[data-cal]").forEach(b => b.onclick = () => { DB.set("cal", b.dataset.cal); renderTime(k); });
   bump("m-", "missed", -1); bump("m+", "missed", 1); bump("u-", "madeup", -1); bump("u+", "madeup", 1);
   if (q("ho-")) q("ho-").onclick = () => { DB.set("hoff", DB.get("hoff", 0) - 1); renderTime(k); PRAY.strip(); };
   if (q("ho+")) q("ho+").onclick = () => { DB.set("hoff", DB.get("hoff", 0) + 1); renderTime(k); PRAY.strip(); };
@@ -2121,7 +2131,7 @@ const HASH_V = location.hash.slice(1);
 const FIRST_RUN = !DB.get("onboarded", false) && !String(account().name || "").trim();
 if (!FIRST_RUN) DB.set("onboarded", true);
 go(FIRST_RUN ? "settings" : (HASH_V && RENDER[HASH_V] ? HASH_V : DB.get("view", "home")));
-if (FIRST_RUN) notify("أهلاً بك في قانتون", "أدخلي اسمك ورقم هاتفك ثم «حفظ» للدخول");
+if (FIRST_RUN) notify("أهلاً بك في قانتون", "أدخل اسمك ورقم هاتفك ثم «حفظ» للدخول");
 if (DB.get("loc", false)) { GPS.start(); SKY.locate(true); }
 if ("serviceWorker" in navigator) {
   navigator.serviceWorker.register("sw.js", { updateViaCache: "none" }).then(r => { r.update().catch(() => { }); }).catch(() => { });

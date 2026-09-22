@@ -205,7 +205,7 @@ function books(s) {
   return t;
 }
 Object.assign(EN, {
-  "أهلاً بك في قانتون": "Welcome to Qanitoon", "أدخلي اسمك ورقم هاتفك ثم «حفظ» للدخول": "Enter your name and phone number, then “Save” to continue",
+  "أهلاً بك في قانتون": "Welcome to Qanitoon", "أدخل اسمك ورقم هاتفك ثم «حفظ» للدخول": "Enter your name and phone number, then “Save” to continue", "المناسك": "Rites", "المزيد": "More", "كل التنبيهات": "All notifications", "مفعّلة": "On", "متوقفة": "Off", "أخذ الحق مشروع, والعفو أعلى": "Taking one's right is permitted; forgiving is higher", "أخذ الحق مشروع، والعفو أعلى": "Taking one's right is permitted; forgiving is higher", "التسبيح، جدولي، بحث القرآن، اسألني": "Tasbih, my schedule, Quran search, Ask me", "سنة النبي ﷺ في رمضان، القضاء، الصيام المستحب": "The Prophet's ﷺ way in Ramadan, make-up fasts, voluntary fasting", "الحج": "Hajj", "العمرة": "Umrah",
   "ادعي": "Show du'a", "من الشمال": "from North", "ملفي": "My profile", "عربي": "عربي", "القراءة": "Read", "الورد اليومي": "Daily portion", "الورد اليومي من القرآن": "Daily Quran portion",
   "ضع علامة المصحف هنا": "Place bookmark here", "التسبيح اليوم": "Today's tasbih", "أذكار الصباح والمساء": "Morning & evening adhkar",
   "أوقات الدعاء النبوية (جدولي)": "Prophetic times of du'a (My schedule)", "الذكر والأدعية القرآنية": "Dhikr and Quranic du'as", "＋ الصيام والقضاء": "＋ Fasting & make-up days",
@@ -305,6 +305,9 @@ RULES.push([/^صفحة (\d+) — (.+)$/, (m) => { const i = QURAN.surahs.findInd
 RULES.push([/^(بأسماء الله|أوقات القرآن): (.+)$/, (m) => `${EN[m[1]]}: ${EN[m[2]] || m[2]}`]);
 const PRAYER_EN = { "الفجر": "Fajr", "الشروق": "Sunrise", "الظهر": "Dhuhr", "العصر": "Asr", "المغرب": "Maghrib", "العشاء": "Isha" };
 RULES.unshift([/^(.+?هـ) · (\S+) (\d\d:\d\d) · بعد (?:(\d+) س )?(\d+) د$/, (m) => `${trRules(m[1]) || m[1]} · ${PRAYER_EN[m[2]] || m[2]} ${m[3]} · in ${m[4] ? m[4] + "h " : ""}${m[5]}m`]);
+RULES.unshift([/^(\S+) (\d\d:\d\d) · بعد (?:(\d+) س )?(\d+) د$/, (m) => `${PRAYER_EN[m[1]] || m[1]} ${m[2]} · in ${m[3] ? m[3] + "h " : ""}${m[4]}m`]);
+RULES.unshift([/^(أشواط الطواف|أشواط السعي) — (\d+) من (\d+)$/, (m) => `${m[1] === "أشواط الطواف" ? "Tawaf laps" : "Sa'i laps"} — ${m[2]} of ${m[3]}`]);
+RULES.unshift([/^تفصيل التنبيهات \((\d+) من (\d+) مفعّل\)$/, (m) => `Notification details (${m[1]} of ${m[2]} on)`]);
 RULES.unshift([/^(\S+) بعد (.+?) · الأذكار (\d+)\/(\d+)$/, (m) => `${PRAYER_EN[m[1]] || m[1]} in ${m[2].replace(" س", "h").replace(" د", "m")} · Adhkar ${m[3]}/${m[4]}`]);
 function trRules(k) { k = AD(k); for (const [re, fn] of RULES) { const m = k.match(re); if (m) { const r = fn(m); if (r) return r; } } return null; }
 

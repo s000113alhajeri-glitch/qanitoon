@@ -370,10 +370,15 @@ const HAJJ_INTRO = `
     <li>فوات الوقوف بعرفة: فات الحج، ويتحلل بعمرة ويقضي.</li>
     <li>ترك واجب: يُجبر بدم، والحج صحيح.</li></ul></details>
   <div class="note">تعريفٌ مختصر من كلام أهل العلم، وما فيه خلاف نُبّه عليه. ولمسألتك الخاصة اسأل جهة الإفتاء في بلدك.</div>`;
+function riteSwitch(hajj) {
+  return `<div class="chips seg" style="margin-bottom:8px"><button class="chip ${hajj ? "" : "on"}" data-rite="umrah">العمرة</button><button class="chip ${hajj ? "on" : ""}" data-rite="hajj">الحج</button></div>`;
+}
+function bindRiteSwitch(v) { v.querySelectorAll("[data-rite]").forEach(b => b.onclick = () => go(b.dataset.rite)); }
 function renderIntro(v, hajj, S) {
-  v.innerHTML = `${hajj ? HAJJ_INTRO : UMRAH_INTRO}
+  v.innerHTML = `${riteSwitch(hajj)}${hajj ? HAJJ_INTRO : UMRAH_INTRO}
   <div style="height:70px"></div><div class="stepbar sticky"><button class="btn" id="startRite">ابدأ ${hajj ? "الحج" : "العمرة"} ←</button></div>`;
   v.querySelector("#startRite").onclick = () => { S.intro = false; renderUmrah(); window.scrollTo(0, 0); };
+  bindRiteSwitch(v);
 }
 
 /* ============ شاشة العمرة ============ */
@@ -426,11 +431,10 @@ function renderUmrah() {
   if (st.secs) duas += booklet(st.secs);
 
   const N = STAGES.length, last = i === N - 1;
-  v.innerHTML = `
+  v.innerHTML = `${riteSwitch(hajj)}
   <div class="card">
     <div class="mid">${hajj ? "مناسك الحج" : "مناسك العمرة"} — الخطوة ${AR(i + 1)} من ${AR(N)}</div>
     <h3 style="font-size:22px;text-align:center">${ico(st.icon)} ${esc(st.t)}</h3>
-    <div class="bar"><i style="width:${(i / (N - 1)) * 100}%"></i></div>
     <div class="steps">${STAGES.map((x, k) => `<button class="stp ${k === i ? "on" : k < i ? "done" : ""}" data-go="${k}" title="${esc(x.t)}">${AR(k + 1)}</button>`).join("")}</div>
     <button class="btn sec sm" id="riteInfo" style="margin-top:8px">تعرّف على ${hajj ? "الحج" : "العمرة"}: المباحات والمحظورات والمبطلات</button>
   </div>
@@ -461,6 +465,7 @@ function renderUmrah() {
     enter(i + 1);
   };
   v.querySelector("#riteInfo").onclick = () => { S.intro = true; renderUmrah(); window.scrollTo(0, 0); };
+  bindRiteSwitch(v);
   v.querySelector("#prev").onclick = () => { if (i > 0) { S.stage = i - 1; S.pre = false; renderUmrah(); window.scrollTo(0, 0); } };
   v.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const k = +b.dataset.go; if (k === i) return; if (k < i) { S.stage = k; S.pre = false; renderUmrah(); window.scrollTo(0, 0); } else enter(k); });
   if (GPS.id !== null) GPS.tick();
@@ -503,8 +508,7 @@ function counterCard(kind) {
     : (n >= 7 ? "تمّ السعي" : "اتجه إلى " + SPOTS[S.saeeAt].name + " — الشوط " + AR(n + 1));
   return `<div class="card">
     ${kind === "tawaf" ? KAABA3D : ""}
-    <div class="mid">${label}</div>
-    <div class="big">${AR(n)} من 7</div>
+    <div class="mid">${label} — ${AR(n)} من ${AR(7)}</div>
     <div class="dots">${[1, 2, 3, 4, 5, 6, 7].map(x => `<div class="dot ${x <= n ? "on" : ""}">${AR(x)}</div>`).join("")}</div>
     <div class="mid">${esc(hint)}</div>
     <div class="row" style="margin-top:12px">
@@ -963,7 +967,7 @@ function item(x) {
   const tag = cls === "q" ? "قرآن" : cls === "m" ? "دعاء مباح" : "سنة";
   return `<div class="card">
     <div class="dua">${esc(x.t)}</div>
-    ${x.info ? `<div class="note">حديث للتذكّر والعمل — ليس ذكراً يُعدّ.</div>` : `<div class="count"><span>التكرار المطلوب</span><b>${AR(x.n || 1)}</b></div>${tasbih(x.t, x.n || 1)}`}
+    ${x.info ? `<div class="note">حديث للتذكّر والعمل — ليس ذكراً يُعدّ.</div>` : tasbih(x.t, x.n || 1)}
     ${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}
     <div class="src"><span class="tag ${cls}">${tag}</span> المصدر: ${esc(src)}${x.when ? " — " + esc(x.when) : ""}</div>
     ${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}
@@ -974,8 +978,8 @@ function tasbih(key, n) {
   const c = DB.get("cnt_" + id + "_" + today(), 0);
   return `<div class="count" id="box_${id}"><button class="cbtn" data-cnt="${id}" data-n="${n}" data-d="-1">−</button>
     <div class="bar" style="flex:1"><i style="width:${Math.min(100, (c / n) * 100)}%"></i></div>
-    <b id="c_${id}">${AR(c)}</b>
-    <button class="cbtn" data-cnt="${id}" data-n="${n}" data-d="1" style="background:var(--gold);color:#26200d">+</button></div>`;
+    <b class="cnum"><span id="c_${id}">${AR(c)}</span><small> / ${AR(n)}</small></b>
+    <button class="cbtn plus" data-cnt="${id}" data-n="${n}" data-d="1">+</button></div>`;
 }
 function bindCounters(root) {
   root.querySelectorAll("[data-cnt]").forEach(b => b.onclick = () => {
@@ -1012,7 +1016,7 @@ function pitem(x) {
   const gcls = /صحيح/.test(x.g) ? "s" : /حسن/.test(x.g) ? "h" : /قرآن/.test(x.g) ? "q" : "d";
   return `<div class="card">
     <div class="dua">${esc(x.t)}</div>
-    <div class="count"><span>التكرار</span><b>${AR(x.n || 1)}</b></div>${tasbih(x.t, x.n || 1)}
+    ${tasbih(x.t, x.n || 1)}
     ${x.h ? `<p style="font-size:14px"><b>الحديث:</b> ${esc(x.h)}</p>` : ""}
     <div class="src"><span class="tag ${cls}">${cls === "q" ? "قرآن" : cls === "m" ? "دعاء مباح" : "سنة"}</span> <span class="tag ${gcls}">${esc(x.g)}</span> ${esc(x.s)}</div>
   </div>`;
@@ -1028,7 +1032,7 @@ function namesView() {
   else if (NM.tab === "q") body = x.q.length
     ? x.q.map(a => `<div class="card"><div class="dua">${esc(a.t)}</div><div class="src"><span class="tag q">ورد الاسم نفسه في القرآن</span> ${esc(a.s)}</div></div>`).join("")
     : `<div class="card"><p class="mid">لم يرد اسم ${esc(x.n)} بهذا اللفظ في القرآن.</p></div>`;
-  else if (NM.tab === "h") body = x.h.map(a => `<div class="card"><div class="dua">${esc(a.t)}</div>${a.n ? `<div class="count"><span>التكرار</span><b>${AR(a.n)}</b></div>${tasbih(x.n + a.t, a.n)}` : ""}<div class="src"><span class="tag h">سنة</span> ${esc(a.s)}</div></div>`).join("");
+  else if (NM.tab === "h") body = x.h.map(a => `<div class="card"><div class="dua">${esc(a.t)}</div>${a.n ? `${tasbih(x.n + a.t, a.n)}` : ""}<div class="src"><span class="tag h">سنة</span> ${esc(a.s)}</div></div>`).join("");
   else if (NM.tab === "u") body = x.u.map(a => `<div class="card"><p>${esc(a.t)}</p><div class="src"><span class="tag u">أهل العلم</span> ${esc(a.s)}</div></div>`).join("");
   else body = `<div class="card"><p class="dua" style="font-size:17px">${esc(x.f)}</p><div class="src"><span class="tag m">توجيه تربوي</span> مبني على كلام أهل العلم، ليس ذكراً مأثوراً يُلتزم لفظه — سبّح بما ثبت، واستشعر المعنى بقلبك.</div></div>`;
   return `<details class="card" style="padding:10px 14px"><summary><b>لماذا التسبيح بالأسماء؟</b></summary>
@@ -1070,7 +1074,7 @@ const DUA_LIBRARY = [
   { k: "quranic", t: "الأدعية القرآنية", r: () => IB_QURANIC.map(x => item({ ...x, tag: "ق" })).join("") },
   { k: "jawami", t: "جوامع الدعاء", r: () => duaNotice() + IB_JAWAMI.map(item).join("") },
   { k: "ahwal", t: "أذكار الأحوال", r: () => IB_OTHER.map(g => `<details><summary>${esc(g.title)} (${AR(g.items.length)})</summary><div>${g.items.map(item).join("")}</div></details>`).join("") + `<details><summary>متفرقة (${AR(IB_MISC.length)})</summary><div>${IB_MISC.map(item).join("")}</div></details>` },
-  { k: "anbiya", t: "أدعية الأنبياء", r: () => PROPHETS_DUA.map(g => `<details open><summary>${esc(g.topic)}</summary><div>${g.items.map(x => `<div class="card"><div class="mid" style="color:var(--gold2)">${esc(x.p)}</div><div class="dua">${esc(x.t)}</div>${x.n && x.n > 1 ? `<div class="count"><span>التكرار المقترح</span><b>${AR(x.n)}</b></div>${tasbih(x.p + x.t, x.n)}` : ""}${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}<div class="src"><span class="tag q">قرآن</span> ${esc(x.s)}</div></div>`).join("")}</div></details>`).join("") },
+  { k: "anbiya", t: "أدعية الأنبياء", r: () => PROPHETS_DUA.map(g => `<details open><summary>${esc(g.topic)}</summary><div>${g.items.map(x => `<div class="card"><div class="mid" style="color:var(--gold2)">${esc(x.p)}</div><div class="dua">${esc(x.t)}</div>${x.n && x.n > 1 ? `${tasbih(x.p + x.t, x.n)}` : ""}${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}<div class="src"><span class="tag q">قرآن</span> ${esc(x.s)}</div></div>`).join("")}</div></details>`).join("") },
   { k: "safar", t: "السفر", r: () => `<div class="card"><h3>أحكام صلاة المسافر</h3>${SAFAR.ahkam.map(a => `<p><b>${esc(a.t)}:</b> ${esc(a.d)}<div class="src">${esc(a.s)}</div></p>`).join("")}</div>` + SAFAR.adhkar.map(item).join("") },
   { k: "arafah", t: "يوم عرفة", r: () => arafahView() }
 ];
@@ -1096,7 +1100,7 @@ function tsbTodayView() {
     <button class="btn" id="tsbSave" style="width:100%;margin-top:8px">حفظ اختيار اليوم</button>`;
   }
   return `<div class="row" style="justify-content:space-between;align-items:center"><span class="mid">${AR(chosen.length)} من التسابيح لليوم</span><button class="btn sec sm" id="tsbEdit">تعديل الاختيار</button></div>
-  ${chosen.map(x => `<div class="card"><div class="mid" style="font-size:12px">${esc(x.g)}</div><div class="dua">${esc(x.t)}</div><div class="count"><span>التكرار</span><b>${AR(x.n)}</b></div>${tasbih(x.key, x.n)}${x.s ? `<div class="src"><span class="tag h">سنة</span> ${esc(x.s)}</div>` : ""}${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("")}`;
+  ${chosen.map(x => `<div class="card"><div class="mid" style="font-size:12px">${esc(x.g)}</div><div class="dua">${esc(x.t)}</div>${tasbih(x.key, x.n)}${x.s ? `<div class="src"><span class="tag h">سنة</span> ${esc(x.s)}</div>` : ""}${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("")}`;
 }
 function tsbLearnView() {
   const subs = [["times", "أوقات التسبيح في القرآن"], ["asma", "أسماء الله الحسنى"], ["fadl", "التسابيح وفضلها"]];
@@ -1352,12 +1356,28 @@ function renderLib(box) {
 const RENDER = { home: () => renderHome(), umrah: () => { RITE.k = "umrah"; renderUmrah(); }, hajj: renderHajj, quran: renderQuran, adhkar: () => renderAdhkar(), tadabbur: () => renderTadabbur(), time: () => renderTime(), settings: () => renderSettings() };
 const TITLES = { home: ["قانتون", "ملخص يومك"], umrah: ["العمرة", "مناسك العمرة خطوة بخطوة"], hajj: ["الحج", "مناسك الحج يوماً بيوم"], quran: ["المصحف", "القراءة والورد والختمة"], adhkar: ["الأذكار", "الصباح والمساء وبعد الصلاة"], tadabbur: ["التدبّر", "أسماء الله والأدعية واسألني"], time: ["جدول رمضان", "سنة النبي ﷺ في رمضان والصيام المستحب"], settings: ["ملفي والإعدادات", "الحساب والموقع والخصوصية"] };
 const VIEWS = ["home", "umrah", "hajj", "quran", "adhkar", "tadabbur", "time", "settings"];
+const NAV_OF = { umrah: "rites", hajj: "rites", tadabbur: "more", time: "more" };
+function openMore() {
+  const wrap = document.createElement("div"); wrap.className = "sheet";
+  wrap.innerHTML = `<div class="sheetIn">
+    <div class="sheetTop"><b>المزيد</b><button class="btn sec sm" id="mrClose">إغلاق</button></div>
+    <div class="sheetList">
+      <button class="card moreItem" data-mv="tadabbur">${ico("book")}<div><b>التدبّر</b><div class="mid">التسبيح، جدولي، بحث القرآن، اسألني</div></div></button>
+      <button class="card moreItem" data-mv="time">${ico("moon")}<div><b>رمضان</b><div class="mid">سنة النبي ﷺ في رمضان، القضاء، الصيام المستحب</div></div></button>
+    </div></div>`;
+  document.body.appendChild(wrap);
+  wrap.querySelector("#mrClose").onclick = () => wrap.remove();
+  wrap.querySelectorAll("[data-mv]").forEach(b => b.onclick = () => { wrap.remove(); go(b.dataset.mv); });
+}
 function go(v) {
+  if (v === "rites") v = RITE.k === "hajj" ? "hajj" : "umrah";
+  if (v === "more") return openMore();
   if (!RENDER[v]) v = "home";
   VIEWS.forEach(x => { const el = document.getElementById("v-" + x); if (el) el.classList.toggle("hidden", x !== v); });
   document.getElementById("summary").classList.toggle("hidden", v !== "home");
   const ps = document.getElementById("pstrip"); if (ps) ps.classList.toggle("hidden", v === "home");
-  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === v));
+  document.querySelector("header").classList.toggle("compact", v !== "home");
+  document.querySelectorAll("#nav button").forEach(b => b.classList.toggle("on", b.dataset.v === (NAV_OF[v] || v)));
   document.getElementById("hTitle").textContent = TITLES[v][0];
   document.getElementById("hSub").textContent = TITLES[v][1];
   RENDER[v]();
@@ -1766,8 +1786,7 @@ const PRAY = {
     const s = document.getElementById("pstrip"); if (!s) return;
     const n = this.next(), mins = Math.max(0, Math.round(n.in * 60));
     const hh = Math.floor(mins / 60), mm = mins % 60;
-    const hj = toHijri(new Date(), DB.get("hoff", 0));
-    s.textContent = `${AR(hj.d)} ${hj.name} ${AR(hj.y)}هـ · ${PRAYER_NAMES[n.k]} ${hhmm(n.at)} · بعد ${hh ? AR(hh) + " س " : ""}${AR(mm)} د`;
+    s.textContent = `${PRAYER_NAMES[n.k]} ${hhmm(n.at)} · بعد ${hh ? AR(hh) + " س " : ""}${AR(mm)} د`;
   }
 };
 
@@ -1852,11 +1871,11 @@ function renderTime(tab) {
     body = `<div class="card">
       <div class="chips" style="margin:0 0 8px"><button class="chip ${cal === "h" ? "on" : ""}" data-cal="h">هجري</button><button class="chip ${cal === "g" ? "on" : ""}" data-cal="g">ميلادي</button></div>
       <div class="dateMain">${cal === "h" ? hd : gd}</div><div class="mid" style="text-align:center">${cal === "h" ? gd : hd}</div>
-      <div class="count sm"><span>ضبط الهجري ±يوم</span><button class="cbtn" id="ho-">−</button><b>${AR(DB.get("hoff", 0))}</b><button class="cbtn" id="ho+">+</button></div>
+      <div class="count sm"><span>ضبط الهجري ±يوم</span><button class="cbtn" id="ho-">−</button><b>${AR(DB.get("hoff", 0))}</b><button class="cbtn plus" id="ho+">+</button></div>
       <div class="note">ثبوت الشهر والعيد بالرؤية الشرعية وإعلان الجهة الرسمية في بلدك.</div></div>
     <div class="card"><h3>قضاء رمضان</h3>
-      <div class="count sm"><span>أيام أفطرتها</span><button class="cbtn" id="m-">−</button><b>${AR(missed)}</b><button class="cbtn" id="m+">+</button></div>
-      <div class="count sm"><span>قضيتُ منها</span><button class="cbtn" id="u-">−</button><b>${AR(made)}</b><button class="cbtn" id="u+">+</button></div>
+      <div class="count sm"><span>أيام أفطرتها</span><button class="cbtn" id="m-">−</button><b>${AR(missed)}</b><button class="cbtn plus" id="m+">+</button></div>
+      <div class="count sm"><span>قضيتُ منها</span><button class="cbtn" id="u-">−</button><b>${AR(made)}</b><button class="cbtn plus" id="u+">+</button></div>
       <div class="count sm"><span>الباقي عليّ</span><b>${AR(Math.max(0, missed - made))}</b></div></div>`;
   }
   else body = SUNNAH_FASTS.map(x => `<div class="card"><div class="count"><span><b>${esc(x.label)}</b></span><b>${esc(x.rule)}</b></div><div class="src"><span class="tag h">سنة</span> المصدر: ${esc(x.src)}</div>${x.note ? `<div class="src fadl">الفضل: ${esc(x.note)}</div>` : ""}</div>`).join("");
@@ -1893,9 +1912,11 @@ function renderSettings() {
     <div class="count"><span>دقة GPS</span><b id="gpsAcc">${GPS.acc ? AR(Math.round(GPS.acc)) + " م" : (loc ? "…" : "—")}</b></div>
     <div class="note">يعمل تلقائياً بعد التفعيل مرة واحدة. تنبيهات الجو والمناسبات تظهر وحدها عند وقوعها.</div></div>
   <div class="card"><h3>التنبيهات</h3>
+    <div class="count"><span>كل التنبيهات</span><button class="btn sm ${NOTIF_CATS.some(c => NOTIF.on(c.id)) ? "" : "sec"}" id="ntAll">${NOTIF_CATS.some(c => NOTIF.on(c.id)) ? "مفعّلة" : "متوقفة"}</button></div>
+    <details class="ntd" ${DB.get("ntOpen", false) ? "open" : ""}><summary class="mid">تفصيل التنبيهات (${AR(NOTIF_CATS.filter(c => NOTIF.on(c.id)).length)} من ${AR(NOTIF_CATS.length)} مفعّل)</summary>
     <div class="count"><span>إذن التنبيهات على الجهاز</span><button class="btn sm ${("Notification" in window && Notification.permission === "granted") ? "" : "sec"}" id="ntPerm">${("Notification" in window && Notification.permission === "granted") ? "مسموح" : "السماح"}</button></div>
     ${NOTIF_CATS.map(c => `<div class="count"><span>${c.t}</span><button class="btn sm ${NOTIF.on(c.id) ? "" : "sec"}" data-nt="${c.id}">${NOTIF.on(c.id) ? "مفعّل" : "متوقف"}</button></div>`).join("")}
-    <div class="note">تعمل التنبيهات داخل التطبيق دائماً؛ وعلى الجهاز عند السماح بها. تنبيهات الطقس والطوارئ تظهر وحدها عند وقوعها بموقعك.</div></div>
+    <div class="note">تعمل التنبيهات داخل التطبيق دائماً؛ وعلى الجهاز عند السماح بها. تنبيهات الطقس والطوارئ تظهر وحدها عند وقوعها بموقعك.</div></details></div>
   <div class="card"><h3>الصلاة</h3>
     <label>طريقة الحساب</label><select id="pm">${Object.entries(PRAYER_METHODS).map(([id, m]) => `<option value="${id}" ${o.method === id ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select>
     <label>العصر</label><select id="pa"><option value="shafii" ${o.asr === "shafii" ? "selected" : ""}>الجمهور</option><option value="hanafi" ${o.asr === "hanafi" ? "selected" : ""}>الحنفية</option></select>
@@ -1922,6 +1943,14 @@ function renderSettings() {
   q("pm").onchange = e => { PRAY.set({ method: e.target.value }); PRAY.strip(); schedulePrayerNotifications(); };
   q("pa").onchange = e => { PRAY.set({ asr: e.target.value }); schedulePrayerNotifications(); };
   q("ntPerm").onclick = async () => { if ("Notification" in window) { try { await Notification.requestPermission(); } catch (e) { } } renderSettings(); };
+  const ntd = v.querySelector(".ntd"); if (ntd) ntd.ontoggle = () => DB.set("ntOpen", ntd.open);
+  if (q("ntAll")) q("ntAll").onclick = async () => {
+    const on = !NOTIF_CATS.some(c => NOTIF.on(c.id));
+    if (on && "Notification" in window && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (e) { } }
+    NOTIF_CATS.forEach(c => NOTIF.set(c.id, on));
+    PRAY.set({ on }); if (on) schedulePrayerNotifications(); else { const ln = LN(); if (ln) ln.getPending().then(p => p.notifications.length && ln.cancel(p)).catch(() => { }); }
+    renderSettings();
+  };
   v.querySelectorAll("[data-nt]").forEach(b => b.onclick = async () => {
     const id = b.dataset.nt, on = !NOTIF.on(id);
     if (on && "Notification" in window && Notification.permission === "default") { try { await Notification.requestPermission(); } catch (e) { } }

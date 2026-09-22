@@ -1149,7 +1149,7 @@ function renderAdhkar(tab) {
   const cur = ADHKAR_TABS.find(x => x.k === k) || ADHKAR_TABS[0]; DB.set("atab", cur.k);
   v.innerHTML = `<div class="chips">${ADHKAR_TABS.map(x => `<button class="chip ${x.k === cur.k ? "on" : ""}" data-a="${x.k}">${x.t}</button>`).join("")}</div>
   <div class="note">العدّاد يُحفظ لليوم ويعود للصفر تلقائياً مع اليوم الجديد. التصنيف: <span class="tag q">قرآن</span> آية، <span class="tag h">سنة</span> ثابت عن النبي ﷺ، <span class="tag m">دعاء مباح</span> ليس حديثاً.</div>
-  ${["sabah", "masa"].includes(cur.k) ? "" : `<label class="card row" style="gap:10px;align-items:center"><input type="checkbox" id="aopt" ${DB.get("adhkarOpt", []).includes(cur.k) ? "checked" : ""}><span>احتساب «${cur.t}» في عدّاد اكتمال اليوم <span class="mid">(الأساس: الصباح والمساء)</span></span></label>`}
+  ${["sabah", "masa"].includes(cur.k) ? "" : `<label class="card row" style="gap:10px;align-items:center;cursor:pointer"><input type="checkbox" id="aopt" style="flex:0 0 auto;width:20px;height:20px" ${DB.get("adhkarOpt", []).includes(cur.k) ? "checked" : ""}><span style="flex:1">احتساب «${cur.t}» في عدّاد اكتمال اليوم <span class="mid">(الأساس: الصباح والمساء)</span></span></label>`}
   ${cur.r()}`;
   v.querySelectorAll("[data-a]").forEach(b => b.onclick = () => { renderAdhkar(b.dataset.a); window.scrollTo(0, 0); });
   const ao = document.getElementById("aopt");

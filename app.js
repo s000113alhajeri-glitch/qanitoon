@@ -974,19 +974,19 @@ function tasbih(key, n) {
   const id = "t" + Math.abs([...key].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
   const c = DB.get("cnt_" + id + "_" + today(), 0);
   return `<div class="count" id="box_${id}"><button class="cbtn" data-cnt="${id}" data-n="${n}" data-d="-1">−</button>
-    <div class="bar" style="flex:1"><i style="width:${Math.min(100, (c / n) * 100)}%"></i></div>
-    <b class="cnum"><span id="c_${id}">${AR(c)}</span><small> / ${AR(n)}</small></b>
+    <div class="bar" style="flex:1"><i style="width:${n ? Math.min(100, (c / n) * 100) : (c ? 100 : 0)}%"></i></div>
+    <b class="cnum"><span id="c_${id}">${AR(c)}</span><small>${n ? " / " + AR(n) : ""}</small></b>
     <button class="cbtn plus" data-cnt="${id}" data-n="${n}" data-d="1">+</button></div>`;
 }
 function bindCounters(root) {
   root.querySelectorAll("[data-cnt]").forEach(b => b.onclick = () => {
     const id = b.dataset.cnt, k = "cnt_" + id + "_" + today();
-    const n = +b.dataset.n || 1;
-    const v = Math.min(n, Math.max(0, DB.get(k, 0) + (+b.dataset.d)));
+    const n = +b.dataset.n || 0;
+    const v = Math.max(0, Math.min(n || 1e9, DB.get(k, 0) + (+b.dataset.d)));
     DB.set(k, v);
     const out = root.querySelector("#c_" + id); if (out) out.textContent = AR(v);
     const bar = root.querySelector("#box_" + id + " .bar > i");
-    if (bar) bar.style.width = Math.min(100, (v / n) * 100) + "%";
+    if (bar) bar.style.width = (n ? Math.min(100, (v / n) * 100) : (v ? 100 : 0)) + "%";
     if (navigator.vibrate) navigator.vibrate(15);
     if (v === n) notify("أتممت العدد", "بارك الله فيك");
     SUM.render();
@@ -1078,11 +1078,13 @@ const DUA_LIBRARY = [
 /* التسبيح: يمين = تعلّم (أوقات التسبيح في القرآن / أسماء الله / التسابيح وفضلها)، يسار = سبّح اليوم (اختيار يُحسب في عدّاد الرئيسية) */
 const TSB = { sub: ["learn", "today"].includes(DB.get("tsb_sub", "today")) ? DB.get("tsb_sub", "today") : "today", learn: DB.get("tsb_learn", "times"), edit: false };
 const tsbId = key => "t" + Math.abs([...key].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
+const qAyah = (su, a) => { const S = QURAN.surahs.find(x => x.n === su); const v = S && S.a.find(x => x[1] === a); return v ? { t: "﴿" + v[0].replace(/^بِسْمِ ٱللَّهِ ٱلرَّحْمَٰنِ ٱلرَّحِيمِ /, "") + "﴾", ref: S.name + " " + AR(a) } : null; };
 function tsbPool() {
   const p = [];
   IB_TASABIH.forEach(x => p.push({ key: x.t, t: x.t, n: x.n || 100, s: x.s, f: x.f, g: "تسابيح مأثورة" }));
   NAMES.forEach(x => x.h.forEach(a => { if (a.n) p.push({ key: x.n + a.t, t: a.t, n: a.n, s: a.s, g: "بأسماء الله: " + x.n }); }));
   TASBIH_TIMES.forEach(x => p.push({ key: x.title, t: x.what, n: x.n, s: x.s, g: "أوقات القرآن: " + x.title }));
+  QURAN_TASBIH.forEach(gr => gr.items.forEach(x => { if (x.say) p.push({ key: "qt" + x.who, t: x.say, n: 0, s: x.refs.map(r => (qAyah(...r) || {}).ref).filter(Boolean).join("، "), g: gr.g + ": " + x.who }); }));
   const seen = new Set();
   return p.filter(x => { const id = tsbId(x.key); if (seen.has(id)) return false; seen.add(id); return true; });
 }
@@ -1094,16 +1096,17 @@ function tsbTodayView() {
     const groups = [...new Set(pool.map(x => x.g.split(":")[0]))];
     return `<div class="note">اختر ما تسبّح به اليوم، ثم اضغط «ابدأ التسبيح» ليظهر لكل ذكر عدّاده هنا، ويُحسب مجموعه في «التسبيح اليوم» بالرئيسية.</div>
     <button class="btn" id="tsbSave" style="width:100%;margin-bottom:8px">ابدأ التسبيح (<span id="tsbN">${AR(sel.length)}</span> مختار)</button>
-    ${groups.map(g => `<details ${g === "تسابيح مأثورة" ? "open" : ""}><summary>${esc(g)}</summary><div>${pool.filter(x => x.g.split(":")[0] === g).map(x => `<label class="card row" style="gap:10px;align-items:flex-start"><input type="checkbox" class="tsbchk" value="${tsbId(x.key)}" ${sel.includes(tsbId(x.key)) ? "checked" : ""}><span><span class="dua" style="font-size:16px">${esc(x.t)}</span><div class="src">×${AR(x.n)}${x.g.includes(":") ? " — " + esc(x.g.split(":")[1].trim()) : ""}</div></span></label>`).join("")}</div></details>`).join("")}
+    ${groups.map(g => `<details ${g === "تسابيح مأثورة" ? "open" : ""}><summary>${esc(g)}</summary><div>${pool.filter(x => x.g.split(":")[0] === g).map(x => `<label class="card row" style="gap:10px;align-items:flex-start"><input type="checkbox" class="tsbchk" value="${tsbId(x.key)}" ${sel.includes(tsbId(x.key)) ? "checked" : ""}><span><span class="dua" style="font-size:16px">${esc(x.t)}</span><div class="src">${x.n ? "×" + AR(x.n) : "بلا عدد محدّد"}${x.g.includes(":") ? " — " + esc(x.g.split(":")[1].trim()) : ""}</div></span></label>`).join("")}</div></details>`).join("")}
     <button class="btn" id="tsbSave2" style="width:100%;margin-top:8px">ابدأ التسبيح</button>`;
   }
   return `<div class="row" style="justify-content:space-between;align-items:center"><span class="mid">${AR(chosen.length)} من التسابيح لليوم</span><button class="btn sec sm" id="tsbEdit">تعديل الاختيار</button></div>
   ${chosen.map(x => `<div class="card"><div class="mid" style="font-size:12px">${esc(x.g)}</div><div class="dua">${esc(x.t)}</div>${tasbih(x.key, x.n)}${x.s ? `<div class="src"><span class="tag h">سنة</span> ${esc(x.s)}</div>` : ""}${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("")}`;
 }
 function tsbLearnView() {
-  const subs = [["times", "أوقات التسبيح في القرآن"], ["asma", "أسماء الله الحسنى"], ["fadl", "التسابيح وفضلها"]];
+  const subs = [["times", "أوقات التسبيح في القرآن"], ["quran", "تسبيح الأنبياء والملائكة"], ["asma", "أسماء الله الحسنى"], ["fadl", "التسابيح وفضلها"]];
   let body = "";
   if (TSB.learn === "times") body = TASBIH_TIMES.map(x => `<div class="card"><h3>${esc(x.title)}</h3><div class="dua">${esc(x.ayah)}</div><div class="src"><span class="tag q">قرآن</span> ${esc(x.ref)}</div><p><b>الوقت:</b> ${esc(x.when)}</p><p class="dua">${esc(x.what)}</p><div class="src">${esc(x.s)}</div></div>`).join("");
+  else if (TSB.learn === "quran") body = `<div class="note">الآيات كما في المصحف بأرقامها؛ والصيغة تُعرض فقط حيث نصّت الآية على لفظها، وما لم تذكره الآية لا نضيفه.</div>` + QURAN_TASBIH.map(gr => `<h3>${esc(gr.g)}</h3>${gr.items.map(x => `<div class="card"><b>${esc(x.who)}</b>${x.refs.map(r => qAyah(...r)).filter(Boolean).map(a => `<div class="dua">${esc(a.t)}</div><div class="src"><span class="tag q">قرآن</span> ${esc(a.ref)}</div>`).join("")}${x.say ? `<p><b>الصيغة:</b> <span class="dua">${esc(x.say)}</span></p>` : ""}${x.note ? `<p class="mid">${esc(x.note)}</p>` : ""}</div>`).join("")}`).join("");
   else if (TSB.learn === "asma") body = namesView();
   else body = IB_TASABIH.map(x => `<div class="card"><div class="dua">${esc(x.t)}</div><div class="src"><span class="tag h">سنة</span> ${esc(x.s || "")}</div>${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("");
   return `<div class="chips">${subs.map(x => `<button class="chip ${TSB.learn === x[0] ? "on" : ""}" data-tsbl="${x[0]}">${x[1]}</button>`).join("")}</div>${body}`;
@@ -2006,7 +2009,7 @@ const SUM = {
     const pl = Q.plan, pages = pl.log[d] || 0;
     let dh = 0, dgoal = 0;
     const sel = tsbSel();
-    tsbPool().forEach(x => { const id = tsbId(x.key); if (!sel.includes(id)) return; dgoal += x.n; dh += Math.min(x.n, DB.get("cnt_" + id + "_" + d, 0)); });
+    tsbPool().forEach(x => { const id = tsbId(x.key); if (!sel.includes(id)) return; const g = x.n || 1; dgoal += g; dh += Math.min(g, DB.get("cnt_" + id + "_" + d, 0)); });
     const fasts = fastDB()[d];
     const opt = DB.get("adhkarOpt", []);
     const sched = [...IB_SABAH, ...IB_MASA, ...(opt.includes("salah") ? IB_SALAH : []), ...(opt.includes("nawm") ? IB_NAWM : []), ...(opt.includes("wake") ? IB_WAKE : [])];

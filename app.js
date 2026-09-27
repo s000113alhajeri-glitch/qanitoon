@@ -5,7 +5,20 @@ const DB = {
   get(k, d) { try { const v = localStorage.getItem("zh_" + k); return v === null ? d : JSON.parse(v); } catch (e) { return d; } },
   set(k, v) { try { localStorage.setItem("zh_" + k, JSON.stringify(v)); } catch (e) { } }
 };
-const today = () => new Date().toISOString().slice(0, 10);
+const ymd = d => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+const today = () => ymd(new Date());
+const hashId = s => "t" + Math.abs([...s].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
+/* معرّف عدّاد: القسم + النص، حتى لا يشترك ذكر واحد بين أقسام مختلفة */
+const cntId = (key, ns) => hashId(ns ? ns + "|" + key : key);
+/* أذكار بعد الصلاة تُحسب لكل صلاة على حدة */
+function salahSlot() {
+  try {
+    const t = PRAY.times(), h = new Date().getHours() + new Date().getMinutes() / 60;
+    let k = "isha";
+    for (const p of ["fajr", "dhuhr", "asr", "maghrib", "isha"]) if (t[p] !== null && t[p] <= h) k = p;
+    return "salah_" + k;
+  } catch (e) { return "salah"; }
+}
 const AR = n => String(n);
 const ARI = n => String(n).replace(/\d/g, d => "٠١٢٣٤٥٦٧٨٩"[d]);
 const el = (h) => { const t = document.createElement("template"); t.innerHTML = h.trim(); return t.content.firstElementChild; };
@@ -375,8 +388,9 @@ function riteSwitch(hajj) {
 function bindRiteSwitch(v) { v.querySelectorAll("[data-rite]").forEach(b => b.onclick = () => go(b.dataset.rite)); }
 function renderIntro(v, hajj, S) {
   v.innerHTML = `${riteSwitch(hajj)}${hajj ? HAJJ_INTRO : UMRAH_INTRO}
-  <div style="height:70px"></div><div class="stepbar sticky"><button class="btn" id="startRite">ابدأ ${hajj ? "الحج" : "العمرة"} ←</button></div>`;
+  <div style="height:70px"></div><div class="stepbar sticky"><button class="btn sec" id="riteClose">✕ إغلاق</button><button class="btn" id="startRite">ابدأ ${hajj ? "الحج" : "العمرة"} ←</button></div>`;
   v.querySelector("#startRite").onclick = () => { S.intro = false; renderUmrah(); window.scrollTo(0, 0); };
+  v.querySelector("#riteClose").onclick = () => { go("home"); window.scrollTo(0, 0); };
   bindRiteSwitch(v);
 }
 
@@ -431,7 +445,8 @@ function renderUmrah() {
 
   const N = STAGES.length, last = i === N - 1;
   v.innerHTML = `${riteSwitch(hajj)}
-  <div class="card">
+  <div class="card" style="position:relative">
+    <button class="xhide" id="riteClose" title="إغلاق" aria-label="إغلاق">✕</button>
     <div class="mid">${hajj ? "مناسك الحج" : "مناسك العمرة"} — الخطوة ${AR(i + 1)} من ${AR(N)}</div>
     <h3 style="font-size:22px;text-align:center">${ico(st.icon)} ${esc(st.t)}</h3>
     <div class="steps">${STAGES.map((x, k) => `<button class="stp ${k === i ? "on" : k < i ? "done" : ""}" data-go="${k}" title="${esc(x.t)}">${AR(k + 1)}</button>`).join("")}</div>
@@ -464,6 +479,7 @@ function renderUmrah() {
     enter(i + 1);
   };
   v.querySelector("#riteInfo").onclick = () => { S.intro = true; renderUmrah(); window.scrollTo(0, 0); };
+  v.querySelector("#riteClose").onclick = () => { go("home"); window.scrollTo(0, 0); };
   bindRiteSwitch(v);
   v.querySelector("#prev").onclick = () => { if (i > 0) { S.stage = i - 1; S.pre = false; renderUmrah(); window.scrollTo(0, 0); } };
   v.querySelectorAll("[data-go]").forEach(b => b.onclick = () => { const k = +b.dataset.go; if (k === i) return; if (k < i) { S.stage = k; S.pre = false; renderUmrah(); window.scrollTo(0, 0); } else enter(k); });
@@ -792,8 +808,54 @@ function openPicker(kind, sh, opts = {}) {
 const Q = {
   get page() { return DB.get("qpage", 1); }, set page(v) { DB.set("qpage", Math.max(1, Math.min(604, v))); },
   get marks() { return DB.get("qmarks", []); }, set marks(v) { DB.set("qmarks", v); },
-  get plan() { return DB.get("qplan", { pages: 4, log: {} }); }, set plan(v) { DB.set("qplan", v); }
+  get plan() { return DB.get("qplan", { pages: 4, log: {} }); }, set plan(v) { DB.set("qplan", v); },
+  /* موضع الورد مستقل عن صفحة التصفح: فتح سورة أخرى لا يغيّره */
+  get pos() { const pl = this.plan; return pl.pos || this.page; }, set pos(v) { const pl = this.plan; pl.pos = Math.max(1, Math.min(604, v)); this.plan = pl; }
 };
+/* أول وآخر آية في صفحة: {s: السورة, a: رقم الآية, t: نصها} */
+function pageEdge(p, last) {
+  const refs = QURAN.pages[String(Math.max(1, Math.min(604, p)))] || [];
+  if (!refs.length) return null;
+  const [si, ai] = refs[last ? refs.length - 1 : 0];
+  const s = QURAN.surahs[si - 1];
+  return { s: s.name, a: ai, t: s.a[ai - 1][0] };
+}
+function wirdRange() {
+  const pl = Q.plan, from = Q.pos, to = Math.min(604, from + pl.pages - 1);
+  const read = pl.log[today()] || 0;
+  return { from, to, read, pages: pl.pages, start: pageEdge(from), end: pageEdge(to, true), next: Math.min(604, from + Math.min(read, pl.pages - 1)) };
+}
+function wirdCard() {
+  const w = wirdRange(), plan = Q.plan;
+  const doneDays = Object.keys(plan.log).length, done = w.read >= w.pages;
+  const first = w.start ? w.start.t : "";
+  return `<div class="card" style="border:1px solid var(--gold2)">
+    <h3>${ico("quran")} ${done ? "الورد القادم" : "الورد الحالي"}</h3>
+    ${first ? `<div class="qpage ayah" style="padding:10px 12px;font-size:var(--f5);line-height:2.2">${esc(first)} <span class="n">${ARI(w.start.a)}</span></div>` : ""}
+    <div class="count" style="justify-content:space-between"><span>من: سورة ${esc(w.start ? w.start.s : "")} — آية ${AR(w.start ? w.start.a : 1)} — ص ${AR(w.from)}</span></div>
+    <div class="count" style="justify-content:space-between"><span>إلى: سورة ${esc(w.end ? w.end.s : "")} — آية ${AR(w.end ? w.end.a : 1)} — ص ${AR(w.to)}</span></div>
+    <p class="mid">${done ? "تمّ ورد اليوم — بارك الله فيك" : `قرأت اليوم ${AR(w.read)} من ${AR(w.pages)} صفحات`}</p>
+    <div class="bar"><i style="width:${Math.min(100, (w.read / w.pages) * 100)}%"></i></div>
+    <div class="row" style="margin-top:10px">
+      <button class="btn" id="wGo">${w.read ? "تابع قراءة الورد" : "ابدأ قراءة الورد"} ←</button>
+      <button class="btn sec" id="wDone" ${done ? "disabled" : ""}>أتممت القراءة ✓</button>
+    </div>
+  </div>
+  <div class="card">
+    <h3>الختمة</h3>
+    <div class="bar"><i style="width:${Math.min(100, (w.from / 604) * 100)}%"></i></div>
+    <p class="mid">وصلت إلى صفحة ${AR(w.from)} من ٦٠٤ — ${AR(Math.round((w.from / 604) * 100))}٪ · أيام الالتزام: ${AR(doneDays)} · بقي ${AR(Math.ceil((605 - w.from) / w.pages))} يوماً</p>
+    <details>
+      <summary>إعدادات الورد</summary>
+      <label>عدد الصفحات يومياً</label>
+      <input type="number" id="qpp" value="${plan.pages}" min="1" max="60">
+      <label>ابدأ الورد من سورة</label>
+      <select id="wSurah">${QURAN.surahs.map(s => `<option value="${s.page}" ${s.page <= w.from && (QURAN.surahs[s.n] ? QURAN.surahs[s.n].page > w.from : true) ? "selected" : ""}>${AR(s.n)}. ${esc(s.name)}</option>`).join("")}</select>
+      <label>أو من صفحة</label>
+      <input type="number" id="wPage" value="${w.from}" min="1" max="604">
+    </details>
+  </div>`;
+}
 function surahOfPage(p) {
   const list = QURAN.pages[String(p)] || [];
   const ids = [...new Set(list.map(x => x[0]))];
@@ -836,6 +898,7 @@ function renderQuran() {
       <button class="btn sec sm" id="qmark">${ribbon(marks.includes(p))} ${marks.includes(p) ? "إزالة علامة المصحف" : "ضع علامة المصحف هنا"}</button>
       <button class="btn sec sm" id="qdone">قرأت هذه الصفحة اليوم</button>
     </div>
+    ${(() => { const w = wirdRange(); return p < w.from || p > w.to ? `<div class="row"><button class="btn sec sm" id="qBackWird">↩ العودة إلى الورد (ص ${AR(w.next)} — ${esc(surahOfPage(w.next).split(" — ")[0])})</button></div>` : ""; })()}
     ${marks.length ? `<div class="card"><h3>علامات المصحف</h3><div class="grid">${marks.map(m => `<button data-go="${m}">${ribbon(true)} صفحة ${AR(m)} — ${esc(surahOfPage(m).split(" — ")[0])}</button>`).join("")}</div></div>` : ""}
     <div class="src">النص: الرسم العثماني من مشروع تنزيل (Tanzil.net) — 114 سورة، 6236 آية، 604 صفحات. عند أي اشتباه في ضبط كلمة فالمرجع مصحف المدينة المطبوع.</div>
   </div>
@@ -846,16 +909,8 @@ function renderQuran() {
     <p class="mid">البحث بالكلمة أو الموضوع في القرآن: من باب التدبّر ← بحث في القرآن.</p>
   </div>
   <div id="qkhatmah" class="hidden">
-    <div class="card"><h3>وردي اليومي من القرآن</h3>
-      <label>عدد الصفحات يومياً</label>
-      <input type="number" id="qpp" value="${plan.pages}" min="1" max="60">
-      <p>الختمة في ${AR(Math.ceil(604 / plan.pages))} يوماً — قرأت اليوم ${AR(todayPages)} من ${AR(plan.pages)} صفحات${todayPages >= plan.pages ? " — تمّ ورد اليوم" : ""}.</p>
-      <div class="bar"><i style="width:${Math.min(100, (todayPages / plan.pages) * 100)}%"></i></div>
-      <p class="mid">أيام الالتزام: ${AR(doneDays)} · وصلت إلى صفحة ${AR(p)} — ${AR(Math.round((p / 604) * 100))}٪ من الختمة</p>
-      <div class="bar"><i style="width:${Math.min(100, (p / 604) * 100)}%"></i></div>
-      <button class="btn" id="qtoday">اقرأ ورد اليوم</button>
-    </div>
-    ${p >= 604 ? `<div class="card"><h3>دعاء ختم القرآن</h3>
+    ${wirdCard()}
+    ${Q.pos >= 604 && todayPages >= plan.pages ? `<div class="card"><h3>دعاء ختم القرآن</h3>
       <p class="mid">أتممت الختمة — تقبّل الله منك.</p>
       <div class="note">لم يثبت عن النبي ﷺ دعاء مخصوص لختم القرآن، وهذا الدعاء المشهور من أدعية السلف والقرّاء، يُدعى به كدعاء مباح لا سنةً منسوبة.</div>
       <div class="dua">${esc(IB_KHATM.replace(/\s*\*\s*/g, "\n"))}</div>
@@ -912,9 +967,19 @@ function renderQuran() {
   document.getElementById("qprev").onclick = () => { Q.page = p - 1; renderQuran(); window.scrollTo(0, 0); };
   document.getElementById("qnext").onclick = () => { Q.page = p + 1; renderQuran(); window.scrollTo(0, 0); };
   document.getElementById("qmark").onclick = () => { const m = Q.marks; Q.marks = m.includes(p) ? m.filter(x => x !== p) : [...m, p].sort((a, b) => a - b); renderQuran(); };
-  document.getElementById("qdone").onclick = () => { const pl = Q.plan; pl.log[today()] = (pl.log[today()] || 0) + 1; Q.plan = pl; Q.page = p + 1; renderQuran(); SUM.render(); if (pl.log[today()] === pl.pages) { notify("تمّ ورد اليوم", "بارك الله فيك", "rite"); wirdSheet("after"); } };
+  const logPages = n => {
+    const pl = Q.plan, w = wirdRange(), before = pl.log[today()] || 0;
+    pl.log[today()] = Math.min(w.pages, before + n); Q.plan = pl;
+    if (before < w.pages && pl.log[today()] >= w.pages) { Q.pos = w.to + 1; notify("تمّ ورد اليوم", "بارك الله فيك", "rite"); wirdSheet("after"); }
+    SUM.render();
+  };
+  document.getElementById("qdone").onclick = () => { const w = wirdRange(); if (p >= w.from && p <= w.to) logPages(1); Q.page = p + 1; renderQuran(); window.scrollTo(0, 0); };
+  const bw = document.getElementById("qBackWird"); if (bw) bw.onclick = () => { Q.page = wirdRange().next; renderQuran(); window.scrollTo(0, 0); };
   document.getElementById("qpp").onchange = e => { const pl = Q.plan; pl.pages = Math.max(1, +e.target.value || 1); Q.plan = pl; renderQuran(); show("khatmah"); };
-  document.getElementById("qtoday").onclick = () => wirdSheet("before", () => { show("read"); window.scrollTo(0, 0); });
+  document.getElementById("wSurah").onchange = e => { Q.pos = +e.target.value; const pl = Q.plan; pl.log[today()] = 0; Q.plan = pl; renderQuran(); show("khatmah"); };
+  document.getElementById("wPage").onchange = e => { Q.pos = +e.target.value || 1; const pl = Q.plan; pl.log[today()] = 0; Q.plan = pl; renderQuran(); show("khatmah"); };
+  document.getElementById("wGo").onclick = () => { const w = wirdRange(); Q.page = w.read >= w.pages ? w.from : w.next; const open = () => { renderQuran(); show("read"); window.scrollTo(0, 0); }; if (w.read) open(); else wirdSheet("before", open); };
+  document.getElementById("wDone").onclick = () => { const w = wirdRange(); logPages(w.pages - w.read); renderQuran(); show("khatmah"); };
   const goPage = n => { Q.page = n; renderQuran(); window.scrollTo(0, 0); };
   v.querySelectorAll("[data-go]").forEach(b => b.onclick = () => goPage(+b.dataset.go));
   const qgo = document.getElementById("qgo");
@@ -955,7 +1020,8 @@ function bindQuranSearch(v) {
 }
 
 /* ============ الأذكار والأدعية ============ */
-function item(x) {
+function item(x, ns) {
+  if (typeof ns !== "string") ns = "";
   const src = x.s || "";
   const cls = x.tag === "ق" ? "q" : x.tag === "م" ? "m" : x.tag === "س" ? "h"
     : /^[﴿"]|^(اللّهُ لاَ إِلَهَ|قُلْ |آمَنَ الرَّسُولُ)/.test(x.t) ? "q"
@@ -964,14 +1030,14 @@ function item(x) {
   const tag = cls === "q" ? "قرآن" : cls === "m" ? "دعاء مباح" : "سنة";
   return `<div class="card">
     <div class="dua">${esc(x.t)}</div>
-    ${x.info ? `<div class="note">حديث للتذكّر والعمل — ليس ذكراً يُعدّ.</div>` : tasbih(x.t, x.n || 1)}
+    ${x.info ? `<div class="note">حديث للتذكّر والعمل — ليس ذكراً يُعدّ.</div>` : tasbih(x.t, x.n || 1, ns)}
     ${x.note ? `<div class="note">${esc(x.note)}</div>` : ""}
     <div class="src"><span class="tag ${cls}">${tag}</span> المصدر: ${esc(src)}${x.when ? " — " + esc(x.when) : ""}</div>
     ${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}
   </div>`;
 }
-function tasbih(key, n) {
-  const id = "t" + Math.abs([...key].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7));
+function tasbih(key, n, ns) {
+  const id = cntId(key, ns);
   const c = DB.get("cnt_" + id + "_" + today(), 0);
   return `<div class="count" id="box_${id}"><button class="cbtn" data-cnt="${id}" data-n="${n}" data-d="-1">−</button>
     <div class="bar" style="flex:1"><i style="width:${n ? Math.min(100, (c / n) * 100) : (c ? 100 : 0)}%"></i></div>
@@ -1050,11 +1116,11 @@ function bindNames(v) {
   v.querySelectorAll("[data-nmt]").forEach(b => b.onclick = () => { NM.tab = b.dataset.nmt; DB.set("nm_tab", NM.tab); renderTadabbur("asma"); });
 }
 const ADHKAR_TABS = [
-  { k: "sabah", t: "أذكار الصباح", r: () => `<div class="note">وقتها من بعد الفجر إلى طلوع الشمس، ومن فاته فلا حرج أن يقولها إلى الزوال. الترتيب على حصن المسلم.</div>` + IB_SABAH.map(item).join("") },
-  { k: "masa", t: "أذكار المساء", r: () => `<div class="note">وقتها من بعد العصر إلى غروب الشمس، ويمتد إلى نصف الليل لمن فاته.</div>` + IB_MASA.map(item).join("") },
-  { k: "salah", t: "بعد كل صلاة", r: () => IB_SALAH.map(item).join("") },
-  { k: "nawm", t: "أذكار النوم", r: () => IB_NAWM.map(item).join("") },
-  { k: "wake", t: "الاستيقاظ من النوم", r: () => IB_WAKE.map(item).join("") }
+  { k: "sabah", t: "أذكار الصباح", r: () => `<div class="note">وقتها من بعد الفجر إلى طلوع الشمس، ومن فاته فلا حرج أن يقولها إلى الزوال. الترتيب على حصن المسلم.</div>` + IB_SABAH.map(x => item(x, "sabah")).join("") },
+  { k: "masa", t: "أذكار المساء", r: () => `<div class="note">وقتها من بعد العصر إلى غروب الشمس، ويمتد إلى نصف الليل لمن فاته.</div>` + IB_MASA.map(x => item(x, "masa")).join("") },
+  { k: "salah", t: "بعد كل صلاة", r: () => `<div class="note">العدّاد مستقل لكل صلاة ويعود للصفر مع دخول وقت الصلاة التالية.</div>` + IB_SALAH.map(x => item(x, salahSlot())).join("") },
+  { k: "nawm", t: "أذكار النوم", r: () => IB_NAWM.map(x => item(x, "nawm")).join("") },
+  { k: "wake", t: "الاستيقاظ من النوم", r: () => IB_WAKE.map(x => item(x, "wake")).join("") }
 ];
 /* مكتبة الأدعية كاملة داخل «اسألني» */
 function libAllView() {
@@ -1089,17 +1155,25 @@ function tsbPool() {
   return p.filter(x => { const id = tsbId(x.key); if (seen.has(id)) return false; seen.add(id); return true; });
 }
 const tsbSel = () => DB.get("tsb_today", []);
+const JUMUA_SALAT = (DUA_TIMES.find(x => x.id === "jumua") || {}).fixed || [];
+function fridaySalatCard() {
+  if (new Date().getDay() !== 5 || !JUMUA_SALAT.length) return "";
+  const i = JUMUA_SALAT[0];
+  return `<div class="card" style="border:1px solid var(--gold2)"><h3>${ico("beads")} اليوم الجمعة — أكثري من الصلاة على النبي ﷺ</h3>
+    <div class="dua">${esc(i.t)}</div>${tasbih("jad_jumua" + i.t, i.n)}
+    <div class="src"><span class="tag h">سنة</span> ${esc(i.s)}</div></div>`;
+}
 function tsbTodayView() {
   const pool = tsbPool(), sel = tsbSel();
   const chosen = pool.filter(x => sel.includes(tsbId(x.key)));
   if (!chosen.length || TSB.edit) {
     const groups = [...new Set(pool.map(x => x.g.split(":")[0]))];
-    return `<div class="note">اختر ما تسبّح به اليوم، ثم اضغط «ابدأ التسبيح» ليظهر لكل ذكر عدّاده هنا، ويُحسب مجموعه في «التسبيح اليوم» بالرئيسية.</div>
+    return `${fridaySalatCard()}<div class="note">اختر ما تسبّح به اليوم، ثم اضغط «ابدأ التسبيح» ليظهر لكل ذكر عدّاده هنا، ويُحسب مجموعه في «التسبيح اليوم» بالرئيسية.</div>
     <button class="btn" id="tsbSave" style="width:100%;margin-bottom:8px">ابدأ التسبيح (<span id="tsbN">${AR(sel.length)}</span> مختار)</button>
     ${groups.map(g => `<details ${g === "تسابيح مأثورة" ? "open" : ""}><summary>${esc(g)}</summary><div>${pool.filter(x => x.g.split(":")[0] === g).map(x => `<label class="card row" style="gap:10px;align-items:flex-start"><input type="checkbox" class="tsbchk" value="${tsbId(x.key)}" ${sel.includes(tsbId(x.key)) ? "checked" : ""}><span><span class="dua" style="font-size:16px">${esc(x.t)}</span><div class="src">${x.n ? "×" + AR(x.n) : "بلا عدد محدّد"}${x.g.includes(":") ? " — " + esc(x.g.split(":")[1].trim()) : ""}</div></span></label>`).join("")}</div></details>`).join("")}
     <button class="btn" id="tsbSave2" style="width:100%;margin-top:8px">ابدأ التسبيح</button>`;
   }
-  return `<div class="row" style="justify-content:space-between;align-items:center"><span class="mid">${AR(chosen.length)} من التسابيح لليوم</span><button class="btn sec sm" id="tsbEdit">تعديل الاختيار</button></div>
+  return `${fridaySalatCard()}<div class="row" style="justify-content:space-between;align-items:center"><span class="mid">${AR(chosen.length)} من التسابيح لليوم</span><button class="btn sec sm" id="tsbEdit">تعديل الاختيار</button></div>
   ${chosen.map(x => `<div class="card"><div class="mid" style="font-size:12px">${esc(x.g)}</div><div class="dua">${esc(x.t)}</div>${tasbih(x.key, x.n)}${x.s ? `<div class="src"><span class="tag h">سنة</span> ${esc(x.s)}</div>` : ""}${x.f ? `<div class="src fadl">الفضل: ${esc(x.f)}</div>` : ""}</div>`).join("")}`;
 }
 function tsbLearnView() {
@@ -1191,13 +1265,17 @@ const JAD = {
   opts() { return DB.get("jadwal", { on: {}, manual: {}, fasting: {} }); },
   set(o) { DB.set("jadwal", Object.assign(this.opts(), o)); },
   isOn(id) { return true; },
-  ctx(d) { d = d || new Date(); return { hj: toHijri(d, DB.get("hoff", 0)), dow: d.getDay(), fasting: !!this.opts().fasting[d.toISOString().slice(0, 10)] }; },
+  ctx(d) { d = d || new Date(); return { hj: toHijri(d, DB.get("hoff", 0)), dow: d.getDay(), fasting: !!this.opts().fasting[ymd(d)] }; },
   active() {
     const t = PRAY.times(), c = this.ctx(), o = this.opts();
+    const h = nowH();
     return DUA_TIMES.filter(x => {
       if (x.manual) return !!o.manual[x.id];
       if (x.always) return false;
-      return x.win && x.win(t, c);
+      const w = x.win && x.win(t, c);
+      if (!w) return false;
+      /* النافذة قد تتجاوز منتصف الليل (حتى الفجر + 24) */
+      return (h >= w[0] && h <= w[1]) || (h + 24 >= w[0] && h + 24 <= w[1]);
     });
   }
 };
@@ -1227,7 +1305,7 @@ function jadTimeCard(x, open) {
 }
 function jadwalView() {
   const act = JAD.active();
-  const d = new Date().toISOString().slice(0, 10);
+  const d = today();
   const c = JAD.ctx(), o = JAD.opts();
   const fasting = !!o.fasting[d];
   const ramadan = c.hj.m === 9, showAll = !!JAD.showAll;
@@ -1260,7 +1338,7 @@ function bindJadwal(v) {
     const o = JAD.opts().on; o[id] = on; JAD.set({ on: o }); rerender();
   });
   v.querySelectorAll("[data-jman]").forEach(b => b.onclick = () => { const m = JAD.opts().manual; m[b.dataset.jman] = !m[b.dataset.jman]; JAD.set({ manual: m }); rerender(); });
-  const jf = v.querySelector("#jfast"); if (jf) jf.onclick = () => { const f = JAD.opts().fasting, d = new Date().toISOString().slice(0, 10); f[d] = !f[d]; JAD.set({ fasting: f }); rerender(); };
+  const jf = v.querySelector("#jfast"); if (jf) jf.onclick = () => { const f = JAD.opts().fasting, d = today(); f[d] = !f[d]; JAD.set({ fasting: f }); rerender(); };
   const jn = v.querySelector("#jnotif"); if (jn) jn.onclick = async () => { if ("Notification" in window) { try { await Notification.requestPermission(); } catch (e) { } } rerender(); };
   v.querySelectorAll("[data-pick]").forEach(b => b.onclick = () => openPicker("jad", b.dataset.sh, { filter: x => !x.timed, done: rerender, title: (DUA_TIMES.find(x => x.id === b.dataset.sh) || {}).t }));
   v.querySelectorAll("[data-jdel]").forEach(b => b.onclick = () => { setPicks("jad", b.dataset.jdel, jadPicks(b.dataset.jdel).filter(i => i !== b.dataset.id)); rerender(); });
@@ -1324,8 +1402,12 @@ function renderAsk(id, box) {
     bindCounters(v);
     return;
   }
-  const m = SITUATIONS.find(x => x.id === id); if (!m) return renderAsk(undefined, v);
+  const ids = Array.isArray(id) ? id : [id];
+  const ms = ids.map(i => SITUATIONS.find(x => x.id === i)).filter(Boolean); if (!ms.length) return renderAsk(undefined, v);
+  const merge = k => { const seen = new Set(); return ms.flatMap(s => s[k] || []).filter(x => { const n = norm(x.t).slice(0, 60); if (seen.has(n)) return false; seen.add(n); return true; }); };
+  const m = { label: ms.map(s => s.label).join(" ، "), link: ms.some(s => s.link), quran: merge("quran"), sunnah: merge("sunnah"), mubah: merge("mubah") };
   const tabs = [["quran", "من القرآن", m.quran], ["sunnah", "من السنة الصحيحة", m.sunnah], ["mubah", "دعاء مباح", m.mubah]].filter(t => t[2] && t[2].length);
+  if (!tabs.length) return renderAsk(undefined, v);
   if (!tabs.some(t => t[0] === ASK.tab)) ASK.tab = tabs[0][0];
   const cur = tabs.find(t => t[0] === ASK.tab);
   const tagOf = { quran: "ق", sunnah: "س", mubah: "م" }[ASK.tab];
@@ -1750,9 +1832,20 @@ const LIFE = {
 
 /* ============ أوقات الصلاة: حساب محلي + تنبيه + نداء ============ */
 const PRAY = {
-  opts() { return DB.get("pray", { method: "makkah", asr: "shafii", on: true, adjust: {} }); },
+  opts() { return DB.get("pray", { method: "auto", asr: "shafii", on: true, adjust: {} }); },
   set(o) { DB.set("pray", Object.assign(this.opts(), o)); },
-  times(d) { const p = SKY.pos(); return prayerTimes(d || new Date(), p.lat, p.lng, this.opts()); },
+  /* الطريقة التلقائية من موقع الجهاز أو منطقة توقيته */
+  autoMethod() {
+    const p = SKY.pos();
+    if (p.lat >= 22 && p.lat <= 26.6 && p.lng >= 51 && p.lng <= 56.6) return "uae";
+    if (p.lat >= 16 && p.lat <= 32.5 && p.lng >= 34.5 && p.lng <= 55.7) return "makkah";
+    if (p.lat >= 22 && p.lat <= 31.8 && p.lng >= 24.7 && p.lng <= 37) return "egypt";
+    if (p.lng < -30) return "isna";
+    if (p.lat >= 23 && p.lat <= 37.5 && p.lng >= 60.5 && p.lng <= 77.5) return "karachi";
+    return "mwl";
+  },
+  method() { const m = this.opts().method; return (!m || m === "auto" || !this.opts().methodUser) ? this.autoMethod() : m; },
+  times(d) { const p = SKY.pos(); return prayerTimes(d || new Date(), p.lat, p.lng, Object.assign({}, this.opts(), { method: this.method() })); },
   next(d) {
     const now = d || new Date(), h = now.getHours() + now.getMinutes() / 60 + now.getSeconds() / 3600;
     const t = this.times(now), order = ["fajr", "sunrise", "dhuhr", "asr", "maghrib", "isha"];
@@ -1922,7 +2015,7 @@ function renderSettings() {
     ${NOTIF_CATS.map(c => `<div class="count"><span>${c.t}</span><button class="btn sm ${NOTIF.on(c.id) ? "" : "sec"}" data-nt="${c.id}">${NOTIF.on(c.id) ? "مفعّل" : "متوقف"}</button></div>`).join("")}
     <div class="note">تعمل التنبيهات داخل التطبيق دائماً؛ وعلى الجهاز عند السماح بها. تنبيهات الطقس والطوارئ تظهر وحدها عند وقوعها بموقعك.</div></details></div>
   <div class="card"><h3>الصلاة</h3>
-    <label>طريقة الحساب</label><select id="pm">${Object.entries(PRAYER_METHODS).map(([id, m]) => `<option value="${id}" ${o.method === id ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select>
+    <label>طريقة الحساب</label><select id="pm"><option value="auto" ${!o.methodUser ? "selected" : ""}>تلقائي حسب الموقع (${esc(PRAYER_METHODS[PRAY.autoMethod()].name)})</option>${Object.entries(PRAYER_METHODS).map(([id, m]) => `<option value="${id}" ${o.methodUser && o.method === id ? "selected" : ""}>${esc(m.name)}</option>`).join("")}</select>
     <label>العصر</label><select id="pa"><option value="shafii" ${o.asr === "shafii" ? "selected" : ""}>الجمهور</option><option value="hanafi" ${o.asr === "hanafi" ? "selected" : ""}>الحنفية</option></select>
     <div class="note">مفتاح تنبيه الصلاة في قسم «التنبيهات» أعلاه.</div></div>
   <div class="card"><h3>الخصوصية وإخلاء المسؤولية</h3>
@@ -1944,7 +2037,7 @@ function renderSettings() {
     else { DB.set("loc", true); GPS.start(); SKY.locate(true); }
     renderSettings();
   };
-  q("pm").onchange = e => { PRAY.set({ method: e.target.value }); PRAY.strip(); schedulePrayerNotifications(); };
+  q("pm").onchange = e => { PRAY.set({ method: e.target.value, methodUser: e.target.value !== "auto" }); PRAY.strip(); schedulePrayerNotifications(); };
   q("pa").onchange = e => { PRAY.set({ asr: e.target.value }); schedulePrayerNotifications(); };
   q("ntPerm").onclick = async () => { if ("Notification" in window) { try { await Notification.requestPermission(); } catch (e) { } } renderSettings(); };
   const ntd = v.querySelector(".ntd"); if (ntd) ntd.ontoggle = () => DB.set("ntOpen", ntd.open);
@@ -2012,9 +2105,9 @@ const SUM = {
     tsbPool().forEach(x => { const id = tsbId(x.key); if (!sel.includes(id)) return; const g = x.n || 1; dgoal += g; dh += Math.min(g, DB.get("cnt_" + id + "_" + d, 0)); });
     const fasts = fastDB()[d];
     const opt = DB.get("adhkarOpt", []);
-    const sched = [...IB_SABAH, ...IB_MASA, ...(opt.includes("salah") ? IB_SALAH : []), ...(opt.includes("nawm") ? IB_NAWM : []), ...(opt.includes("wake") ? IB_WAKE : [])];
+    const sched = [[IB_SABAH, "sabah"], [IB_MASA, "masa"], [opt.includes("salah") ? IB_SALAH : [], salahSlot()], [opt.includes("nawm") ? IB_NAWM : [], "nawm"], [opt.includes("wake") ? IB_WAKE : [], "wake"]];
     let sd = 0, st = 0; const seenId = new Set();
-    sched.forEach(x => { if (x.info) return; const id = "t" + Math.abs([...x.t].reduce((a, c) => (a * 31 + c.charCodeAt(0)) | 0, 7)); if (seenId.has(id)) return; seenId.add(id); st++; if (DB.get("cnt_" + id + "_" + d, 0) >= (x.n || 1)) sd++; });
+    sched.forEach(([list, ns]) => list.forEach(x => { if (x.info) return; const id = cntId(x.t, ns); if (seenId.has(id)) return; seenId.add(id); st++; if (DB.get("cnt_" + id + "_" + d, 0) >= (x.n || 1)) sd++; }));
     return { pages, target: pl.pages, dh, dgoal, sd, st, streak: DB.get("streak", 0), fast: fasts };
   },
   render() {
@@ -2066,7 +2159,14 @@ const SUM = {
   tick() {
     const p = SKY.pos(), qb = qiblaBearing(p.lat, p.lng);
     const ar = document.getElementById("qarrow"), st = document.getElementById("qstat");
-    if (ar) ar.style.transform = `rotate(${(qb - this.heading + 360) % 360}deg)`;
+    if (ar) {
+      const target = (qb - this.heading + 360) % 360;
+      const prev = this.rot === undefined ? target : this.rot;
+      const d = ((target - prev + 540) % 360) - 180;
+      this.rot = prev + d;
+      ar.style.transition = "transform .25s ease-out";
+      ar.style.transform = `rotate(${this.rot}deg)`;
+    }
     if (st) st.textContent = this.status(qb);
   },
   async compass() {
@@ -2086,8 +2186,11 @@ const SUM = {
         else if (e.type === "deviceorientationabsolute" && e.alpha !== null) h = (360 - e.alpha) % 360;
         if (h === null) return;
         if (e.webkitCompassHeading === undefined && screen.orientation && screen.orientation.angle) h = (h + screen.orientation.angle) % 360;
-        this.heading = h; got = true;
-        const now = Date.now(); if (now - last < 120) return; last = now;
+        /* تنعيم دائري حتى لا يقفز المؤشر بين ٣٥٩ و٠ */
+        if (this.heading === undefined || this.heading === null || !got) this.heading = h;
+        else { const d = ((h - this.heading + 540) % 360) - 180; this.heading = (this.heading + d * 0.18 + 360) % 360; }
+        got = true;
+        const now = Date.now(); if (now - last < 200) return; last = now;
         this.tick();
       };
       if ("ondeviceorientationabsolute" in window) addEventListener("deviceorientationabsolute", on, true);
@@ -2120,10 +2223,10 @@ function fridayCard() {
 const HOME_ITEMS = [
   { id: "umrah", t: () => "العمرة — الخطوة الحالية", ic: "kaaba", p: () => [S.stage, STAGES.length - 1], v: () => esc(STAGES[Math.min(S.stage, STAGES.length - 1)].t), go: "umrah" },
   { id: "hajj", t: () => "الحج — الخطوة الحالية", ic: "hajj", p: () => [H.stage, HAJJ_STAGES.length - 1], v: () => esc(HAJJ_STAGES[Math.min(H.stage, HAJJ_STAGES.length - 1)].t), go: "hajj" },
-  { id: "quran", t: () => "الورد اليومي", ic: "quran", p: g => [g.pages, g.target], v: g => `صفحة ${AR(Q.page)} · الورد اليوم ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
+  { id: "quran", t: () => "الورد اليومي", ic: "quran", p: g => [g.pages, g.target], v: g => `ص ${AR(Q.pos)} ${esc(surahOfPage(Q.pos).split(" — ")[0])} · ${AR(g.pages)} من ${AR(g.target)}`, go: "quran" },
   { id: "adhkar", t: () => "الأذكار", ic: "beads", p: g => [g.sd, g.st], v: g => `${AR(g.sd)} من ${AR(g.st)} منجزة`, go: "adhkar" },
   { id: "tasbih", t: () => "التسبيح اليوم", ic: "beads", p: g => g.dgoal ? [g.dh, g.dgoal] : null, v: g => g.dgoal ? `${AR(g.dh)} من ${AR(g.dgoal)}` : "اختر", go: "tadabbur" },
-  { id: "jadwal", t: () => "هدي النبي ﷺ في الدعاء", ic: "clock", p: () => [DUA_TIMES.filter(x => JAD.isOn(x.id)).length, DUA_TIMES.length], v: () => { const a = JAD.active(); const on = DUA_TIMES.filter(x => JAD.isOn(x.id)).length; return (a.length ? "الآن: " + esc(a[0].t) + " · " : "") + `${AR(on)} أوقات مفعّلة`; }, go: "tadabbur" },
+  { id: "jadwal", t: () => "هدي النبي ﷺ في الدعاء", ic: "clock", p: () => { let done = 0, tot = 0; JAD.active().forEach(x => (x.fixed || []).forEach(i => { if (!(i.n > 1)) return; tot++; if (DB.get("cnt_" + cntId("jad_" + x.id + i.t) + "_" + today(), 0) >= i.n) done++; })); return tot ? [done, tot] : null; }, v: () => { const a = JAD.active(); return a.length ? "الآن: " + esc(a[0].t) : "لا وقت مخصوص الآن"; }, go: "tadabbur" },
   { id: "ramadan", t: () => "الصيام والقضاء", ic: "moon", p: () => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return [Math.min(u, m), m]; }, v: g => { const m = DB.get("missed", 0), u = DB.get("madeup", 0); return (g.fast ? "صائمة اليوم (" + (g.fast === "qada" ? "قضاء" : g.fast === "nadhr" ? "نذر" : "نافلة") + ") · " : "") + `باقي القضاء ${AR(Math.max(0, m - u))}`; }, go: "ramadan" },
 ];
 const HOME = { fixed: ["quran", "adhkar", "tasbih"], def: ["umrah", "jadwal"], list() { return [...this.fixed, ...DB.get("homeItems", this.def).filter(i => !this.fixed.includes(i) && i !== "rite" && i !== "ask")]; }, set(l) { DB.set("homeItems", l.filter(i => !this.fixed.includes(i))); } };
@@ -2149,9 +2252,9 @@ function renderHome() {
   v.querySelectorAll("[data-hdel]").forEach(b => b.onclick = e => { e.stopPropagation(); HOME.set(HOME.list().filter(i => i !== b.dataset.hdel)); renderHome(); });
   v.querySelectorAll("[data-hadd]").forEach(b => b.onclick = () => { HOME.set([...HOME.list(), b.dataset.hadd]); renderHome(); });
   v.querySelectorAll("[data-hgo]").forEach(b => b.onclick = () => { if (b.dataset.hgo === "ask") { go("tadabbur"); renderTadabbur("ask"); } else if (b.dataset.hgo === "ramadan") { go("time"); renderTime("days"); } else go(b.dataset.hgo); });
-  const openAsk = (q, ids) => { go("tadabbur"); renderTadabbur("ask"); if (ids && ids.length) { ASK.q = ids.map(i => (SITUATIONS.find(x => x.id === i) || {}).label || "").join(" ، "); if (ids.length === 1) renderAsk(ids[0]); else renderAsk(); } else { ASK.q = q || ""; const h = askMatch(ASK.q).hits; if (h.length) renderAsk(h[0].id); else renderAsk(); } };
+  const openAsk = (q, ids) => { go("tadabbur"); renderTadabbur("ask"); if (ids && ids.length) { ASK.q = ids.map(i => (SITUATIONS.find(x => x.id === i) || {}).label || "").join(" ، "); renderAsk(ids); } else { ASK.q = q || ""; const h = askMatch(ASK.q).hits; if (h.length) renderAsk(h[0].id); else renderAsk(); } };
   const ha = v.querySelector("#homeAsk"), hg = v.querySelector("#homeAskGo");
-  if (hg) hg.onclick = () => { const ids = [...v.querySelectorAll(".hchk:checked")].map(c => c.value); const q = ha.value.trim(); if (!ids.length && !q) return; openAsk(q, q ? [] : ids); if (q && ids.length) { ASK.q = q + " ، " + ids.map(i => SITUATIONS.find(x => x.id === i).label).join(" ، "); renderAsk(); } };
+  if (hg) hg.onclick = () => { const ids = [...v.querySelectorAll(".hchk:checked")].map(c => c.value); const q = ha.value.trim(); if (!ids.length && !q) return; const all = [...new Set([...ids, ...(q ? askMatch(q).hits.slice(0, 3).map(h => h.id) : [])])]; if (all.length) openAsk("", all); else openAsk(q, []); };
   if (ha) ha.onkeydown = e => { if (e.key === "Enter") hg.click(); };
   const hm = v.querySelector("#homeMore"); if (hm) hm.onclick = () => { const op = v.querySelector("#homeSug").classList.toggle("list"); v.querySelectorAll("#homeSug .more").forEach(x => x.classList.toggle("hidden", !op)); hm.textContent = op ? "أقل ▴" : "المزيد ▾"; };
   const k = document.getElementById("goKahf");

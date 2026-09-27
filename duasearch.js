@@ -113,12 +113,16 @@ const DS = (() => {
     const T = [...ex];
     const qtags = new Set((opt.tags || []).concat(nq ? tagsOf(q) : []));
     const out = [];
+    if (!T.length && !qtags.size && !opt.tag) return { hits: [], total: 0, qtags: [] };
     DOCS.forEach(d => {
       const e = DUADB[d.i];
       if (opt.tag && !e.tags.includes(opt.tag)) return;
-      let s = T.length ? bm25(d, T) * (qtags.size ? 0.5 : 0.7) : 0;
-      if (nq && d.nt.includes(nq)) s += 6;
+      const bm = T.length ? bm25(d, T) : 0;
+      let s = bm * (qtags.size ? 0.5 : 0.7);
+      const phrase = nq && d.nt.includes(nq);
+      if (phrase) s += 6;
       let tagHit = 0; e.tags.forEach(t => { if (qtags.has(t)) tagHit++; });
+      if (!bm && !phrase && !tagHit && !(opt.tag && !nq)) return;
       /* السؤال عن حالة/وقت: الوسم يتقدّم على تطابق الكلمات، ثم الأشهر (أكثر طرقاً) والمرفوع للنبي ﷺ */
       s += tagHit * (qtags.size ? 5 : 0);
       if (opt.tag && !nq) s += 1;

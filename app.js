@@ -1124,12 +1124,40 @@ const ADHKAR_TABS = [
 ];
 /* مكتبة الأدعية كاملة داخل «اسألني» */
 function libAllView() {
+  if (ASK.lf === "ح") return hadithLibView();
   const f = ASK.lf ? (x => x.k === ASK.lf) : (x => x.k !== "د");
   const seen = new Set();
   const list = libSearch(ASK.lq, f).filter(x => { const n = norm(x.t).slice(0, 60); if (seen.has(n)) return false; seen.add(n); return true; });
   const shown = list.slice(0, 60);
+  let extra = "";
+  if (ASK.lq && !ASK.lf && typeof DS !== "undefined") {
+    const keys = new Set(list.map(x => DS.key(x.t)));
+    const hits = DS.search(ASK.lq, { limit: 40 }).hits.filter(h => !keys.has(DS.key(h.e.t))).slice(0, 15);
+    if (hits.length) extra = `<h3 style="margin:14px 4px 6px">من كتب الحديث (${AR(hits.length)})</h3>${hadithNotice()}${hits.map(h => hdCard(h.e)).join("")}`;
+  }
   return `<p class="mid">${AR(list.length)} دعاء${list.length > shown.length ? " — تظهر أول " + AR(shown.length) + "، ضيّق البحث" : ""}</p>
-  ${shown.map(x => item(Object.assign({}, x, { tag: x.k === "ق" ? "ق" : x.k === "م" ? "م" : "س" }))).join("")}`;
+  ${shown.map(x => item(Object.assign({}, x, { tag: x.k === "ق" ? "ق" : x.k === "م" ? "م" : "س" }))).join("")}${extra}`;
+}
+/* قاعدة كتب الحديث (DUADB): استرجاع فقط مع المصدر — لا تأليف */
+const hadithNotice = () => `<div class="note">النصوص كما في الكتب الستة وموطأ مالك، مستخرَجة آلياً بلا تعديل؛ الدرجة كما حكم بها المُخرِّج المذكور (البخاري ومسلم بلا حكم لصحتهما). راجع «نص الحديث» لمعرفة السياق والقائل، وما وُسم «أثر» أو «ورد في الحديث» ليس مرفوعاً للنبي ﷺ بالضرورة.</div>`;
+function hdCard(e) {
+  const refs = e.refs.map(r => `<span class="tag ${/صحيح/.test(r.g) ? "s" : "h"}">${esc(r.b)} ${esc(r.n)}${r.g ? " · " + esc(r.g) : ""}${r.gr ? " (" + esc(r.gr) + ")" : ""}</span>`).join(" ");
+  const whoCls = e.who === "النبي ﷺ" ? "s" : e.who.startsWith("ورد") ? "h" : "d";
+  return `<div class="card"><div class="dua">${esc(e.t)}</div>
+    ${e.v ? `<details><summary class="mid">لفظ آخر في رواية أخرى</summary><div class="dua" style="font-size:.95em">${esc(e.v)}</div></details>` : ""}
+    <div class="src"><span class="tag ${whoCls}">${esc(e.who)}</span> ${refs}</div>
+    ${e.tags.length ? `<div class="chips">${e.tags.map(t => `<button class="chip sm ${t === ASK.ltag ? "on" : ""}" data-ltag="${t}">${esc(DS.TAGN[t] || t)}</button>`).join("")}</div>` : ""}
+    <details><summary class="mid">نص الحديث</summary><p class="mid" style="line-height:1.9">${esc(e.h)}</p></details>
+  </div>`;
+}
+function hadithLibView() {
+  if (typeof DS === "undefined") return `<p class="mid">القاعدة غير محمّلة.</p>`;
+  const r = DS.search(ASK.lq, { tag: ASK.ltag, limit: 50 });
+  const chips = `<div class="chips"><button class="chip sm ${ASK.ltag ? "" : "on"}" data-ltag="">كل الأوقات والأحوال</button>${DUADB_TAGS.map(t => `<button class="chip sm ${t.k === ASK.ltag ? "on" : ""}" data-ltag="${t.k}">${esc(t.n)}</button>`).join("")}</div>`;
+  const hits = (ASK.lq || ASK.ltag) ? r.hits : [];
+  return `${hadithNotice()}${chips}
+  <p class="mid">${AR(DUADB.length)} دعاءً وذكراً في القاعدة${(ASK.lq || ASK.ltag) ? " — " + AR(r.total) + " نتيجة" + (r.total > hits.length ? "، تظهر أول " + AR(hits.length) : "") : "، اكتبي حالتك أو اختاري وقتاً"}${r.qtags.length && ASK.lq ? ` · فُهم من سؤالك: ${r.qtags.map(t => esc(DS.TAGN[t] || t)).join("، ")}` : ""}</p>
+  ${hits.map(h => hdCard(h.e)).join("")}`;
 }
 const DUA_LIBRARY = [
   { k: "nabawi", t: "الأدعية النبوية", r: () => duaNotice() + `<div class="note">كل دعاء مع حديثه ومصدره ودرجته: <span class="tag s">صحيح</span> <span class="tag h">حسن</span> <span class="tag d">فيه خلاف / ضعيف</span>. ما ضُعّف يُدعى بمعناه بلا نسبةٍ جازمة للنبي ﷺ.</div>` + PROPHETIC_DUAS.map(c => `<details><summary>${esc(c.title)} (${AR(c.items.length)})</summary><div>${c.items.map(pitem).join("")}</div></details>`).join("") },
@@ -1365,7 +1393,7 @@ setInterval(() => {
 }, 30000);
 
 /* ============ اسألني ============ */
-const ASK = { q: "", tab: DB.get("ask_tab", "quran"), lib: DB.get("ask_lib", ""), lq: DB.get("ask_lq", ""), lf: DB.get("ask_lf", "") };
+const ASK = { q: "", tab: DB.get("ask_tab", "quran"), lib: DB.get("ask_lib", ""), lq: DB.get("ask_lq", ""), lf: DB.get("ask_lf", ""), ltag: "" };
 function askMatch(text) {
   const n = norm(text);
   if (!n.trim()) return { crisis: false, hits: [] };
@@ -1428,11 +1456,12 @@ function renderLib(box) {
   v.innerHTML = `${duaNotice(true)}
   <h3 style="margin:10px 4px 6px">كل الأدعية</h3>
   <input id="libq" placeholder="ابحث بالمعنى: الرزق، الهمّ، الوالدين…" value="${esc(ASK.lq)}" style="width:100%;padding:12px;border-radius:12px;border:1px solid var(--line);font:inherit;background:var(--bg2);color:var(--txt)">
-  <div class="chips">${[["", "الكل"], ["ق", "قرآن"], ["س", "سنة صحيحة"], ["م", "مباح"]].map(f => `<button class="chip ${ASK.lf === f[0] ? "on" : ""}" data-lf="${f[0]}">${f[1]}</button>`).join("")}</div>
+  <div class="chips">${[["", "الكل"], ["ق", "قرآن"], ["س", "سنة صحيحة"], ["م", "مباح"], ["ح", "كتب الحديث"]].map(f => `<button class="chip ${ASK.lf === f[0] ? "on" : ""}" data-lf="${f[0]}">${f[1]}</button>`).join("")}</div>
   <div id="asklib">${libAllView()}</div>`;
   const lq = v.querySelector("#libq");
   let tm2; lq.oninput = () => { ASK.lq = lq.value; DB.set("ask_lq", ASK.lq); clearTimeout(tm2); tm2 = setTimeout(() => { const a = v.querySelector("#asklib"); a.innerHTML = libAllView(); bindCounters(a); }, 300); };
   v.querySelectorAll("[data-lf]").forEach(b => b.onclick = () => { ASK.lf = b.dataset.lf; DB.set("ask_lf", ASK.lf); renderLib(v); });
+  v.addEventListener("click", ev => { const b = ev.target.closest("[data-ltag]"); if (!b) return; ASK.ltag = b.dataset.ltag === ASK.ltag ? "" : b.dataset.ltag; ASK.lf = "ح"; DB.set("ask_lf", "ح"); renderLib(v); });
   v.querySelectorAll("[data-lib]").forEach(b => b.onclick = () => { ASK.lib = ASK.lib === b.dataset.lib ? "" : b.dataset.lib; DB.set("ask_lib", ASK.lib); renderLib(v); });
   v.querySelectorAll("[data-arw]").forEach(b => b.onclick = () => { DB.set("arafah_who", b.dataset.arw); renderLib(v); });
   bindCounters(v);

@@ -123,7 +123,10 @@ def dua_spans(text):
             if DUA_START.match(core) or (mk and not BAD.search(core[:40])):
                 if not DUA_START.match(core) and mk: lead += len(mk.group(1))
                 end = a + len(sp.rstrip(" .،,"))
-                cut = re.search(r"\s(?:فقال|قال|قالت|فقالت|ثم قال)\s(?:النبي|رسول الله|له|لها|لي|أبو|ابن|عمر|عائشة)", core[max(0, lead - a):])
+                cut = re.search(r"\s(?:فقال|قال|قالت|فقالت|ثم قال)\s(?:النبي|رسول الله|له|لها|لي|أبو|ابن|عمر|عائشة)"
+                                r"|\s-\s(?:ثلاث|ثلاثا|مرتين|سبع)[^-]{0,12}-\s"
+                                r"|\s(?:ثلاث مرات|ثلاثا|مرتين|سبع مرات)\s+(?:إنه|ألا|إن|أيها|يا|فإذا|ثم|فإن|ألم|أما|إنما|إني|إنك)\b"
+                                r"|\s(?:ألا وإني|إنه لم يبق|فإذا ركعتم|فإذا سجدتم|أيها الناس|يا أيها الناس|فإن العبد|فإنه من|ثم التفت|ثم أقبل|ثم انصرف|فمن قال|من قال ذلك|فمن قالها)\b", core[max(0, lead - a):])
                 if cut and cut.start() > 15: end = lead + cut.start()
                 spans.append((lead, end))
     if not spans:

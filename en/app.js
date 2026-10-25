@@ -809,7 +809,7 @@ function renderQuran() {
     const s = QURAN.surahs[si - 1];
     if (si !== lastS) {
       lastS = si;
-      if (ai === 1) html += `<div style="text-align:center;border:1px solid #8a6d22;border-radius:10px;margin:8px 0;padding:6px;color:#8a6d22">سُورَةُ ${esc(s.name)}</div>`;
+      if (ai === 1) html += `<div style="text-align:center;border:1px solid #8a6d22;border-radius:10px;margin:8px 0;padding:6px;color:#8a6d22">سُورَةُ ${esc(s.name)}</div>` + (s.b ? `<div style="text-align:center;margin:4px 0 10px">${esc(s.b)}</div>` : "");
       else html += `<div style="text-align:center;color:#8a6d22;font-size:13px">— ${esc(s.name)} —</div>`;
     }
     const ay = s.a[ai - 1];
@@ -840,7 +840,7 @@ function renderQuran() {
       <button class="btn sec sm" id="qdone">قرأت هذه الصفحة اليوم</button>
     </div>
     ${marks.length ? `<div class="card"><h3>علامات المصحف</h3><div class="grid">${marks.map(m => `<button data-go="${m}">${ribbon(true)} صفحة ${AR(m)} — ${esc(surahOfPage(m).split(" — ")[0])}</button>`).join("")}</div></div>` : ""}
-    <div class="src">النص: الرسم العثماني من مشروع تنزيل (Tanzil.net) — 114 سورة، 6236 آية، 604 صفحات. عند أي اشتباه في ضبط كلمة فالمرجع مصحف المدينة المطبوع.</div>
+    <div class="src">النص: الرسم العثماني من مشروع تنزيل (Tanzil.net، الإصدار 1.1) — 114 سورة، 6236 آية، 604 صفحات. عند أي اشتباه في ضبط كلمة فالمرجع مصحف المدينة المطبوع.</div>
   </div>
   <div id="qsurahs" class="hidden">
     <input id="qgo" placeholder="اكتب اسم السورة… مثال: الكهف" autocomplete="off">
